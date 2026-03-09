@@ -330,7 +330,7 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     <div class="brand-icon">⚽</div>
     <div>
       <div class="brand-name">Bet<em>Analytics</em> Pro</div>
-      <div class="brand-sub">POISSON · MULTI-STRAT · 70 LIGI</div>
+      <div class="brand-sub">POISSON · MULTI-STRAT · 63 LIGI</div>
     </div>
   </div>
   <div class="topbar-r">
@@ -383,6 +383,12 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
       <span id="sb-src">Apasă ANALIZEAZĂ pentru a porni</span>
     </div>
     <div class="sb-right">Ora: <b id="sb-time">—</b></div>
+  </div>
+
+  <!-- Credits bar -->
+  <div id="credits-bar" style="display:none;align-items:center;padding:7px 13px;
+    background:var(--panel2);border:1px solid var(--brd2);border-radius:10px;
+    margin-bottom:8px;gap:8px">
   </div>
 
   <div class="prog-wrap" id="prog-wrap">
@@ -451,7 +457,14 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
   <div class="modal">
     <div class="modal-head">⚙️ Setări <button class="modal-x" onclick="closeModal()">✕</button></div>
     <div class="mbox key-box">
-      <div class="mbox-head">🔑 API Key</div>
+      <div class="mbox-head" style="display:flex;align-items:center;justify-content:space-between">
+        🔑 API Key
+        <button onclick="checkCreditsNow()" style="font-size:11px;font-weight:700;
+          background:rgba(59,130,246,.1);color:var(--acc);border:1px solid rgba(59,130,246,.3);
+          border-radius:7px;padding:4px 10px;cursor:pointer">
+          🔄 Verifică credite
+        </button>
+      </div>
       <div class="eye-wrap">
         <input class="field" type="password" id="m-key" placeholder="Introduceți cheia nouă...">
         <button class="eye-btn" onclick="toggleEye()">👁</button>
@@ -507,83 +520,78 @@ function getKey(){ return ls.get('ba_key')||'' }
 // SPORTS LIST (43 ligi)
 // ────────────────────────────────────────────
 const SPORTS=[
-  // ── UEFA ──
-  {key:'soccer_uefa_champs_league',             n:'Champions League',      f:'🏆',t:0},
-  {key:'soccer_uefa_europa_league',             n:'Europa League',         f:'🏆',t:0},
-  {key:'soccer_uefa_europa_conference_league',  n:'Conference League',     f:'🏆',t:0},
-  // ── TOP 5 LIGI EUROPENE ──
-  {key:'soccer_epl',                            n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
-  {key:'soccer_spain_la_liga',                  n:'La Liga',               f:'🇪🇸',t:1},
-  {key:'soccer_germany_bundesliga',             n:'Bundesliga',            f:'🇩🇪',t:1},
-  {key:'soccer_italy_serie_a',                  n:'Serie A',               f:'🇮🇹',t:1},
-  {key:'soccer_france_ligue_one',               n:'Ligue 1',               f:'🇫🇷',t:1},
-  // ── EUROPA ──
-  {key:'soccer_portugal_primeira_liga',         n:'Primeira Liga',         f:'🇵🇹',t:1},
-  {key:'soccer_netherlands_eredivisie',         n:'Eredivisie',            f:'🇳🇱',t:1},
-  {key:'soccer_turkey_super_league',            n:'Süper Lig',             f:'🇹🇷',t:1},
-  {key:'soccer_belgium_first_div',              n:'Pro League BE',         f:'🇧🇪',t:1},
-  {key:'soccer_russia_premier_league',          n:'Premier Liga RU',       f:'🇷🇺',t:1},
-  {key:'soccer_scotland_premiership',           n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
-  {key:'soccer_greece_super_league',            n:'Super League GR',       f:'🇬🇷',t:1},
-  {key:'soccer_romania_1',                      n:'Superliga RO',          f:'🇷🇴',t:1},
-  {key:'soccer_austria_football_bundesliga',    n:'Bundesliga AT',         f:'🇦🇹',t:1},
-  {key:'soccer_switzerland_superleague',        n:'Super League CH',       f:'🇨🇭',t:1},
-  {key:'soccer_denmark_superliga',              n:'Superliga DK',          f:'🇩🇰',t:1},
-  {key:'soccer_sweden_allsvenskan',             n:'Allsvenskan',           f:'🇸🇪',t:1},
-  {key:'soccer_norway_eliteserien',             n:'Eliteserien',           f:'🇳🇴',t:1},
-  {key:'soccer_czech_liga',                     n:'1. Liga CZ',            f:'🇨🇿',t:1},
-  {key:'soccer_poland_ekstraklasa',             n:'Ekstraklasa',           f:'🇵🇱',t:1},
-  {key:'soccer_croatia_hnl',                    n:'HNL',                   f:'🇭🇷',t:1},
-  {key:'soccer_ukraine_premier_league',         n:'Premier Liha UA',       f:'🇺🇦',t:1},
-  {key:'soccer_serbia_superliga',               n:'SuperLiga RS',          f:'🇷🇸',t:1},
-  {key:'soccer_hungary_nb_i',                   n:'OTP Liga HU',           f:'🇭🇺',t:1},
-  {key:'soccer_slovakia_super_liga',            n:'Niké Liga SK',          f:'🇸🇰',t:1},
-  {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',       f:'🇧🇬',t:1},
-  {key:'soccer_finland_veikkausliiga',          n:'Veikkausliiga FI',      f:'🇫🇮',t:1},
-  {key:'soccer_israel_premier_league',          n:'Premier League IL',     f:'🇮🇱',t:1},
-  {key:'soccer_cyprus_1_liga',                  n:'1. Liga CY',            f:'🇨🇾',t:1},
+  // ── UEFA COMPETIȚII ──
+  {key:'soccer_uefa_champs_league',              n:'Champions League',      f:'🏆',t:0},
+  {key:'soccer_uefa_europa_league',              n:'Europa League',         f:'🏆',t:0},
+  {key:'soccer_uefa_europa_conference_league',   n:'Conference League',     f:'🏆',t:0},
+  // ── TOP 5 EUROPENE ──
+  {key:'soccer_epl',                             n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
+  {key:'soccer_spain_la_liga',                   n:'La Liga',               f:'🇪🇸',t:1},
+  {key:'soccer_germany_bundesliga',              n:'Bundesliga',            f:'🇩🇪',t:1},
+  {key:'soccer_italy_serie_a',                   n:'Serie A',               f:'🇮🇹',t:1},
+  {key:'soccer_france_ligue_one',                n:'Ligue 1',               f:'🇫🇷',t:1},
+  // ── EUROPA DIV 1 ──
+  {key:'soccer_portugal_primeira_liga',          n:'Primeira Liga PT',      f:'🇵🇹',t:1},
+  {key:'soccer_netherlands_eredivisie',          n:'Eredivisie NL',         f:'🇳🇱',t:1},
+  {key:'soccer_turkey_super_league',             n:'Süper Lig TR',          f:'🇹🇷',t:1},
+  {key:'soccer_belgium_first_div',               n:'Pro League BE',         f:'🇧🇪',t:1},
+  {key:'soccer_scotland_premiership',            n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
+  {key:'soccer_greece_super_league',             n:'Super League GR',       f:'🇬🇷',t:1},
+  {key:'soccer_romania_1',                       n:'Superliga RO',          f:'🇷🇴',t:1},
+  {key:'soccer_austria_football_bundesliga',     n:'Bundesliga AT',         f:'🇦🇹',t:1},
+  {key:'soccer_switzerland_superleague',         n:'Super League CH',       f:'🇨🇭',t:1},
+  {key:'soccer_denmark_superliga',               n:'Superliga DK',          f:'🇩🇰',t:1},
+  {key:'soccer_sweden_allsvenskan',              n:'Allsvenskan SE',        f:'🇸🇪',t:1},
+  {key:'soccer_norway_eliteserien',              n:'Eliteserien NO',        f:'🇳🇴',t:1},
+  {key:'soccer_czech_liga',                      n:'1. Liga CZ',            f:'🇨🇿',t:1},
+  {key:'soccer_poland_ekstraklasa',              n:'Ekstraklasa PL',        f:'🇵🇱',t:1},
+  {key:'soccer_croatia_hnl',                     n:'HNL HR',                f:'🇭🇷',t:1},
+  {key:'soccer_ukraine_premier_league',          n:'Premier Liha UA',       f:'🇺🇦',t:1},
+  {key:'soccer_serbia_superliga',                n:'SuperLiga RS',          f:'🇷🇸',t:1},
+  {key:'soccer_hungary_nb_i',                    n:'NB I HU',               f:'🇭🇺',t:1},
+  {key:'soccer_slovakia_super_liga',             n:'Super Liga SK',         f:'🇸🇰',t:1},
+  {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',        f:'🇧🇬',t:1},
+  {key:'soccer_finland_veikkausliiga',            n:'Veikkausliiga FI',     f:'🇫🇮',t:1},
+  {key:'soccer_israel_premier_league',            n:'Premier League IL',    f:'🇮🇱',t:1},
+  {key:'soccer_russia_premier_league',            n:'Premier Liga RU',      f:'🇷🇺',t:1},
   // ── EUROPA DIV 2 ──
-  {key:'soccer_england_league1',                n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_england_league2',                n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_spain_segunda_division',         n:'Segunda División',      f:'🇪🇸',t:2},
-  {key:'soccer_germany_bundesliga2',            n:'2. Bundesliga',         f:'🇩🇪',t:2},
-  {key:'soccer_italy_serie_b',                  n:'Serie B',               f:'🇮🇹',t:2},
-  {key:'soccer_france_ligue_two',               n:'Ligue 2',               f:'🇫🇷',t:2},
-  {key:'soccer_netherlands_eerste_divisie',     n:'Eerste Divisie',        f:'🇳🇱',t:2},
-  {key:'soccer_portugal_segunda_liga',          n:'Liga Portugal 2',       f:'🇵🇹',t:2},
-  {key:'soccer_turkey_1_lig',                   n:'1. Lig TR',             f:'🇹🇷',t:2},
-  {key:'soccer_scotland_championship',          n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
-  {key:'soccer_austria_bundesliga',             n:'2. Liga AT',            f:'🇦🇹',t:2},
-  {key:'soccer_denmark_1st_division',           n:'1. Division DK',        f:'🇩🇰',t:2},
-  // ── AMERICAS (jocuri de noapte RO) ──
-  {key:'soccer_brazil_campeonato',              n:'Brasileirão Série A',   f:'🇧🇷',t:3},
-  {key:'soccer_brazil_serie_b',                 n:'Brasileirão Série B',   f:'🇧🇷',t:3},
-  {key:'soccer_argentina_primera_division',     n:'Argentina Primera',     f:'🇦🇷',t:3},
-  {key:'soccer_argentina_primera_b_nacional',   n:'Argentina Primera B',   f:'🇦🇷',t:3},
-  {key:'soccer_colombia_primera_a',             n:'Liga BetPlay CO',       f:'🇨🇴',t:3},
-  {key:'soccer_chile_campeonato',               n:'Primera División CL',   f:'🇨🇱',t:3},
-  {key:'soccer_ecuador_liga_pro',               n:'LigaPro Serie A EC',    f:'🇪🇨',t:3},
-  {key:'soccer_peru_liga_1',                    n:'Liga 1 PE',             f:'🇵🇪',t:3},
-  {key:'soccer_usa_mls',                        n:'MLS',                   f:'🇺🇸',t:3},
-  {key:'soccer_mexico_ligamx',                  n:'Liga MX',               f:'🇲🇽',t:3},
-  {key:'soccer_mexico_expansion',               n:'Liga Expansion MX',     f:'🇲🇽',t:3},
-  {key:'soccer_costa_rica_primera_division',    n:'Primera División CR',   f:'🇨🇷',t:3},
-  {key:'soccer_venezuela_primera_profesional',  n:'Primera Pro VE',        f:'🇻🇪',t:3},
-  {key:'soccer_uruguay_primera_division',       n:'Primera División UY',   f:'🇺🇾',t:3},
-  {key:'soccer_paraguay_primera_division',      n:'División Prof. PY',     f:'🇵🇾',t:3},
+  {key:'soccer_england_league1',                 n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_england_league2',                 n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_spain_segunda_division',          n:'Segunda División ES',   f:'🇪🇸',t:2},
+  {key:'soccer_germany_bundesliga2',             n:'2. Bundesliga DE',      f:'🇩🇪',t:2},
+  {key:'soccer_italy_serie_b',                   n:'Serie B IT',            f:'🇮🇹',t:2},
+  {key:'soccer_france_ligue_two',                n:'Ligue 2 FR',            f:'🇫🇷',t:2},
+  {key:'soccer_netherlands_eerste_divisie',      n:'Eerste Divisie NL',     f:'🇳🇱',t:2},
+  {key:'soccer_portugal_segunda_liga',           n:'Liga Portugal 2',       f:'🇵🇹',t:2},
+  {key:'soccer_turkey_1_lig',                    n:'1. Lig TR',             f:'🇹🇷',t:2},
+  {key:'soccer_scotland_championship',           n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
+  {key:'soccer_austria_bundesliga',              n:'2. Liga AT',            f:'🇦🇹',t:2},
+  {key:'soccer_denmark_1st_division',            n:'1. Division DK',        f:'🇩🇰',t:2},
+  {key:'soccer_belgium_second_div',              n:'Nationale B BE',        f:'🇧🇪',t:2},
+  // ── AMERICAS ──
+  {key:'soccer_brazil_campeonato',               n:'Brasileirão A BR',      f:'🇧🇷',t:3},
+  {key:'soccer_brazil_serie_b',                  n:'Brasileirão B BR',      f:'🇧🇷',t:3},
+  {key:'soccer_argentina_primera_division',      n:'Primera División AR',   f:'🇦🇷',t:3},
+  {key:'soccer_colombia_primera_a',              n:'Liga BetPlay CO',       f:'🇨🇴',t:3},
+  {key:'soccer_chile_primera_division',          n:'Primera División CL',   f:'🇨🇱',t:3},
+  {key:'soccer_ecuador_primera_a',               n:'LigaPro A EC',          f:'🇪🇨',t:3},
+  {key:'soccer_peru_apertura',                   n:'Liga 1 PE',             f:'🇵🇪',t:3},
+  {key:'soccer_usa_mls',                         n:'MLS',                   f:'🇺🇸',t:3},
+  {key:'soccer_mexico_ligamx',                   n:'Liga MX',               f:'🇲🇽',t:3},
+  {key:'soccer_uruguay_primera_division',        n:'Primera División UY',   f:'🇺🇾',t:3},
+  {key:'soccer_venezuela_primera_profesional',   n:'Primera Pro VE',        f:'🇻🇪',t:3},
+  {key:'soccer_conmebol_copa_libertadores',      n:'Copa Libertadores',     f:'🌎',t:3},
+  {key:'soccer_conmebol_copa_sudamericana',      n:'Copa Sudamericana',     f:'🌎',t:3},
   // ── ASIA / PACIFIC ──
-  {key:'soccer_japan_j_league',                 n:'J1 League JP',          f:'🇯🇵',t:4},
-  {key:'soccer_japan_j_league_2',               n:'J2 League JP',          f:'🇯🇵',t:4},
-  {key:'soccer_korea_k_league1',                n:'K League 1 KR',         f:'🇰🇷',t:4},
-  {key:'soccer_korea_k_league2',                n:'K League 2 KR',         f:'🇰🇷',t:4},
-  {key:'soccer_australia_aleague',              n:'A-League AU',           f:'🇦🇺',t:4},
-  {key:'soccer_china_superleague',              n:'Super League CN',       f:'🇨🇳',t:4},
-  {key:'soccer_thailand_premier_league',        n:'Thai Premier League',   f:'🇹🇭',t:4},
-  {key:'soccer_india_isl',                      n:'ISL India',             f:'🇮🇳',t:4},
-  // ── AFRICA / ORIENTUL MIJLOCIU ──
-  {key:'soccer_saudi_arabia_pro_league',        n:'Pro League SA',         f:'🇸🇦',t:4},
-  {key:'soccer_uae_pro_league',                 n:'UAE Pro League',        f:'🇦🇪',t:4},
-  {key:'soccer_south_africa_premier_division',  n:'DStv Prem. SA',         f:'🇿🇦',t:4},
+  {key:'soccer_japan_j_league',                  n:'J1 League JP',          f:'🇯🇵',t:4},
+  {key:'soccer_korea_k_league1',                 n:'K League 1 KR',         f:'🇰🇷',t:4},
+  {key:'soccer_korea_k_league2',                 n:'K League 2 KR',         f:'🇰🇷',t:4},
+  {key:'soccer_australia_aleague',               n:'A-League AU',           f:'🇦🇺',t:4},
+  {key:'soccer_china_superleague',               n:'Super League CN',       f:'🇨🇳',t:4},
+  {key:'soccer_saudi_arabia_pro_league',         n:'Pro League SA',         f:'🇸🇦',t:4},
+  {key:'soccer_uae_pro_league',                  n:'UAE Pro League',        f:'🇦🇪',t:4},
+  {key:'soccer_india_super_league',              n:'ISL India',             f:'🇮🇳',t:4},
+  {key:'soccer_south_africa_premier_division',   n:'DStv Premiership ZA',   f:'🇿🇦',t:4},
 ];
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1314,7 +1322,9 @@ function switchDay(d){
   document.getElementById('tab-azi').classList.toggle('active', d==='azi');
   document.getElementById('tab-maine').classList.toggle('active', d==='maine');
   document.getElementById('k-day-lbl').textContent = d==='maine'?'mâine':'azi';
-  if(DATA[d].length){ updateUI(); return; }
+  // Dacă avem date (chiar și 0 meciuri după fetch), afișăm
+  // _fetched = flag că am făcut deja fetch complet
+  if(window._fetched || DATA[d].length){ updateUI(); return; }
   doRefresh();
 }
 
@@ -1322,6 +1332,9 @@ function switchDay(d){
 // FETCH — un singur set de request-uri pt ambele zile
 // ────────────────────────────────────────────
 const T=ms=>new Promise((_,rj)=>setTimeout(()=>rj('timeout'),ms));
+// API credits tracker
+let API_CREDITS = {remaining: null, used: null, last: null};
+
 async function tryFetch(url){
   const proxy=[
     [url, 7000],
@@ -1332,14 +1345,58 @@ async function tryFetch(url){
   for(const[u,ms] of proxy){
     try{
       const r=await Promise.race([fetch(u),T(ms)]);
-      if(r&&(r.ok||r.status===401)) return r;
+      if(r&&(r.ok||r.status===401)){
+        // Citim headerele de credite dacă sunt disponibile (direct API, nu proxy)
+        const rem = r.headers.get('x-requests-remaining');
+        const used= r.headers.get('x-requests-used');
+        const last= r.headers.get('x-requests-last');
+        if(rem!==null){
+          API_CREDITS={remaining:+rem, used:+used, last:+last};
+          ls.set('ba_credits', JSON.stringify({...API_CREDITS, ts:Date.now()}));
+          updateCreditsDisplay();
+        }
+        return r;
+      }
     }catch(e){}
   }
   return null;
 }
+
+function updateCreditsDisplay(){
+  const el = document.getElementById('credits-bar');
+  if(!el) return;
+  const {remaining, used} = API_CREDITS;
+  if(remaining===null){
+    // Try loading from cache
+    try{
+      const cc=JSON.parse(ls.get('ba_credits')||'null');
+      if(cc&&cc.remaining!==undefined){
+        API_CREDITS={remaining:cc.remaining,used:cc.used,last:cc.last||0};
+        updateCreditsDisplay();
+      }
+    }catch(e){}
+    return;
+  }
+  const total = remaining + used;
+  const pct = Math.round(remaining/total*100);
+  const clr = remaining>100?'var(--grn)':remaining>30?'var(--yel)':'var(--red)';
+  const emoji = remaining>100?'🟢':remaining>30?'🟡':'🔴';
+  el.style.display='flex';
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;cursor:pointer" onclick="checkCreditsNow()">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">API CREDITE</span>
+      <div style="flex:1;min-width:80px;height:5px;background:var(--brd2);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${clr};border-radius:3px;transition:width .5s"></div>
+      </div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;color:${clr}">${emoji} ${remaining}/${total}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${pct}% disponibil · tap pt refresh</span>
+    </div>`;
+}
 function bucDate(offset=0){
   const d=new Date(Date.now()+offset*86400000);
-  return new Date(d.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
+  // Folosim Intl.DateTimeFormat pentru data corecta in Bucharest
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',
+    year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
 }
 
 async function fetchBothDays(apiKey){
@@ -1352,8 +1409,7 @@ async function fetchBothDays(apiKey){
     setProgress(`${sp.f} ${sp.n}`, Math.round(i/N*100));
 
     const url='https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
-      +'?apiKey='+apiKey+'&regions=eu&markets=h2h,totals&oddsFormat=decimal'
-      +'&bookmakers=pinnacle,betfair,bet365,unibet,williamhill';
+      +'?apiKey='+apiKey+'&regions=eu&markets=h2h,totals&oddsFormat=decimal';
     try{
       const r=await tryFetch(url);
       if(!r) continue;
@@ -1362,7 +1418,10 @@ async function fetchBothDays(apiKey){
       const games=await r.json();
       for(const g of games){
         const dt=new Date(g.commence_time);
-        const gd=new Date(dt.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
+        // Extrage data corect în timezone Bucharest (fără bug-ul double-conversion)
+        const bucParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',
+          year:'numeric',month:'2-digit',day:'2-digit'}).format(dt);
+        const gd=bucParts; // format: YYYY-MM-DD
         if(gd!==dAzi && gd!==dMaine) continue;
         const ora=dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
         const data=dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
@@ -1409,7 +1468,7 @@ function setProgress(txt, pct){
 async function doRefresh(){
   const btn=document.getElementById('btn-go');
   btn.classList.add('busy');
-  showLdr('Analizez AZI + MÂINE', '70 ligi · Europa · Americas · Asia · model Poisson');
+  showLdr('Analizez AZI + MÂINE', '63 ligi · Europa · Americas · Asia · model Poisson');
   const key=getKey();
   if(!key){
     hideLdr(); btn.classList.remove('busy');
@@ -1425,6 +1484,7 @@ async function doRefresh(){
   const mne = (res.matchesMaine||[]).map(m=>analyze(m));
   DATA.azi   = az;
   DATA.maine = mne;
+  window._fetched = true; // Flag: fetch complet, chiar daca 0 meciuri maine
   try{
     ls.set('ba_cache_azi',   JSON.stringify({data:az,  ts:Date.now(), dk:bucDate(0)}));
     ls.set('ba_cache_maine', JSON.stringify({data:mne, ts:Date.now(), dk:bucDate(1)}));
@@ -1470,6 +1530,76 @@ function openModal(){
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(){ document.getElementById('overlay').classList.remove('open') }
+
+async function checkCreditsNow(){
+  const key=getKey();
+  if(!key){ toast('Nicio cheie API salvată!','err'); return; }
+  toast('Se verifică creditele...','inf');
+  
+  // /v4/sports NU consuma credite si returneaza headerele cu remaining
+  const url='https://api.the-odds-api.com/v4/sports?apiKey='+key;
+  // /v4/sports?apiKey=KEY - 0 credite consumate, CORS permis de the-odds-api
+  const proxies=[
+    [url, 8000],  // direct - CORS allowed by the-odds-api
+    ['https://api.allorigins.win/raw?url='+encodeURIComponent(url), 10000],
+    ['https://corsproxy.io/?'+encodeURIComponent(url), 10000],
+  ];
+  
+  let remaining=null, used=null;
+  for(const[u,ms] of proxies){
+    try{
+      const r=await Promise.race([fetch(u),T(ms)]);
+      if(!r) continue;
+      if(r.status===401){ toast('❌ API key invalid!','err'); return; }
+      if(!r.ok) continue;
+      
+      // Try headers first (direct API)
+      const hRem = r.headers.get('x-requests-remaining');
+      const hUsed= r.headers.get('x-requests-used');
+      if(hRem!==null){
+        remaining=+hRem; used=+hUsed;
+        break;
+      }
+      
+      // If proxy — parse response body for usage info
+      // allorigins wraps in {contents, status}
+      let txt = await r.text();
+      try{
+        const j=JSON.parse(txt);
+        // allorigins wraps: {contents: "...", status:{...}}
+        if(j.contents) txt=j.contents;
+        // The /v4/sports endpoint just returns array of sports
+        // but headers should be present through allorigins as x-...
+        // Try alternate: use a known sports key to get headers via allorigins
+      }catch(e){}
+      
+      // allorigins passes through response headers as x-amz-... — won't have our headers
+      // Use the response to at least confirm key is valid
+      remaining = API_CREDITS.remaining; // use cached if available
+      used = API_CREDITS.used;
+      break;
+    }catch(e){}
+  }
+  
+  if(remaining!==null && used!==null){
+    API_CREDITS={remaining,used,last:0};
+    ls.set('ba_credits',JSON.stringify({...API_CREDITS,ts:Date.now()}));
+    updateCreditsDisplay();
+    const total=remaining+used;
+    const pct=Math.round(remaining/total*100);
+    const emoji=remaining>100?'🟢':remaining>30?'🟡':'🔴';
+    toast(`${emoji} ${remaining} credite rămase din ${total} (${pct}%)`,'ok');
+  } else {
+    // Proxy nu transmite headerele — afișăm ultimele cunoscute din cache
+    const cached=JSON.parse(ls.get('ba_credits')||'null');
+    if(cached&&cached.remaining!==undefined){
+      const ago=Math.round((Date.now()-cached.ts)/60000);
+      toast(`📦 Cache: ${cached.remaining} rămase (actualizat acum ${ago} min)`,'inf');
+    } else {
+      toast('ℹ️ Creditele se citesc automat la prima analiză directă','inf');
+    }
+  }
+}
 function saveCfg(){
   const nk=(document.getElementById('m-key').value||'').trim();
   if(nk&&nk.length>=20){
@@ -1526,6 +1656,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO',fmt);
   document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
 
+  // Restore cached credits
+  try{
+    const cc=JSON.parse(ls.get('ba_credits')||'{}');
+    if(cc.remaining!==undefined){
+      API_CREDITS={remaining:cc.remaining,used:cc.used,last:cc.last};
+      updateCreditsDisplay();
+    }
+  }catch(e){}
+
   const key=getKey();
   if(!key){
     document.getElementById('setup').style.display='flex';
@@ -1543,6 +1682,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const okM=cM.ts&&Date.now()-cM.ts<CACHE_TTL&&cM.data?.length&&cM.dk===bucDate(1);
     if(okA&&okM){
       DATA.azi=cA.data; DATA.maine=cM.data;
+      window._fetched = true;
       document.getElementById('sb-dot').className='sb-dot live';
       document.getElementById('sb-src').textContent=`Cache valid · ${cA.data.length} AZI · ${cM.data.length} MÂINE`;
       document.getElementById('sb-time').textContent=new Date(cA.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
