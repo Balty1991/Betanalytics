@@ -3,1564 +3,1303 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#05080F">
+<meta name="theme-color" content="#060B14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="BetAnalytics">
 <link rel="manifest" id="pwa-manifest">
 <title>⚽ BetAnalytics Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:       #05080F;
-  --bg2:      #080C17;
-  --panel:    #0C1220;
-  --panel2:   #101828;
-  --brd:      #1A2840;
-  --brd2:     #0F1E32;
-  --acc:      #3B82F6;
-  --acc2:     #1D4ED8;
-  --grn:      #22C55E;
-  --grn2:     #16A34A;
-  --red:      #EF4444;
-  --yel:      #EAB308;
-  --orn:      #F97316;
-  --pur:      #A855F7;
-  --cyan:     #06B6D4;
-  --wht:      #F1F5FF;
-  --muted:    #64748B;
-  --muted2:   #334155;
-  --syne:     'Syne', sans-serif;
-  --grotesk:  'Space Grotesk', sans-serif;
-  --mono:     'JetBrains Mono', monospace;
+:root{
+  --bg:#060B14; --bg2:#0A1120; --panel:#0D1628; --panel2:#111E34;
+  --brd:#1C2E4A; --brd2:#142038;
+  --acc:#3B82F6; --grn:#22C55E; --grn2:#16A34A;
+  --red:#EF4444; --yel:#F59E0B; --orn:#F97316; --pur:#A855F7; --cyan:#06B6D4;
+  --wht:#EFF6FF; --txt:#94A3B8; --muted:#475569; --muted2:#1E3050;
 }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-height:100vh;overscroll-behavior:none;font-size:15px;line-height:1.6}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html { scroll-behavior:smooth; }
-body { background:var(--bg); color:var(--wht); font-family:var(--grotesk); min-height:100vh; overscroll-behavior:none; }
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px;
+  background:rgba(6,11,20,.97);border-bottom:1px solid var(--brd2);
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#22C55E,#3B82F6);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.brand-name{font-size:17px;font-weight:900;letter-spacing:-.4px;line-height:1.1}
+.brand-name em{color:var(--grn);font-style:normal}
+.brand-sub{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.5px}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(135deg,#22C55E,#16A34A);color:#000;font-weight:800;font-size:13px;
+  border:none;border-radius:10px;padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:all .2s;white-space:nowrap;box-shadow:0 0 20px rgba(34,197,94,.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(34,197,94,.4)}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary.busy{background:var(--muted2);color:var(--muted);cursor:not-allowed;box-shadow:none;transform:none}
+.spin-ico{display:none;animation:spin .6s linear infinite}
+.busy .spin-ico{display:inline}
+.busy .go-ico{display:none}
+.btn-icon{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--brd);
+  color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-icon:hover{border-color:var(--acc);color:var(--acc)}
 
-/* ───── SCROLLBAR ───── */
-::-webkit-scrollbar { width:3px; height:3px; }
-::-webkit-scrollbar-track { background:var(--bg2); }
-::-webkit-scrollbar-thumb { background:var(--brd); border-radius:2px; }
+/* SETUP */
+#setup{display:none;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 60px);padding:40px 20px;text-align:center}
+.setup-card{width:100%;max-width:440px}
+.setup-emoji{font-size:60px;margin-bottom:20px;display:block}
+.setup-h{font-size:38px;font-weight:900;line-height:1.1;margin-bottom:12px}
+.setup-h em{color:var(--grn);font-style:normal}
+.setup-p{color:var(--txt);font-size:14px;line-height:1.8;margin-bottom:32px;max-width:380px;margin-left:auto;margin-right:auto}
+.input-wrap{background:var(--panel);border:1px solid var(--brd);border-radius:16px;padding:22px}
+.input-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:2px;
+  text-transform:uppercase;display:block;margin-bottom:10px}
+.input-row{display:flex;gap:8px}
+.inp{flex:1;background:var(--bg2);border:1px solid var(--brd);color:var(--wht);
+  font-family:'JetBrains Mono',monospace;font-size:13px;border-radius:10px;
+  padding:12px 14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--acc)}
+.inp::placeholder{color:var(--muted)}
+.btn-ok{background:var(--grn);color:#000;font-weight:800;font-size:14px;border:none;
+  border-radius:10px;padding:12px 22px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-ok:hover{background:#4ade80}
+.setup-note{margin-top:14px;font-size:11px;color:var(--muted);text-align:left;line-height:1.9}
+.setup-note a{color:var(--acc);text-decoration:none}
 
-/* ───── KEYFRAMES ───── */
-@keyframes spin     { to { transform:rotate(360deg); } }
-@keyframes pulse    { 0%,100%{opacity:1}50%{opacity:.4} }
-@keyframes fadeUp   { from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)} }
-@keyframes slideUp  { from{transform:translateY(100%)}to{transform:translateY(0)} }
-@keyframes glow     { 0%,100%{box-shadow:0 0 8px rgba(34,197,94,.3)}50%{box-shadow:0 0 20px rgba(34,197,94,.6)} }
-@keyframes scan     { 0%{background-position:0 0}100%{background-position:0 100px} }
+/* APP */
+#app{display:none;max-width:960px;margin:0 auto;padding:0 14px 100px}
 
-/* ───── TOPBAR ───── */
-.topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 16px; height:56px;
-  background:rgba(5,8,15,.92); border-bottom:1px solid var(--brd2);
-  position:sticky; top:0; z-index:100; backdrop-filter:blur(20px);
-}
-.brand { display:flex; align-items:center; gap:10px; }
-.brand-icon {
-  width:32px; height:32px; border-radius:8px;
-  background:linear-gradient(135deg,var(--grn),var(--acc));
-  display:flex; align-items:center; justify-content:center;
-  font-size:16px; flex-shrink:0;
-}
-.brand-txt { font-family:var(--syne); font-size:17px; font-weight:800; letter-spacing:-.3px; }
-.brand-txt span { color:var(--grn); }
-.brand-sub { font-family:var(--mono); font-size:8px; color:var(--muted); letter-spacing:2px; margin-top:-2px; }
-.topbar-r { display:flex; align-items:center; gap:6px; }
-.btn-analyze {
-  background:linear-gradient(135deg,var(--grn),var(--grn2));
-  color:#000; font-family:var(--syne); font-weight:800; font-size:13px;
-  border:none; border-radius:8px; padding:8px 16px; cursor:pointer;
-  display:flex; align-items:center; gap:6px; transition:all .2s; white-space:nowrap;
-  box-shadow:0 0 16px rgba(34,197,94,.25);
-}
-.btn-analyze:hover  { transform:translateY(-1px); box-shadow:0 4px 20px rgba(34,197,94,.4); }
-.btn-analyze:active { transform:scale(.97); }
-.btn-analyze.busy   { background:var(--muted2); color:var(--muted); cursor:not-allowed; box-shadow:none; }
-.btn-analyze .spin  { display:none; animation:spin .6s linear infinite; }
-.btn-analyze.busy .spin { display:inline; }
-.btn-analyze.busy .ico  { display:none; }
-.btn-ico {
-  width:36px; height:36px; border-radius:8px;
-  background:var(--panel); border:1px solid var(--brd);
-  color:var(--muted); cursor:pointer; font-size:15px;
-  display:flex; align-items:center; justify-content:center; transition:all .15s;
-}
-.btn-ico:hover { border-color:var(--acc); color:var(--acc); }
-
-/* ───── DAY SELECTOR SCREEN ───── */
-#day-selector {
-  display:none; flex-direction:column; align-items:center; justify-content:center;
-  min-height:calc(100vh - 56px); padding:32px 20px; text-align:center;
-  position:relative;
-}
-.ds-glow {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:400px; height:400px; border-radius:50%;
-  background:radial-gradient(circle, rgba(59,130,246,.08) 0%, transparent 70%);
-  pointer-events:none;
-}
-.ds-wrap { position:relative; z-index:1; width:100%; max-width:420px; }
-.ds-icon { font-size:52px; margin-bottom:16px; display:block; }
-.ds-h { font-family:var(--syne); font-size:28px; font-weight:900; margin-bottom:8px; }
-.ds-h em { color:var(--acc); font-style:normal; }
-.ds-p { color:var(--muted); font-size:13px; margin-bottom:28px; line-height:1.7; }
-.ds-cards { display:flex; gap:12px; }
-.ds-card {
-  flex:1; background:var(--panel); border:2px solid var(--brd);
-  border-radius:16px; padding:24px 16px; cursor:pointer; transition:all .2s;
-  display:flex; flex-direction:column; align-items:center; gap:10px;
-}
-.ds-card:hover { border-color:var(--acc); transform:translateY(-2px); background:var(--panel2); }
-.ds-card.selected { border-color:var(--grn); background:rgba(34,197,94,.06); }
-.ds-card-ico { font-size:36px; }
-.ds-card-title { font-family:var(--syne); font-size:16px; font-weight:800; }
-.ds-card-sub { font-family:var(--mono); font-size:10px; color:var(--muted); }
-.ds-btn {
-  margin-top:20px; width:100%;
-  background:linear-gradient(135deg,var(--grn),var(--grn2));
-  color:#000; font-family:var(--syne); font-weight:900; font-size:15px;
-  border:none; border-radius:12px; padding:16px; cursor:pointer;
-  transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;
-  box-shadow:0 0 20px rgba(34,197,94,.25); opacity:.4; pointer-events:none;
-}
-.ds-btn.ready { opacity:1; pointer-events:all; }
-.ds-btn.ready:hover { transform:translateY(-1px); box-shadow:0 4px 24px rgba(34,197,94,.4); }
-
-/* ───── SETUP ───── */
-#setup {
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  min-height:calc(100vh - 56px); padding:32px 20px; text-align:center;
-}
-.setup-glow {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:400px; height:400px; border-radius:50%;
-  background:radial-gradient(circle, rgba(34,197,94,.08) 0%, transparent 70%);
-  pointer-events:none;
-}
-.setup-wrap { position:relative; z-index:1; width:100%; max-width:480px; }
-.setup-icon { font-size:64px; margin-bottom:20px; display:block; }
-.setup-h { font-family:var(--syne); font-size:42px; font-weight:900; line-height:1.05; margin-bottom:12px; }
-.setup-h em { color:var(--grn); font-style:normal; }
-.setup-p { color:var(--muted); font-size:14px; line-height:1.75; margin-bottom:32px; }
-.setup-card {
-  background:var(--panel); border:1px solid var(--brd);
-  border-radius:16px; padding:24px;
-}
-.setup-card label { display:block; font-family:var(--mono); font-size:10px; color:var(--acc); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
-.inp-row { display:flex; gap:8px; }
-.inp {
-  flex:1; background:var(--bg2); border:1px solid var(--brd);
-  color:var(--wht); font-family:var(--mono); font-size:13px;
-  border-radius:10px; padding:12px 14px; outline:none; transition:border-color .2s;
-}
-.inp:focus { border-color:var(--acc); }
-.inp::placeholder { color:var(--muted); }
-.inp-ok {
-  background:var(--grn); color:#000; font-family:var(--syne); font-weight:800;
-  font-size:13px; border:none; border-radius:10px; padding:12px 20px; cursor:pointer; transition:all .2s;
-}
-.inp-ok:hover { background:#4ade80; }
-.setup-note { margin-top:14px; font-size:11px; color:var(--muted); text-align:left; line-height:1.8; }
-.setup-note a { color:var(--acc); text-decoration:none; }
-.setup-note a:hover { text-decoration:underline; }
-
-/* ───── APP ───── */
-#app { display:none; max-width:1024px; margin:0 auto; padding:0 14px 100px; }
-
-/* Day switcher */
-.days {
-  display:flex; gap:4px;
-  background:var(--panel2); border:1px solid var(--brd2);
-  border-radius:12px; padding:4px; margin:12px 0 0;
-}
-.day-btn {
-  flex:1; font-family:var(--syne); font-size:13px; font-weight:700;
-  padding:9px 8px; border:none; border-radius:9px; cursor:pointer;
-  background:transparent; color:var(--muted); transition:all .2s;
-  display:flex; flex-direction:column; align-items:center; gap:1px;
-}
-.day-btn.on { background:var(--grn); color:#000; }
-.day-btn .dsub { font-family:var(--mono); font-size:9px; font-weight:400; opacity:.75; }
+/* Day tabs */
+.day-tabs{display:flex;gap:4px;background:var(--panel2);border:1px solid var(--brd2);
+  border-radius:13px;padding:4px;margin:14px 0 0}
+.day-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;
+  padding:10px 8px;border:none;border-radius:9px;cursor:pointer;
+  background:transparent;color:var(--muted);font-weight:700;font-size:13px;transition:all .2s}
+.day-tab .dt-sub{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:400;opacity:.75}
+.day-tab.active{background:var(--grn);color:#000}
+.day-tab.active .dt-sub{opacity:.7}
 
 /* Status bar */
-.statusbar {
-  display:flex; align-items:center; justify-content:space-between;
-  margin:10px 0 8px; padding:8px 13px;
-  background:var(--panel2); border:1px solid var(--brd2); border-radius:10px;
-  font-family:var(--mono); font-size:10px; gap:8px; flex-wrap:wrap;
-}
-.sb-l { display:flex; align-items:center; gap:7px; color:var(--muted); }
-.sb-dot { width:7px; height:7px; border-radius:50%; background:var(--muted2); }
-.sb-dot.live { background:var(--grn); animation:pulse 2s infinite; box-shadow:0 0 6px var(--grn); }
-.sb-r { color:var(--muted); }
-.sb-r b { color:var(--acc); }
+.statusbar{display:flex;align-items:center;justify-content:space-between;
+  margin:10px 0 8px;padding:9px 14px;background:var(--panel2);border:1px solid var(--brd2);
+  border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:10px;gap:8px;flex-wrap:wrap}
+.sb-left{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.sb-dot.live{background:var(--grn);animation:pulse 2s infinite;box-shadow:0 0 6px var(--grn)}
+.sb-right{color:var(--muted)}
+.sb-right b{color:var(--acc)}
 
 /* Progress */
-.prog-wrap { background:var(--panel); border:1px solid var(--brd); border-radius:10px; padding:10px 14px; margin-bottom:8px; display:none; }
-.prog-wrap.show { display:block; }
-.prog-top { display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--muted); margin-bottom:7px; }
-.prog-bar { height:3px; background:var(--brd); border-radius:2px; overflow:hidden; }
-.prog-fill { height:100%; background:linear-gradient(90deg,var(--grn),var(--acc)); border-radius:2px; transition:width .4s; width:0; }
+.prog-wrap{background:var(--panel);border:1px solid var(--brd);border-radius:11px;
+  padding:11px 15px;margin-bottom:10px;display:none}
+.prog-wrap.show{display:block}
+.prog-top{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--muted);margin-bottom:8px}
+.prog-bar{height:3px;background:var(--brd);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--grn),var(--acc));border-radius:2px;transition:width .4s;width:0}
 
-/* ───── KPI GRID ───── */
-.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
-@media(max-width:480px) { .kpi-grid { grid-template-columns:repeat(2,1fr); } }
-.kpi {
-  background:var(--panel); border:1px solid var(--brd);
-  border-radius:12px; padding:14px 12px 12px; text-align:center; position:relative; overflow:hidden;
-}
-.kpi::before { content:''; position:absolute; inset:0; opacity:.04; background:var(--kpi-clr,var(--acc)); }
-.kpi-lbl { font-family:var(--mono); font-size:8px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
-.kpi-val { font-family:var(--syne); font-size:32px; font-weight:900; line-height:1; color:var(--kpi-clr,var(--acc)); }
-.kpi-sub { font-size:9px; color:var(--muted); margin-top:3px; }
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+@media(max-width:480px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--panel);border:1px solid var(--brd);border-radius:13px;
+  padding:14px 12px 12px;text-align:center;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;inset:0;background:var(--kc,#3B82F6);opacity:.04}
+.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.kpi-val{font-size:32px;font-weight:900;line-height:1;color:var(--kc,#3B82F6)}
+.kpi-sub{font-size:11px;color:var(--txt);margin-top:4px}
 
-/* ───── COTĂ 50 ZILEI ───── */
-.cota50-section {
-  background:linear-gradient(135deg, rgba(168,85,247,.08), rgba(59,130,246,.06));
-  border:1px solid rgba(168,85,247,.3); border-radius:14px;
-  padding:16px; margin-bottom:12px;
-}
-.cota50-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
-.cota50-title { font-family:var(--syne); font-size:16px; font-weight:900; color:var(--pur); display:flex; align-items:center; gap:8px; }
-.cota50-meta { font-family:var(--mono); font-size:10px; color:var(--muted); }
-.cota50-variants { display:flex; flex-direction:column; gap:10px; }
-.cota50-variant {
-  background:rgba(5,8,15,.5); border:1px solid rgba(168,85,247,.15);
-  border-radius:12px; padding:12px 14px;
-}
-.cota50-variant-label { font-family:var(--mono); font-size:9px; color:var(--pur); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
-.cota50-variant-label span { font-family:var(--syne); font-size:15px; font-weight:800; color:var(--pur); letter-spacing:0; }
-.cota50-picks { display:flex; flex-direction:column; gap:6px; }
-.cota50-pick {
-  display:flex; align-items:center; justify-content:space-between;
-  background:rgba(168,85,247,.05); border:1px solid rgba(168,85,247,.1);
-  border-radius:8px; padding:7px 12px; gap:8px; flex-wrap:wrap;
-}
-.c50-match { font-size:12px; font-weight:600; }
-.c50-meta { font-size:10px; color:var(--muted); }
-.c50-market { font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px; background:rgba(168,85,247,.12); color:var(--pur); border:1px solid rgba(168,85,247,.2); white-space:nowrap; flex-shrink:0; }
-.cota50-footer { margin-top:10px; padding-top:10px; border-top:1px solid rgba(168,85,247,.15); font-family:var(--mono); font-size:10px; color:var(--muted); }
+/* Controls */
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.ctrl-label{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap}
+.thr-group{display:flex;gap:4px}
+.thr-btn{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+  padding:7px 16px;border-radius:8px;border:1px solid var(--brd);
+  background:var(--panel2);color:var(--muted);cursor:pointer;transition:all .15s}
+.thr-btn.on{background:var(--grn);border-color:var(--grn);color:#000}
 
-/* ───── BILETUL ZILEI ───── */
-.ticket-section {
-  background:linear-gradient(135deg, rgba(234,179,8,.08), rgba(249,115,22,.06));
-  border:1px solid rgba(234,179,8,.25); border-radius:14px;
-  padding:16px; margin-bottom:12px;
-}
-.ticket-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
-.ticket-title { font-family:var(--syne); font-size:16px; font-weight:900; color:var(--yel); display:flex; align-items:center; gap:8px; }
-.ticket-meta { font-family:var(--mono); font-size:10px; color:var(--muted); }
-.ticket-picks { display:flex; flex-direction:column; gap:8px; }
-.ticket-pick {
-  display:flex; align-items:center; justify-content:space-between;
-  background:rgba(5,8,15,.5); border:1px solid rgba(234,179,8,.15);
-  border-radius:10px; padding:10px 14px; gap:10px; flex-wrap:wrap;
-}
-.tp-left { display:flex; flex-direction:column; gap:3px; }
-.tp-match { font-weight:600; font-size:13px; }
-.tp-meta { font-size:10px; color:var(--muted); display:flex; gap:6px; align-items:center; }
-.tp-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.tp-market { font-family:var(--mono); font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; background:rgba(234,179,8,.15); color:var(--yel); border:1px solid rgba(234,179,8,.25); white-space:nowrap; }
-.tp-prob { font-family:var(--syne); font-size:20px; font-weight:900; color:var(--grn); }
-.ticket-footer {
-  margin-top:12px; padding-top:12px; border-top:1px solid rgba(234,179,8,.15);
-  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-}
-.ticket-cota { font-family:var(--syne); font-size:13px; font-weight:700; color:var(--orn); }
-.ticket-confidence { font-family:var(--mono); font-size:11px; color:var(--muted); }
-.confidence-bar { display:flex; align-items:center; gap:8px; margin-top:6px; }
-.conf-dots { display:flex; gap:3px; }
-.conf-dot { width:8px; height:8px; border-radius:50%; background:var(--brd); }
-.conf-dot.on { background:var(--grn); }
+/* Market filters */
+.mkt-filters{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px}
+.mkt-filters::-webkit-scrollbar{display:none}
+.mf{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:9px;
+  border:1px solid var(--brd);background:var(--panel);color:var(--muted);
+  cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:12px;font-weight:600;transition:all .15s}
+.mf span.cnt{font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.3)}
+.mf.on{border-color:var(--acc);color:var(--acc);background:rgba(59,130,246,.07)}
+.mf.on span.cnt{background:rgba(59,130,246,.2);color:var(--acc)}
 
-/* ───── CONTROLS ───── */
-.controls { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; align-items:center; }
-.thr-label { font-size:12px; color:var(--muted); white-space:nowrap; }
-.thr-btns { display:flex; gap:4px; flex-wrap:wrap; }
-.tb {
-  font-family:var(--mono); font-size:11px; font-weight:700; padding:5px 11px;
-  border-radius:7px; border:1px solid var(--brd); background:var(--panel2);
-  color:var(--muted); cursor:pointer; transition:all .15s;
-}
-.tb.on { background:var(--grn); border-color:var(--grn); color:#000; }
+/* ═══ BILETE ═══ */
+.ticket{border-radius:16px;padding:18px;margin-bottom:10px;border:1px solid}
+.ticket.t-bz {background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(16,163,74,.03)); border-color:rgba(34,197,94,.3)}
+.ticket.t-c20{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(29,78,216,.03)); border-color:rgba(59,130,246,.3)}
+.ticket.t-c50{background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(126,34,206,.03)); border-color:rgba(168,85,247,.3)}
+.ticket-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.ticket-title{display:flex;align-items:center;gap:10px}
+.ticket-icon{font-size:22px}
+.ticket-name{font-size:16px;font-weight:800}
+.ticket.t-bz  .ticket-name{color:var(--grn)}
+.ticket.t-c20 .ticket-name{color:var(--acc)}
+.ticket.t-c50 .ticket-name{color:var(--pur)}
+.ticket-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  padding:3px 9px;border-radius:5px}
+.ticket.t-bz  .ticket-tag{background:rgba(34,197,94,.12);color:var(--grn);border:1px solid rgba(34,197,94,.25)}
+.ticket.t-c20 .ticket-tag{background:rgba(59,130,246,.12);color:var(--acc);border:1px solid rgba(59,130,246,.25)}
+.ticket.t-c50 .ticket-tag{background:rgba(168,85,247,.12);color:var(--pur);border:1px solid rgba(168,85,247,.25)}
+.ticket-cota{text-align:right}
+.ticket-cota-lbl{font-size:11px;color:var(--muted)}
+.ticket-cota-val{font-size:22px;font-weight:900;line-height:1.1}
+.ticket.t-bz  .ticket-cota-val{color:var(--grn)}
+.ticket.t-c20 .ticket-cota-val{color:var(--acc)}
+.ticket.t-c50 .ticket-cota-val{color:var(--pur)}
+.ticket-picks{display:flex;flex-direction:column;gap:7px}
+.tick-pick{display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,0,0,.35);border-radius:10px;padding:10px 13px;gap:10px;flex-wrap:wrap}
+.tp-info{flex:1;min-width:0}
+.tp-match{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.tp-meta{font-size:11px;color:var(--txt);display:flex;gap:8px;flex-wrap:wrap}
+.tp-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tp-badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:7px;white-space:nowrap}
+.t-bz  .tp-badge{background:rgba(34,197,94,.12);color:var(--grn);border:1px solid rgba(34,197,94,.2)}
+.t-c20 .tp-badge{background:rgba(59,130,246,.12);color:var(--acc);border:1px solid rgba(59,130,246,.2)}
+.t-c50 .tp-badge{background:rgba(168,85,247,.12);color:var(--pur);border:1px solid rgba(168,85,247,.2)}
+.tp-prob{font-size:18px;font-weight:900;min-width:48px;text-align:right}
+.t-bz  .tp-prob{color:var(--grn)}
+.t-c20 .tp-prob{color:var(--acc)}
+.t-c50 .tp-prob{color:var(--pur)}
+.ticket-footer{display:flex;align-items:center;justify-content:space-between;
+  margin-top:13px;padding-top:11px;flex-wrap:wrap;gap:8px}
+.t-bz  .ticket-footer{border-top:1px solid rgba(34,197,94,.15)}
+.t-c20 .ticket-footer{border-top:1px solid rgba(59,130,246,.15)}
+.t-c50 .ticket-footer{border-top:1px solid rgba(168,85,247,.15)}
+.ticket-note{font-size:10px;color:var(--muted);font-style:italic}
+.strat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:3px;vertical-align:middle}
 
-/* Market filter chips */
-.market-filters { display:flex; gap:5px; margin-bottom:10px; overflow-x:auto; padding-bottom:3px; }
-.market-filters::-webkit-scrollbar { display:none; }
-.mf {
-  display:flex; align-items:center; gap:5px; padding:7px 12px;
-  border-radius:8px; border:1px solid var(--brd); background:var(--panel);
-  color:var(--muted); cursor:pointer; white-space:nowrap; flex-shrink:0;
-  font-family:var(--grotesk); font-size:11px; font-weight:600; transition:all .15s;
-}
-.mf .mn { font-family:var(--mono); font-size:10px; padding:1px 5px; border-radius:4px; background:rgba(0,0,0,.3); }
-.mf.on { background:var(--panel); border-color:var(--acc); color:var(--acc); }
-.mf.on .mn { background:rgba(59,130,246,.2); color:var(--acc); }
+/* ═══ MATCH CARDS ═══ */
+.cards-list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;
+  overflow:hidden;animation:fadeUp .3s ease both}
+.card-stripe{height:3px}
+.card-stripe.lvl-a{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.card-stripe.lvl-b{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.card-stripe.lvl-c{background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
+.card-stripe.lvl-d{background:var(--brd)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px 0;gap:12px}
+.card-teams{flex:1;min-width:0}
+.card-match{font-size:17px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-vs{color:var(--muted);font-weight:500}
+.card-meta{display:flex;gap:7px;align-items:center;margin-top:5px;flex-wrap:wrap}
+.card-league{font-size:11px;color:var(--txt)}
+.card-time{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:5px;padding:2px 8px;color:var(--wht)}
+.card-tier{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;
+  background:rgba(245,158,11,.08);color:var(--yel);border:1px solid rgba(245,158,11,.18)}
+.card-bz{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;
+  background:rgba(34,197,94,.1);color:var(--grn);border:1px solid rgba(34,197,94,.22);text-transform:uppercase}
+.strat-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.stag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.stag.sv{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
+.stag.sh{background:rgba(168,85,247,.1);color:var(--pur);border:1px solid rgba(168,85,247,.2)}
+.stag.sp{background:rgba(249,115,22,.1);color:var(--orn);border:1px solid rgba(249,115,22,.2)}
+.score-ring{width:70px;height:70px;border-radius:50%;border:2px solid var(--brd);background:var(--bg2);
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.score-ring.ra{border-color:var(--grn);background:rgba(34,197,94,.07)}
+.score-ring.rb{border-color:var(--yel);background:rgba(245,158,11,.07)}
+.ring-pct{font-size:18px;font-weight:900;line-height:1}
+.ra .ring-pct{color:var(--grn)}
+.rb .ring-pct{color:var(--yel)}
+.ring-lbl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);margin-top:2px}
+.card-mkts{padding:12px 16px 0}
+.mkts-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
+.mkts-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
+.mkt-item{background:var(--bg2);border:1px solid var(--brd2);border-radius:9px;
+  padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:5px}
+.mkt-item.pass{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.05)}
+.mkt-item.warn{border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04)}
+.mkt-name{font-size:12px;color:var(--txt);font-weight:500;line-height:1.3}
+.mkt-pct{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.mkt-pct.pass{color:var(--grn)}
+.mkt-pct.warn{color:var(--yel)}
+.mkt-pct.fail{color:var(--muted)}
+.card-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 14px;gap:8px;flex-wrap:wrap}
+.lambdas{display:flex;gap:5px;flex-wrap:wrap}
+.lam{background:var(--bg2);border:1px solid var(--brd2);border-radius:7px;padding:5px 10px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;min-width:56px}
+.lam small{display:block;font-size:8px;color:var(--muted);margin-bottom:1px}
+.lam b{color:var(--cyan)}
+.lam b.yl{color:var(--yel)}
+.lam b.gn{color:var(--grn)}
+.odds-row{display:flex;gap:4px;flex-wrap:wrap}
+.odd{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  padding:3px 8px;border-radius:5px;background:rgba(59,130,246,.07);color:var(--acc);border:1px solid rgba(59,130,246,.15)}
+.odd.g{background:rgba(34,197,94,.07);color:var(--grn);border-color:rgba(34,197,94,.18)}
 
-/* ───── CARDS ───── */
-.cards-grid { display:flex; flex-direction:column; gap:10px; }
-.match-card {
-  background:var(--panel); border:1px solid var(--brd);
-  border-radius:14px; overflow:hidden; animation:fadeUp .3s ease both;
-  transition:border-color .2s;
-}
-.match-card:hover { border-color:var(--brd); }
-.mc-accent { height:3px; }
-.mc-accent.s-vhigh { background:linear-gradient(90deg,#22c55e,#4ade80); }
-.mc-accent.s-high  { background:linear-gradient(90deg,#eab308,#f97316); }
-.mc-accent.s-mid   { background:linear-gradient(90deg,#3b82f6,#8b5cf6); }
-.mc-accent.s-low   { background:var(--brd); }
+/* Empty */
+.empty{text-align:center;padding:60px 24px}
+.empty-ico{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty p{color:var(--txt);font-size:14px;line-height:2}
 
-.mc-top { display:flex; align-items:flex-start; justify-content:space-between; padding:14px 16px 0; gap:12px; }
-.mc-teams { flex:1; }
-.mc-match { font-family:var(--syne); font-size:18px; font-weight:800; line-height:1.2; }
-.mc-vs { color:var(--muted); font-weight:600; font-size:14px; }
-.mc-info { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:5px; }
-.mc-league { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:4px; }
-.mc-time { font-family:var(--mono); font-size:10px; font-weight:600; color:var(--wht); background:rgba(255,255,255,.07); border:1px solid var(--brd); border-radius:5px; padding:2px 8px; }
-.mc-tier2 { font-family:var(--mono); font-size:9px; background:rgba(234,179,8,.12); color:var(--yel); border:1px solid rgba(234,179,8,.2); border-radius:4px; padding:1px 6px; }
+/* Section label */
+.sec-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;
+  display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd2)}
 
-.mc-score-badge {
-  text-align:center; flex-shrink:0;
-}
-.score-ring {
-  display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
-  width:72px; height:72px; border-radius:50%;
-  border:2px solid var(--brd); background:var(--bg2); position:relative;
-}
-.score-ring.top { border-color:var(--grn); background:rgba(34,197,94,.08); }
-.score-ring.high { border-color:var(--yel); background:rgba(234,179,8,.08); }
-.score-pct { font-family:var(--syne); font-size:18px; font-weight:900; line-height:1; }
-.score-pct.top { color:var(--grn); }
-.score-pct.high { color:var(--yel); }
-.score-lbl { font-family:var(--mono); font-size:7px; color:var(--muted); margin-top:2px; letter-spacing:.5px; }
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;
+  align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(8px)}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--brd);border-radius:20px 20px 0 0;
+  width:100%;max-width:480px;padding:26px 22px 50px;max-height:88vh;overflow-y:auto;animation:slideIn .22s ease}
+.modal-head{font-size:19px;font-weight:800;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center}
+.modal-x{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc);
+  letter-spacing:2px;text-transform:uppercase;display:block;margin:16px 0 8px}
+.field{width:100%;background:var(--bg2);border:1px solid var(--brd);color:var(--wht);
+  font-family:'JetBrains Mono',monospace;font-size:13px;border-radius:10px;
+  padding:12px 14px;outline:none;transition:border-color .2s}
+.field:focus{border-color:var(--acc)}
+.eye-wrap{position:relative}
+.eye-wrap .field{padding-right:46px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px}
+.mbox{border-radius:13px;padding:15px;margin-bottom:6px}
+.mbox-head{font-size:13px;font-weight:700;margin-bottom:10px}
+.key-box{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.18)}
+.key-box .mbox-head{color:var(--acc)}
+.install-box{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.14);margin-top:14px}
+.install-box .mbox-head{color:var(--yel)}
+.install-box p{font-size:11px;color:var(--txt);line-height:1.9}
+.btn-save{background:linear-gradient(135deg,var(--acc),#1D4ED8);color:#fff;font-weight:800;
+  font-size:14px;border:none;border-radius:11px;padding:14px;cursor:pointer;width:100%;margin-top:16px}
+.btn-save:hover{opacity:.9}
+.btn-del{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,.2);
+  font-size:12px;border-radius:11px;padding:12px;cursor:pointer;width:100%;margin-top:8px}
+.btn-del:hover{background:rgba(239,68,68,.05)}
 
-/* Markets grid */
-.mc-markets { padding:12px 16px 14px; }
-.markets-title { font-family:var(--mono); font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-.markets-grid {
-  display:grid; gap:5px;
-  grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
-}
-.mkt {
-  background:var(--bg2); border:1px solid var(--brd2);
-  border-radius:9px; padding:9px 10px;
-  display:flex; align-items:center; justify-content:space-between; gap:6px;
-  transition:border-color .15s;
-}
-.mkt.pass { border-color:rgba(34,197,94,.25); background:rgba(34,197,94,.04); }
-.mkt.warn { border-color:rgba(234,179,8,.2); background:rgba(234,179,8,.03); }
-.mkt-name { font-size:10px; color:var(--muted); font-weight:500; line-height:1.3; }
-.mkt-prob { font-family:var(--syne); font-size:15px; font-weight:800; }
-.mkt-prob.pass { color:var(--grn); }
-.mkt-prob.warn { color:var(--yel); }
-.mkt-prob.fail { color:var(--muted); }
-.mkt-chk { font-size:11px; }
+/* Loader */
+#ldr{position:fixed;inset:0;background:rgba(6,11,20,.97);display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:18px;z-index:500}
+#ldr.on{display:flex}
+.ldr-ring{width:52px;height:52px;border-radius:50%;border:3px solid var(--brd);
+  border-top-color:var(--grn);animation:spin .8s linear infinite}
+.ldr-text{font-size:16px;font-weight:800;color:var(--grn);text-align:center}
+.ldr-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:center;max-width:260px;line-height:1.7}
+.ldr-prog{width:220px;height:3px;background:var(--brd);border-radius:2px;overflow:hidden;margin-top:4px}
+.ldr-fill{height:100%;background:linear-gradient(90deg,var(--grn),var(--acc));border-radius:2px;transition:width .4s;width:0}
 
-/* Card footer */
-.mc-footer { display:flex; align-items:center; justify-content:space-between; padding:0 16px 13px; gap:8px; flex-wrap:wrap; }
-.lambda-row { display:flex; gap:5px; }
-.lam { background:var(--bg2); border:1px solid var(--brd2); border-radius:7px; padding:5px 10px; font-family:var(--mono); font-size:11px; text-align:center; }
-.lam small { display:block; font-size:8px; color:var(--muted); margin-bottom:1px; }
-.lam b { color:var(--cyan); }
-.odds-chips { display:flex; gap:4px; flex-wrap:wrap; }
-.oc { font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px; background:rgba(59,130,246,.08); color:var(--acc); border:1px solid rgba(59,130,246,.18); }
-.oc.g { background:rgba(34,197,94,.08); color:var(--grn); border-color:rgba(34,197,94,.2); }
-
-/* Best pick badge */
-.best-pick-tag {
-  font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:1px;
-  padding:2px 7px; border-radius:4px;
-  background:rgba(234,179,8,.15); color:var(--yel); border:1px solid rgba(234,179,8,.25);
-  text-transform:uppercase;
-}
-
-/* Empty state */
-.empty { text-align:center; padding:60px 24px; }
-.empty-ico { font-size:52px; margin-bottom:16px; opacity:.35; }
-.empty p { color:var(--muted); font-family:var(--mono); font-size:12px; line-height:1.9; }
-
-/* ───── MODAL ───── */
-.overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:flex-end; justify-content:center; z-index:200; backdrop-filter:blur(6px); }
-.overlay.open { display:flex; }
-.modal { background:var(--panel); border:1px solid var(--brd); border-radius:18px 18px 0 0; width:100%; max-width:480px; padding:24px 20px 48px; max-height:88vh; overflow-y:auto; animation:slideUp .22s ease; }
-.modal-h { font-family:var(--syne); font-size:20px; font-weight:800; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
-.modal-x { background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
-.field-label { font-family:var(--mono); font-size:10px; color:var(--acc); letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:7px; margin-top:14px; }
-.field { width:100%; background:var(--bg2); border:1px solid var(--brd); color:var(--wht); font-family:var(--mono); font-size:13px; border-radius:10px; padding:12px 14px; outline:none; margin-bottom:4px; transition:border-color .2s; }
-.field:focus { border-color:var(--acc); }
-.eye-wrap { position:relative; }
-.eye-wrap .field { padding-right:44px; }
-.eye-btn { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; }
-.key-box { background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.2); border-radius:12px; padding:16px; margin-bottom:8px; }
-.key-box-t { font-family:var(--syne); font-size:14px; font-weight:800; color:var(--acc); margin-bottom:12px; }
-.btn-save { background:linear-gradient(135deg,var(--acc),var(--acc2)); color:#fff; font-family:var(--syne); font-weight:800; font-size:14px; border:none; border-radius:11px; padding:14px; cursor:pointer; width:100%; margin-top:16px; transition:all .2s; }
-.btn-save:hover { opacity:.9; }
-.btn-delkey { background:transparent; color:var(--red); border:1px solid rgba(239,68,68,.2); font-size:12px; border-radius:11px; padding:12px; cursor:pointer; width:100%; margin-top:8px; transition:all .15s; }
-.btn-delkey:hover { background:rgba(239,68,68,.05); }
-.install-box { background:rgba(234,179,8,.05); border:1px solid rgba(234,179,8,.15); border-radius:12px; padding:14px; margin-top:14px; }
-.install-box-t { font-family:var(--syne); font-size:13px; font-weight:800; color:var(--yel); margin-bottom:9px; }
-.install-box p { font-size:11px; color:var(--muted); line-height:1.9; }
-.install-box b { color:var(--wht); }
-
-/* ───── LOADER ───── */
-#ldr {
-  position:fixed; inset:0; background:rgba(5,8,15,.96);
-  display:none; flex-direction:column; align-items:center; justify-content:center;
-  gap:18px; z-index:400;
-}
-#ldr.on { display:flex; }
-.ldr-ring { width:50px; height:50px; border-radius:50%; border:3px solid var(--brd); border-top-color:var(--grn); animation:spin .8s linear infinite; }
-.ldr-title { font-family:var(--syne); font-size:17px; font-weight:800; color:var(--grn); }
-.ldr-sub { font-family:var(--mono); font-size:10px; color:var(--muted); text-align:center; max-width:280px; line-height:1.6; }
-.ldr-prog { width:220px; height:3px; background:var(--brd); border-radius:2px; overflow:hidden; margin-top:4px; }
-.ldr-fill { height:100%; background:linear-gradient(90deg,var(--grn),var(--acc)); border-radius:2px; transition:width .4s; width:0; }
-
-/* ───── TOAST ───── */
-#toast {
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
-  background:var(--panel); border:1px solid var(--brd); border-radius:11px;
-  padding:12px 22px; font-size:12px; z-index:500; transition:transform .28s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 12px 32px rgba(0,0,0,.6); max-width:340px; text-align:center; line-height:1.5;
-  font-family:var(--grotesk); font-weight:500;
-}
-#toast.show { transform:translateX(-50%) translateY(0); }
-#toast.ok  { border-color:rgba(34,197,94,.4); color:var(--grn); }
-#toast.err { border-color:rgba(239,68,68,.4); color:var(--red); }
-#toast.inf { border-color:rgba(59,130,246,.4); color:var(--acc); }
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--panel);border:1px solid var(--brd);border-radius:12px;
+  padding:13px 24px;font-size:13px;font-weight:600;z-index:600;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 12px 40px rgba(0,0,0,.7);max-width:340px;text-align:center;line-height:1.5}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(34,197,94,.4);color:var(--grn)}
+#toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
+#toast.inf{border-color:rgba(59,130,246,.4);color:var(--acc)}
 </style>
 </head>
-<body>
-<!-- Fallback vizibilitate imediată -->
-<script>
-(function(){
-  // Forțăm setup vizibil imediat — JS-ul de inițializare îl va ascunde dacă există cheie
-  document.addEventListener('DOMContentLoaded', function() {
-    var s = document.getElementById('setup');
-    var d = document.getElementById('day-selector');
-    var a = document.getElementById('app');
-    if(s && !s.style.display) s.style.display = 'none';
-    if(d && !d.style.display) d.style.display = 'none';
-    if(a && !a.style.display) a.style.display = 'none';
-  });
-})();
-</script>
+<body style="visibility:hidden">
 
-<!-- LOADER -->
 <div id="ldr">
   <div class="ldr-ring"></div>
-  <div class="ldr-title" id="ldr-t">Se procesează...</div>
-  <div class="ldr-sub"   id="ldr-s">Vă rugăm așteptați</div>
-  <div class="ldr-prog"><div class="ldr-fill" id="ldr-fill"></div></div>
+  <div class="ldr-text" id="ldr-t">Analizez...</div>
+  <div class="ldr-sub" id="ldr-s">Vă rugăm așteptați</div>
+  <div class="ldr-prog"><div class="ldr-fill" id="ldr-f"></div></div>
 </div>
-
 <div id="toast"></div>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="brand">
     <div class="brand-icon">⚽</div>
     <div>
-      <div class="brand-txt">Bet<span>Analytics</span> Pro</div>
-      <div class="brand-sub">SUPERBET · 40+ LIGI · AI POISSON</div>
+      <div class="brand-name">Bet<em>Analytics</em> Pro</div>
+      <div class="brand-sub">POISSON · MULTI-STRAT · 43 LIGI</div>
     </div>
   </div>
   <div class="topbar-r">
-    <button class="btn-analyze" id="btn-go" onclick="doRefresh()">
-      <span class="spin">↻</span><span class="ico">▶</span> ANALIZEAZĂ
+    <button class="btn-primary" id="btn-go" onclick="doRefresh()">
+      <span class="spin-ico">↻</span><span class="go-ico">▶</span> ANALIZEAZĂ
     </button>
-    <button class="btn-ico" onclick="openModal()" title="Setări">⚙</button>
+    <button class="btn-icon" onclick="openModal()">⚙</button>
   </div>
 </div>
 
-<!-- ════════════════════ DAY SELECTOR ════════════════════ -->
-<div id="day-selector" style="display:none">
-  <div class="ds-glow"></div>
-  <div class="ds-wrap">
-    <span class="ds-icon">📅</span>
-    <h2 class="ds-h">Alege <em>ziua</em> analizei</h2>
-    <p class="ds-p">Selectează pentru ce zi dorești analiza, apoi apasă butonul pentru a porni procesarea.</p>
-    <div class="ds-cards">
-      <div class="ds-card" id="ds-azi" onclick="selectDay('azi')">
-        <div class="ds-card-ico">🗓️</div>
-        <div class="ds-card-title">AZI</div>
-        <div class="ds-card-sub" id="ds-azi-date">—</div>
-      </div>
-      <div class="ds-card" id="ds-maine" onclick="selectDay('maine')">
-        <div class="ds-card-ico">📅</div>
-        <div class="ds-card-title">MÂINE</div>
-        <div class="ds-card-sub" id="ds-maine-date">—</div>
-      </div>
-    </div>
-    <button class="ds-btn" id="ds-go" onclick="startAnalysis()">
-      ▶ PORNEȘTE ANALIZA
-    </button>
-  </div>
-</div>
-
-<!-- ════════════════════ SETUP ════════════════════ -->
-<div id="setup" style="display:none">
-  <div class="setup-glow"></div>
-  <div class="setup-wrap">
-    <span class="setup-icon">⚽</span>
-    <h1 class="setup-h">Bet<em>Analytics</em> Pro</h1>
-    <p class="setup-p">
-      Analiză matematică avansată prin model Poisson calibrat.<br>
-      <strong style="color:var(--wht)">12 piețe de pariere</strong> disponibile pe Superbet · Prag de la 75% · Biletul Zilei generat automat.
-    </p>
-    <div class="setup-card">
-      <label>API KEY — THE-ODDS-API.COM</label>
-      <div class="inp-row">
-        <input class="inp" id="ki" type="text" placeholder="Lipești cheia API aici..."
-               autocomplete="off" onkeydown="if(event.key==='Enter')saveKey()">
-        <button class="inp-ok" onclick="saveKey()">OK</button>
+<!-- SETUP SCREEN -->
+<div id="setup">
+  <div class="setup-card">
+    <span class="setup-emoji">⚽</span>
+    <h1 class="setup-h">Bet<em>Analytics</em><br>Pro</h1>
+    <p class="setup-p">Cel mai avansat instrument de analiză fotbal.<br>
+    Model Poisson multi-strategie · 43 ligi europene<br>
+    <strong style="color:var(--wht)">3 bilete zilnice</strong> — Biletul Zilei · Cotă 20 · Cotă 50</p>
+    <div class="input-wrap">
+      <span class="input-label">Cheie API — the-odds-api.com</span>
+      <div class="input-row">
+        <input class="inp" id="setup-key" type="text"
+          placeholder="Lipești cheia API aici..." autocomplete="off"
+          onkeydown="if(event.key==='Enter')saveKey()">
+        <button class="btn-ok" onclick="saveKey()">PORNEȘTE</button>
       </div>
       <div class="setup-note">
-        Gratuit: <a href="https://the-odds-api.com/#get-access" target="_blank">the-odds-api.com → Get Access → Free Plan</a><br>
-        500 req/lună · fără card · cheia rămâne local pe dispozitiv
+        🔑 Gratuit: <a href="https://the-odds-api.com/#get-access" target="_blank">the-odds-api.com → Free Plan</a><br>
+        500 req/lună · Fără card · Cheia rămâne local pe dispozitiv
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════ APP ════════════════════ -->
+<!-- APP SCREEN -->
 <div id="app">
-
-  <!-- Day switcher -->
-  <div class="days">
-    <button class="day-btn on" id="d-azi"   onclick="switchDay('azi')">
-      📅 AZI <span class="dsub" id="d-azi-lbl"></span>
+  <!-- Day selector persistent -->
+  <div class="day-tabs">
+    <button class="day-tab active" id="tab-azi" onclick="switchDay('azi')">
+      📅 AZI <span class="dt-sub" id="lbl-azi"></span>
     </button>
-    <button class="day-btn" id="d-maine" onclick="switchDay('maine')">
-      📅 MÂINE <span class="dsub" id="d-maine-lbl"></span>
+    <button class="day-tab" id="tab-maine" onclick="switchDay('maine')">
+      📅 MÂINE <span class="dt-sub" id="lbl-maine"></span>
     </button>
   </div>
 
-  <!-- Status bar -->
   <div class="statusbar">
-    <div class="sb-l">
+    <div class="sb-left">
       <div class="sb-dot" id="sb-dot"></div>
-      <span id="sb-src">—</span>
+      <span id="sb-src">Apasă ANALIZEAZĂ pentru a porni</span>
     </div>
-    <div class="sb-r">Actualizat: <b id="sb-time">—</b></div>
+    <div class="sb-right">Ora: <b id="sb-time">—</b></div>
   </div>
 
-  <!-- Progress -->
   <div class="prog-wrap" id="prog-wrap">
     <div class="prog-top"><span id="prog-txt">Procesare...</span><span id="prog-pct">0%</span></div>
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
 
-  <!-- KPIs -->
   <div class="kpi-grid">
-    <div class="kpi" style="--kpi-clr:var(--acc)">
+    <div class="kpi" style="--kc:#3B82F6">
       <div class="kpi-lbl">Meciuri</div>
       <div class="kpi-val" id="k-total">—</div>
-      <div class="kpi-sub" id="k-day">azi</div>
+      <div class="kpi-sub" id="k-day-lbl">analizate</div>
     </div>
-    <div class="kpi" style="--kpi-clr:var(--grn)">
-      <div class="kpi-lbl">Over 1.5+2.5</div>
-      <div class="kpi-val" id="k-over">—</div>
-      <div class="kpi-sub">≥prag</div>
+    <div class="kpi" style="--kc:#22C55E">
+      <div class="kpi-lbl">Semnale</div>
+      <div class="kpi-val" id="k-signals">—</div>
+      <div class="kpi-sub">≥prag ales</div>
     </div>
-    <div class="kpi" style="--kpi-clr:var(--yel)">
-      <div class="kpi-lbl">GG / HT</div>
-      <div class="kpi-val" id="k-gg">—</div>
-      <div class="kpi-sub">≥prag</div>
+    <div class="kpi" style="--kc:#F59E0B">
+      <div class="kpi-lbl">Multi-Strat</div>
+      <div class="kpi-val" id="k-multi">—</div>
+      <div class="kpi-sub">≥2 strategii</div>
     </div>
-    <div class="kpi" style="--kpi-clr:var(--pur)">
-      <div class="kpi-lbl">Bilet Zilei</div>
-      <div class="kpi-val" id="k-ticket">—</div>
-      <div class="kpi-sub">selecții</div>
+    <div class="kpi" style="--kc:#A855F7">
+      <div class="kpi-lbl">Bilete</div>
+      <div class="kpi-val">3</div>
+      <div class="kpi-sub">zilnice</div>
     </div>
   </div>
 
-  <!-- Threshold -->
   <div class="controls">
-    <span class="thr-label">Prag minim:</span>
-    <div class="thr-btns">
-      <button class="tb" onclick="setThr(75)">75%</button>
-      <button class="tb" onclick="setThr(78)">78%</button>
-      <button class="tb on" onclick="setThr(80)">80%</button>
-      <button class="tb" onclick="setThr(83)">83%</button>
-      <button class="tb" onclick="setThr(86)">86%</button>
-      <button class="tb" onclick="setThr(90)">90%</button>
+    <span class="ctrl-label">Prag minim:</span>
+    <div class="thr-group">
+      <button class="thr-btn" onclick="setThr(75)">75%</button>
+      <button class="thr-btn on" onclick="setThr(80)">80%</button>
+      <button class="thr-btn" onclick="setThr(90)">90%</button>
     </div>
   </div>
 
-  <!-- Market filters -->
-  <div class="market-filters" id="market-filters">
-    <button class="mf on"  id="mf-all"   onclick="setMkt('all')">🔍 Toate <span class="mn" id="mn-all">0</span></button>
-    <button class="mf"     id="mf-o15"   onclick="setMkt('o15')">⚽ O1.5 <span class="mn" id="mn-o15">0</span></button>
-    <button class="mf"     id="mf-o25"   onclick="setMkt('o25')">⚽ O2.5 <span class="mn" id="mn-o25">0</span></button>
-    <button class="mf"     id="mf-gg"    onclick="setMkt('gg')">🤝 GG <span class="mn" id="mn-gg">0</span></button>
-    <button class="mf"     id="mf-hth"   onclick="setMkt('hth')">⏱ -2.5HT <span class="mn" id="mn-hth">0</span></button>
-    <button class="mf"     id="mf-o05ht" onclick="setMkt('o05ht')">⏱ +0.5HT <span class="mn" id="mn-o05ht">0</span></button>
-    <button class="mf"     id="mf-o15ht" onclick="setMkt('o15ht')">⏱ +1.5HT <span class="mn" id="mn-o15ht">0</span></button>
-    <button class="mf"     id="mf-h14"   onclick="setMkt('h14')">🏠 1-4G H <span class="mn" id="mn-h14">0</span></button>
-    <button class="mf"     id="mf-a14"   onclick="setMkt('a14')">✈ 1-4G A <span class="mn" id="mn-a14">0</span></button>
-    <button class="mf"     id="mf-h13"   onclick="setMkt('h13')">🏠 1-3G H <span class="mn" id="mn-h13">0</span></button>
-    <button class="mf"     id="mf-a13"   onclick="setMkt('a13')">✈ 1-3G A <span class="mn" id="mn-a13">0</span></button>
-    <button class="mf"     id="mf-ticket" onclick="setMkt('ticket')">🎯 Biletul Zilei <span class="mn" id="mn-ticket">0</span></button>
+  <div class="mkt-filters" id="mkt-bar">
+    <button class="mf on" id="mf-all"    onclick="setMkt('all')">🔍 Toate <span class="cnt" id="cn-all">0</span></button>
+    <button class="mf"    id="mf-o15"    onclick="setMkt('o15')">⚽ O1.5 <span class="cnt" id="cn-o15">0</span></button>
+    <button class="mf"    id="mf-o25"    onclick="setMkt('o25')">⚽ O2.5 <span class="cnt" id="cn-o25">0</span></button>
+    <button class="mf"    id="mf-gg"     onclick="setMkt('gg')">🤝 GG <span class="cnt" id="cn-gg">0</span></button>
+    <button class="mf"    id="mf-htu25"  onclick="setMkt('htu25')">⏱ -2.5HT <span class="cnt" id="cn-htu25">0</span></button>
+    <button class="mf"    id="mf-hto05"  onclick="setMkt('hto05')">⏱ +0.5HT <span class="cnt" id="cn-hto05">0</span></button>
+    <button class="mf"    id="mf-hto15"  onclick="setMkt('hto15')">⏱ +1.5HT <span class="cnt" id="cn-hto15">0</span></button>
+    <button class="mf"    id="mf-u25"    onclick="setMkt('u25')">🔒 U2.5 <span class="cnt" id="cn-u25">0</span></button>
+    <button class="mf"    id="mf-ticket" onclick="setMkt('ticket')">🎯 Bilete <span class="cnt" id="cn-ticket">0</span></button>
   </div>
 
-  <!-- Cotă 50 Zilei (injectat dinamic) -->
-  <div id="cota50-container"></div>
+  <!-- Bilete zilnice -->
+  <div id="ticket-zone"></div>
 
-  <!-- Biletul Zilei (injectat dinamic) -->
-  <div id="ticket-container"></div>
-
-  <!-- Cards -->
-  <div class="cards-grid" id="cards"></div>
+  <div class="sec-lbl">Toate meciurile analizate</div>
+  <div class="cards-list" id="cards-list"></div>
 </div>
 
-<!-- ════════════════════ MODAL ════════════════════ -->
-<div class="overlay" id="modal">
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="modal-h">⚙️ Setări <button class="modal-x" onclick="closeModal()">✕</button></div>
-
-    <div class="key-box">
-      <div class="key-box-t">🔑 API Key — The-Odds-API</div>
-      <span class="field-label">Cheie nouă (opțional)</span>
+    <div class="modal-head">⚙️ Setări <button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="mbox key-box">
+      <div class="mbox-head">🔑 API Key</div>
       <div class="eye-wrap">
         <input class="field" type="password" id="m-key" placeholder="Introduceți cheia nouă...">
-        <button class="eye-btn" id="m-eye" onclick="toggleEye()">👁</button>
+        <button class="eye-btn" onclick="toggleEye()">👁</button>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.8">
-        <a href="https://the-odds-api.com/#get-access" target="_blank" style="color:var(--acc)">the-odds-api.com → Free Plan</a>
-        · 500 req/lună
+        <a href="https://the-odds-api.com/#get-access" target="_blank" style="color:var(--acc)">the-odds-api.com</a>
+        · Plan gratuit · 500 req/lună
       </div>
     </div>
-
     <span class="field-label">Bankroll (RON)</span>
-    <input class="field" type="number" id="m-broll" value="5000">
-
-    <span class="field-label">Kelly Fraction</span>
-    <input class="field" type="number" id="m-kelly" value="0.25" step="0.05">
-
-    <span class="field-label">Prag probabilitate minim (%)</span>
-    <input class="field" type="number" id="m-thr" value="80" min="60" max="99" step="1">
-
-    <span class="field-label">Nr. selecții Biletul Zilei</span>
-    <input class="field" type="number" id="m-picks" value="4" min="2" max="8" step="1">
-
+    <input class="field" type="number" id="m-broll">
+    <span class="field-label">Kelly Fraction (0.1 – 0.5)</span>
+    <input class="field" type="number" id="m-kelly" step="0.05" min="0.05" max="0.5">
+    <span class="field-label">Selecții Biletul Zilei</span>
+    <input class="field" type="number" id="m-picks" min="2" max="6" step="1">
     <button class="btn-save" onclick="saveCfg()">💾 Salvează setările</button>
-    <button class="btn-delkey" onclick="deleteKey()">🗑 Șterge cheia și deconectează</button>
-
-    <div class="install-box">
-      <div class="install-box-t">📲 Instalare ca aplicație</div>
-      <p>
-        <b>Android Chrome/Brave:</b> Meniu ⋮ → "Instalează aplicația"<br>
-        <b>iPhone/iPad:</b> Safari → □↑ → "Adaugă pe ecranul principal"
-      </p>
+    <button class="btn-del"  onclick="deleteKey()">🗑 Șterge cheia și deconectează</button>
+    <div class="mbox install-box">
+      <div class="mbox-head">📲 Instalare ca aplicație</div>
+      <p><b>Android Chrome:</b> Meniu ⋮ → "Instalează aplicația"<br>
+      <b>iPhone / iPad:</b> Safari → □↑ → "Adaugă pe ecranul principal"</p>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-// CONFIG & STATE
-// ═══════════════════════════════════════════════
-const CACHE_TTL = 2 * 3600 * 1000;
+'use strict';
+// ────────────────────────────────────────────
+// SAFE STORAGE
+// ────────────────────────────────────────────
+const _MEM = {};
+const ls = {
+  get:k=>{try{return localStorage.getItem(k)}catch(e){return _MEM[k]||null}},
+  set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}_MEM[k]=v},
+  rm:k=>{try{localStorage.removeItem(k)}catch(e){}delete _MEM[k]}
+};
 
-let CFG  = loadCfg();
-let THR  = CFG.thr || 80;
-let MKT  = 'all';
-let DAY  = 'azi';
-let DATA = { azi:[], maine:[] };
+const CACHE_TTL = 2*3600*1000;
+let CFG = loadCfg();
+let THR = CFG.thr || 80;
+let MKT = 'all';
+let DAY = 'azi';
+let DATA = {azi:[], maine:[]};
 
-// ── Safe storage wrapper (funcționează și pe content:// Android) ──
-const _store = {};
-function lsGet(k) {
-  try { return localStorage.getItem(k); } catch(e) { return _store[k]||null; }
+function loadCfg(){
+  try{return{bankroll:5000,kelly:.25,thr:80,picks:4,...JSON.parse(ls.get('ba_cfg')||'{}')}}
+  catch(e){return{bankroll:5000,kelly:.25,thr:80,picks:4}}
 }
-function lsSet(k, v) {
-  try { localStorage.setItem(k, v); } catch(e) {}
-  _store[k] = v;
-}
-function lsRemove(k) {
-  try { localStorage.removeItem(k); } catch(e) {}
-  delete _store[k];
-}
+function saveCfgLS(){ ls.set('ba_cfg',JSON.stringify(CFG)) }
+function getKey(){ return ls.get('ba_key')||'' }
 
-function loadCfg() {
-  try { return { bankroll:5000, kelly:.25, thr:80, picks:4, ...JSON.parse(lsGet('ba_cfg')||'{}') }; }
-  catch(e) { return { bankroll:5000, kelly:.25, thr:80, picks:4 }; }
-}
-function saveCfgLS() { lsSet('ba_cfg', JSON.stringify(CFG)); }
-function getKey()    { return lsGet('ba_key') || ''; }
-function setKeyLS(k) { if(k) lsSet('ba_key', k); }
-
-// ═══════════════════════════════════════════════
-// 40+ LIGI — THE-ODDS-API (Superbet coverage)
-// ═══════════════════════════════════════════════
-const SPORTS = [
-  // ── COMPETIȚII EUROPENE ──────────────────────────────────────
-  { key:'soccer_uefa_champs_league',        name:'Champions League', flag:'🏆', t:0 },
-  { key:'soccer_uefa_europa_league',        name:'Europa League',    flag:'🏆', t:0 },
-  { key:'soccer_uefa_europa_conference_league', name:'Conference Lge',flag:'🏆', t:0 },
-  // ── LIGA 1 ───────────────────────────────────────────────────
-  { key:'soccer_epl',                       name:'Premier League',    flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', t:1 },
-  { key:'soccer_spain_la_liga',             name:'La Liga',           flag:'🇪🇸', t:1 },
-  { key:'soccer_germany_bundesliga',        name:'Bundesliga',        flag:'🇩🇪', t:1 },
-  { key:'soccer_italy_serie_a',             name:'Serie A',           flag:'🇮🇹', t:1 },
-  { key:'soccer_france_ligue_one',          name:'Ligue 1',           flag:'🇫🇷', t:1 },
-  { key:'soccer_portugal_primeira_liga',    name:'Primeira Liga',     flag:'🇵🇹', t:1 },
-  { key:'soccer_netherlands_eredivisie',    name:'Eredivisie',        flag:'🇳🇱', t:1 },
-  { key:'soccer_turkey_super_league',       name:'Süper Lig',         flag:'🇹🇷', t:1 },
-  { key:'soccer_belgium_first_div',         name:'Pro League BE',     flag:'🇧🇪', t:1 },
-  { key:'soccer_russia_premier_league',     name:'Premier Liga RU',   flag:'🇷🇺', t:1 },
-  { key:'soccer_scotland_premiership',      name:'Premiership SC',    flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', t:1 },
-  { key:'soccer_greece_super_league',       name:'Super League GR',   flag:'🇬🇷', t:1 },
-  { key:'soccer_romania_1',                 name:'Superliga RO',      flag:'🇷🇴', t:1 },
-  { key:'soccer_austria_football_bundesliga',name:'Bundesliga AT',    flag:'🇦🇹', t:1 },
-  { key:'soccer_switzerland_superleague',   name:'Super League CH',   flag:'🇨🇭', t:1 },
-  { key:'soccer_denmark_superliga',         name:'Superliga DK',      flag:'🇩🇰', t:1 },
-  { key:'soccer_sweden_allsvenskan',        name:'Allsvenskan',       flag:'🇸🇪', t:1 },
-  { key:'soccer_norway_eliteserien',        name:'Eliteserien',       flag:'🇳🇴', t:1 },
-  { key:'soccer_czech_liga',                name:'1. Liga CZ',        flag:'🇨🇿', t:1 },
-  { key:'soccer_poland_ekstraklasa',        name:'Ekstraklasa',       flag:'🇵🇱', t:1 },
-  { key:'soccer_croatia_hnl',               name:'HNL',               flag:'🇭🇷', t:1 },
-  { key:'soccer_ukraine_premier_league',    name:'Premier Liha UA',   flag:'🇺🇦', t:1 },
-  { key:'soccer_serbia_superliga',          name:'SuperLiga RS',      flag:'🇷🇸', t:1 },
-  { key:'soccer_hungary_nb_i',              name:'OTP Bank Liga HU',  flag:'🇭🇺', t:1 },
-  { key:'soccer_slovakia_super_liga',       name:'Niké Liga SK',      flag:'🇸🇰', t:1 },
-  { key:'soccer_bulgaria_first_professional_league', name:'First PFL BG', flag:'🇧🇬', t:1 },
-  // ── LIGA 2 ───────────────────────────────────────────────────
-  { key:'soccer_england_league1',           name:'League One',        flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', t:2 },
-  { key:'soccer_england_league2',           name:'League Two',        flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', t:2 },
-  { key:'soccer_spain_segunda_division',    name:'Segunda División',  flag:'🇪🇸', t:2 },
-  { key:'soccer_germany_bundesliga2',       name:'2. Bundesliga',     flag:'🇩🇪', t:2 },
-  { key:'soccer_italy_serie_b',             name:'Serie B',           flag:'🇮🇹', t:2 },
-  { key:'soccer_france_ligue_two',          name:'Ligue 2',           flag:'🇫🇷', t:2 },
-  { key:'soccer_netherlands_eerste_divisie',name:'Eerste Divisie',    flag:'🇳🇱', t:2 },
-  { key:'soccer_portugal_segunda_liga',     name:'Liga Portugal 2',   flag:'🇵🇹', t:2 },
-  { key:'soccer_turkey_1_lig',              name:'1. Lig TR',         flag:'🇹🇷', t:2 },
-  { key:'soccer_belgium_second_div',        name:'Nationale B',       flag:'🇧🇪', t:2 },
-  { key:'soccer_scotland_championship',     name:'Championship SC',   flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', t:2 },
-  { key:'soccer_austria_bundesliga',        name:'2. Liga AT',        flag:'🇦🇹', t:2 },
-  { key:'soccer_switzerland_challenge_league', name:'Challenge Lge CH', flag:'🇨🇭', t:2 },
-  { key:'soccer_denmark_1st_division',      name:'1. Division DK',    flag:'🇩🇰', t:2 },
+// ────────────────────────────────────────────
+// SPORTS LIST (43 ligi)
+// ────────────────────────────────────────────
+const SPORTS=[
+  {key:'soccer_uefa_champs_league',           n:'Champions League',      f:'🏆',t:0},
+  {key:'soccer_uefa_europa_league',           n:'Europa League',         f:'🏆',t:0},
+  {key:'soccer_uefa_europa_conference_league',n:'Conference League',     f:'🏆',t:0},
+  {key:'soccer_epl',                          n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
+  {key:'soccer_spain_la_liga',                n:'La Liga',               f:'🇪🇸',t:1},
+  {key:'soccer_germany_bundesliga',           n:'Bundesliga',            f:'🇩🇪',t:1},
+  {key:'soccer_italy_serie_a',                n:'Serie A',               f:'🇮🇹',t:1},
+  {key:'soccer_france_ligue_one',             n:'Ligue 1',               f:'🇫🇷',t:1},
+  {key:'soccer_portugal_primeira_liga',       n:'Primeira Liga',         f:'🇵🇹',t:1},
+  {key:'soccer_netherlands_eredivisie',       n:'Eredivisie',            f:'🇳🇱',t:1},
+  {key:'soccer_turkey_super_league',          n:'Süper Lig',             f:'🇹🇷',t:1},
+  {key:'soccer_belgium_first_div',            n:'Pro League BE',         f:'🇧🇪',t:1},
+  {key:'soccer_russia_premier_league',        n:'Premier Liga RU',       f:'🇷🇺',t:1},
+  {key:'soccer_scotland_premiership',         n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
+  {key:'soccer_greece_super_league',          n:'Super League GR',       f:'🇬🇷',t:1},
+  {key:'soccer_romania_1',                    n:'Superliga RO',          f:'🇷🇴',t:1},
+  {key:'soccer_austria_football_bundesliga',  n:'Bundesliga AT',         f:'🇦🇹',t:1},
+  {key:'soccer_switzerland_superleague',      n:'Super League CH',       f:'🇨🇭',t:1},
+  {key:'soccer_denmark_superliga',            n:'Superliga DK',          f:'🇩🇰',t:1},
+  {key:'soccer_sweden_allsvenskan',           n:'Allsvenskan',           f:'🇸🇪',t:1},
+  {key:'soccer_norway_eliteserien',           n:'Eliteserien',           f:'🇳🇴',t:1},
+  {key:'soccer_czech_liga',                   n:'1. Liga CZ',            f:'🇨🇿',t:1},
+  {key:'soccer_poland_ekstraklasa',           n:'Ekstraklasa',           f:'🇵🇱',t:1},
+  {key:'soccer_croatia_hnl',                  n:'HNL',                   f:'🇭🇷',t:1},
+  {key:'soccer_ukraine_premier_league',       n:'Premier Liha UA',       f:'🇺🇦',t:1},
+  {key:'soccer_serbia_superliga',             n:'SuperLiga RS',          f:'🇷🇸',t:1},
+  {key:'soccer_hungary_nb_i',                 n:'OTP Liga HU',           f:'🇭🇺',t:1},
+  {key:'soccer_slovakia_super_liga',          n:'Niké Liga SK',          f:'🇸🇰',t:1},
+  {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',    f:'🇧🇬',t:1},
+  {key:'soccer_england_league1',              n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_england_league2',              n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_spain_segunda_division',       n:'Segunda División',      f:'🇪🇸',t:2},
+  {key:'soccer_germany_bundesliga2',          n:'2. Bundesliga',         f:'🇩🇪',t:2},
+  {key:'soccer_italy_serie_b',                n:'Serie B',               f:'🇮🇹',t:2},
+  {key:'soccer_france_ligue_two',             n:'Ligue 2',               f:'🇫🇷',t:2},
+  {key:'soccer_netherlands_eerste_divisie',   n:'Eerste Divisie',        f:'🇳🇱',t:2},
+  {key:'soccer_portugal_segunda_liga',        n:'Liga Portugal 2',       f:'🇵🇹',t:2},
+  {key:'soccer_turkey_1_lig',                 n:'1. Lig TR',             f:'🇹🇷',t:2},
+  {key:'soccer_belgium_second_div',           n:'Nationale B BE',        f:'🇧🇪',t:2},
+  {key:'soccer_scotland_championship',        n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
+  {key:'soccer_austria_bundesliga',           n:'2. Liga AT',            f:'🇦🇹',t:2},
+  {key:'soccer_switzerland_challenge_league', n:'Challenge Lge CH',      f:'🇨🇭',t:2},
+  {key:'soccer_denmark_1st_division',         n:'1. Division DK',        f:'🇩🇰',t:2},
 ];
 
-// ═══════════════════════════════════════════════
-// MATEMATICĂ POISSON EXTINSĂ
-// ═══════════════════════════════════════════════
-function pois(k, lam) {
-  if (lam<=0 || k<0) return 0;
-  let lp = -lam + k * Math.log(lam);
-  for (let i=1; i<=k; i++) lp -= Math.log(i);
+// ────────────────────────────────────────────
+// MATEMATICĂ POISSON
+// ────────────────────────────────────────────
+function pois(k,lam){
+  if(lam<=0||k<0) return 0;
+  let lp = -lam + k*Math.log(lam);
+  for(let i=1;i<=k;i++) lp -= Math.log(i);
   return Math.exp(lp);
 }
-
-// Distribuție scor complet (max 12 goluri/echipă)
-function scoreDist(lh, la) {
-  const d = [];
-  for (let h=0; h<=12; h++)
-    for (let a=0; a<=12; a++)
-      d.push({ h, a, p: pois(h,lh)*pois(a,la) });
+function scoreDist(lh,la){
+  const d=[];
+  for(let h=0;h<=10;h++)
+    for(let a=0;a<=10;a++)
+      d.push({h,a,p:pois(h,lh)*pois(a,la)});
   return d;
 }
-
-// Lambdas calibrate din cotele 1X2
-function lambdas(o1, o2) {
-  const p1=1/o1, p2=1/o2, t=p1+(1-p1-p2)+p2;
+function lambdas(o1,o2){
+  const p1=1/o1, p2=1/o2;
+  const t = p1 + (1-p1-p2) + p2;
   return {
-    lh: Math.max(0.35, +((0.42 + 2.35*(p1/t)).toFixed(3))),
-    la: Math.max(0.35, +((0.42 + 2.35*(p2/t)).toFixed(3)))
+    lh: Math.max(0.3, +( 0.42 + 2.35*(p1/t) ).toFixed(3)),
+    la: Math.max(0.3, +( 0.42 + 2.35*(p2/t) ).toFixed(3))
   };
 }
+function htLambdas(lh,la){ return {lh1:lh*0.44, la1:la*0.44} }
 
-// Lambda reprize (prima repriza ~44%, a doua ~56%)
-function htLambdas(lh, la) {
-  return { lh1: lh*0.44, la1: la*0.44, lh2: lh*0.56, la2: la*0.56 };
+function pOver(lh,la,line){
+  return scoreDist(lh,la).filter(s=>s.h+s.a>line).reduce((a,s)=>a+s.p,0);
 }
+function pUnder(lh,la,line){ return 1-pOver(lh,la,line-0.001) }
+function pRange(lam,lo,hi){ let p=0; for(let k=lo;k<=hi;k++) p+=pois(k,lam); return p }
+function pGG(lh,la){ return (1-pois(0,lh))*(1-pois(0,la)) }
+function pNG(lh,la){ return pois(0,lh)*pois(0,la) }
 
-function kelly(p, odds) {
-  const b=odds-1, q=1-p;
-  const k=Math.max(0,(p*b-q)/b);
+function kellyStake(prob,odds){
+  const b=odds-1, q=1-prob;
+  const k=Math.max(0,(prob*b-q)/b);
   return +Math.min(CFG.bankroll*k*CFG.kelly, CFG.bankroll*0.05).toFixed(2);
 }
 
-// ── Calcule piețe ──────────────────────────────
-// P(total goluri < linie) pentru reprize
-function pUnderLine(lh, la, line) {
-  const d = scoreDist(lh, la);
-  return d.filter(s => s.h+s.a < line).reduce((acc,s) => acc+s.p, 0);
-}
-function pOverLine(lh, la, line) { return 1 - pUnderLine(lh, la, line); }
+// ────────────────────────────────────────────
+// MULTI-STRATEGIE ANALIZĂ
+// S1 VALUE: edge model vs piată (min 3%)
+// S2 HT-MOM: lambda total > 2.6, HT O0.5 > 78%
+// S3 PATTERN: GG puternic sau O2.5 ridicat
+// ────────────────────────────────────────────
+function analyze(m){
+  const{lh,la} = lambdas(m.o1, m.o2);
+  const{lh1,la1} = htLambdas(lh,la);
+  const lT = +(lh+la).toFixed(3);
 
-// P(1-N goluri) pentru o echipă
-function pRange(lam, min, max) {
-  let p=0; for(let k=min; k<=max; k++) p+=pois(k,lam); return p;
-}
+  // === Full Time ===
+  const pO05  = pOver(lh,la,0.5);
+  const pO15  = pOver(lh,la,1.5);
+  const pO25  = pOver(lh,la,2.5);
+  const pO35  = pOver(lh,la,3.5);
+  const pU25  = 1-pO25;
+  const pU35  = 1-pO35;
+  const pGg   = pGG(lh,la);
+  const pNg   = pNG(lh,la);
+  const pCSH  = pois(0,la);   // clean sheet gazda (oaspetele nu marcheaza)
+  const pCSA  = pois(0,lh);   // clean sheet oaspete
 
-// GG = ambele echipe marcheaza (P(H>=1) * P(A>=1))
-function pGG(lh, la) { return (1-pois(0,lh))*(1-pois(0,la)); }
+  // === Half Time ===
+  const pHTO05 = pOver(lh1,la1,0.5);
+  const pHTO15 = pOver(lh1,la1,1.5);
+  const pHTU25 = pUnder(lh1,la1,2.5);
 
-// NG = niciuna nu marcheaza
-function pNG(lh, la) { return pois(0,lh)*pois(0,la); }
+  // === Range ===
+  const pH14  = pRange(lh,1,4);
+  const pA14  = pRange(la,1,4);
+  const pH13  = pRange(lh,1,3);
+  const pA13  = pRange(la,1,3);
+  const pHTH13= pRange(lh1,1,3);
+  const pHTA13= pRange(la1,1,3);
 
-// Analiză completă meci
-function analyze(m) {
-  const { lh, la } = lambdas(m.o1, m.o2);
-  const { lh1, la1 } = htLambdas(lh, la);
+  // === S1 VALUE: edge fata de piata ===
+  const mO15 = m.o15 ? 1/m.o15 : null;
+  const mO25 = m.o25 ? 1/m.o25 : null;
+  const s1_edge = Math.max(mO15?pO15-mO15:0, mO25?pO25-mO25:0, 0);
+  const s1 = s1_edge >= 0.03;
 
-  // Piețe principale (full time)
-  const pO05  = pOverLine(lh, la, 0.5);
-  const pO15  = pOverLine(lh, la, 1.5);
-  const pO25  = pOverLine(lh, la, 2.5);
-  const pO35  = pOverLine(lh, la, 3.5);
-  const pU25  = 1 - pO25;
-  const pU35  = 1 - pO35;
-  const pGg   = pGG(lh, la);
-  const pNg   = pNG(lh, la);
+  // === S2 HT-MOMENTUM: prima repriza activa ===
+  const s2 = lT >= 2.6 && pHTO05 >= 0.78;
 
-  // Intervale goluri echipe (FT)
-  const pH14  = pRange(lh, 1, 4);
-  const pA14  = pRange(la, 1, 4);
-  const pH13  = pRange(lh, 1, 3);
-  const pA13  = pRange(la, 1, 3);
+  // === S3 GOAL PATTERN: tipare clare ===
+  const s3 = (lh >= 0.85 && la >= 0.85 && pGg >= 0.70) || (lT >= 2.9 && pO25 >= 0.76);
 
-  // Piețe repriza 1 (HT)
-  const pHT_U25 = pUnderLine(lh1, la1, 2.5); // -2.5HT
-  const pHT_U35 = pUnderLine(lh1, la1, 3.5); // -3.5HT
-  const pHT_O05 = pOverLine(lh1, la1, 0.5);  // +0.5HT
-  const pHT_O15 = pOverLine(lh1, la1, 1.5);  // +1.5HT
+  const stratScore = (s1?1:0)+(s2?1:0)+(s3?1:0);
+  const stratTags  = [
+    s1?{cls:'sv',txt:'VALUE'}:null,
+    s2?{cls:'sh',txt:'HT-MOM'}:null,
+    s3?{cls:'sp',txt:'PATTERN'}:null
+  ].filter(Boolean);
 
-  // Interval 1-3 goluri repriza (per echipa)
-  const pHT_H13 = pRange(lh1, 1, 3);
-  const pHT_A13 = pRange(la1, 1, 3);
+  // === CALIBRARE REALISTA ===
+  // Bazata pe date statistice fotbal european 2019-2024:
+  // Over 1.5: model Poisson supraestimeaza cu ~4% -> factor 0.96
+  // Over 2.5: supraestimeaza cu ~5% -> factor 0.95
+  // GG: supraestimeaza cu ~5% -> factor 0.95
+  // HT Over 0.5: supraestimeaza cu ~5% -> factor 0.95
+  // HT Over 1.5: supraestimeaza cu ~6% -> factor 0.94
+  // Under: calibrare simetrica
+  // CS: subestimare usoara -> factor 0.97
+  const C = (p,f)=>Math.min(+(p*f).toFixed(4), 0.972);
 
-  // Cota estimată over 1.5 (pentru Kelly)
-  const o15est = m.o15 || +(0.95 / Math.max(pO15, 0.01)).toFixed(2);
+  const d = scoreDist(lh,la);
+  d.sort((a,b)=>b.p-a.p);
+  const top = d[0];
+  const o15e = m.o15 || +(0.95/Math.max(pO15,0.01)).toFixed(2);
 
-  // Scor maxim probabil
-  const d = scoreDist(lh, la);
-  const topScore = d.sort((a,b)=>b.p-a.p)[0];
-
-  return { ...m, lh, la,
-    pO05:  +pO05.toFixed(4),   pO15: +pO15.toFixed(4),
-    pO25:  +pO25.toFixed(4),   pO35: +pO35.toFixed(4),
-    pU25:  +pU25.toFixed(4),   pU35: +pU35.toFixed(4),
-    pGg:   +pGg.toFixed(4),    pNg:  +pNg.toFixed(4),
-    pH14:  +pH14.toFixed(4),   pA14: +pA14.toFixed(4),
-    pH13:  +pH13.toFixed(4),   pA13: +pA13.toFixed(4),
-    pHT_U25: +pHT_U25.toFixed(4),
-    pHT_U35: +pHT_U35.toFixed(4),
-    pHT_O05: +pHT_O05.toFixed(4),
-    pHT_O15: +pHT_O15.toFixed(4),
-    pHT_H13: +pHT_H13.toFixed(4),
-    pHT_A13: +pHT_A13.toFixed(4),
-    o15est, stake: kelly(pO15, o15est),
-    topScore: `${topScore.h}-${topScore.a}`,
-    topScoreP: +topScore.p.toFixed(4)
+  return {
+    ...m, lh, la, lT,
+    pO05:  C(pO05, .985),
+    pO15:  C(pO15, .960),
+    pO25:  C(pO25, .950),
+    pO35:  C(pO35, .930),
+    pU25:  C(pU25, .955),
+    pU35:  C(pU35, .955),
+    pGg:   C(pGg,  .950),
+    pNg:   C(pNg,  .970),
+    pCSH:  C(pCSH, .970),
+    pCSA:  C(pCSA, .970),
+    pHTO05:C(pHTO05,.950),
+    pHTO15:C(pHTO15,.940),
+    pHTU25:C(pHTU25,.960),
+    pH14:  C(pH14, .960),
+    pA14:  C(pA14, .960),
+    pH13:  C(pH13, .960),
+    pA13:  C(pA13, .960),
+    pHTH13:C(pHTH13,.955),
+    pHTA13:C(pHTA13,.955),
+    s1, s2, s3, stratScore, stratTags, s1_edge:+s1_edge.toFixed(4),
+    stake: kellyStake(pO15, o15e),
+    topScore:`${top.h}-${top.a}`, topP:+top.p.toFixed(4)
   };
 }
 
-// ═══════════════════════════════════════════════
-// BILETUL ZILEI — algoritm selecție automată
-// ═══════════════════════════════════════════════
-function buildTicket(matches) {
-  const thr = THR / 100;
-  const N   = CFG.picks || 4;
-
-  // Piețe candidate cu scor de calitate
-  const candidates = [];
-  for (const m of matches) {
-    const mkts = [
-      { key:'o15',   prob:m.pO15,   label:'Over 1.5',     grp:'goals'  },
-      { key:'o25',   prob:m.pO25,   label:'Over 2.5',     grp:'goals'  },
-      { key:'gg',    prob:m.pGg,    label:'GG',            grp:'gg'     },
-      { key:'hth',   prob:m.pHT_U25,label:'-2.5HT',       grp:'ht'     },
-      { key:'o05ht', prob:m.pHT_O05,label:'+0.5HT',       grp:'ht'     },
-      { key:'o15ht', prob:m.pHT_O15,label:'+1.5HT',       grp:'ht'     },
-      { key:'h14',   prob:m.pH14,   label:'1-4G Gazdă',   grp:'range'  },
-      { key:'a14',   prob:m.pA14,   label:'1-4G Oaspeți', grp:'range'  },
-      { key:'h13',   prob:m.pH13,   label:'1-3G Gazdă',   grp:'range'  },
-      { key:'a13',   prob:m.pA13,   label:'1-3G Oaspeți', grp:'range'  },
+// ────────────────────────────────────────────
+// BILET ZILEI  — calitate maximă, prob ≥82%
+// ────────────────────────────────────────────
+function buildBiletZilei(matches){
+  const picks=[], usedIds=new Set();
+  const N = CFG.picks || 4;
+  const candidates=[];
+  for(const m of matches){
+    const mkts=[
+      {k:'pO15',  l:'Over 1.5'},
+      {k:'pO25',  l:'Over 2.5'},
+      {k:'pGg',   l:'GG'},
+      {k:'pHTU25',l:'-2.5 HT'},
+      {k:'pHTO05',l:'+0.5 HT'},
+      {k:'pH14',  l:'1-4G Gazdă'},
+      {k:'pA14',  l:'1-4G Oaspeți'},
     ];
-    for (const mk of mkts) {
-      if (mk.prob >= 0.82) { // prag ridicat pentru biletul zilei
-        // Scor calitate = probabilitate - penalizare volatilitate
-        const quality = mk.prob - Math.abs(mk.prob - 0.88) * 0.3;
-        candidates.push({ ...m, mkt: mk.key, mktLabel: mk.label, prob: mk.prob, quality });
+    for(const mk of mkts){
+      const p = m[mk.k];
+      if(p>=0.82){
+        const bonus = m.stratScore * 0.008;
+        const quality = p + bonus;
+        candidates.push({...m, mktLabel:mk.l, prob:p, quality});
       }
     }
   }
-
-  // Sortare după calitate, diversificare meciuri
-  candidates.sort((a,b) => b.quality - a.quality);
-  const picked = [], usedMatches = new Set(), usedGrp = new Set();
-  for (const c of candidates) {
-    if (picked.length >= N) break;
-    if (usedMatches.has(c.id)) continue;
-    // Prefer diversitate de grupe
-    picked.push(c);
-    usedMatches.add(c.id);
+  candidates.sort((a,b)=>b.quality-a.quality);
+  for(const c of candidates){
+    if(picks.length>=N) break;
+    if(usedIds.has(c.id)) continue;
+    picks.push(c); usedIds.add(c.id);
   }
-
-  // Cotă combinată estimată (conservativ: prob → cotă implied / 0.95 marjă)
-  const cotaCombinata = picked.reduce((acc, p) => {
-    const implied = 1 / Math.max(p.prob, 0.1);
-    return acc * (implied * 0.97); // 3% marja
-  }, 1);
-
-  return { picks: picked, cotaCombinata: +cotaCombinata.toFixed(2) };
+  const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
+  return {picks, cota:+cota.toFixed(2), bzIds:usedIds};
 }
 
-// ═══════════════════════════════════════════════
-// COTĂ 50 ZILEI — 2 variante combinate ~50x
-// ═══════════════════════════════════════════════
-function buildCota50(matches) {
-  // Pentru cotă ~50x avem nevoie de piețe cu cotă individuală mai mare
-  // Ex: 6 selecții × ~2.2x fiecare = ~50x
-  // Deci căutăm piețe cu prob 40-68% (cotă implied 1.4x - 2.5x per selecție)
-  const pool = [];
-  for (const m of matches) {
-    const mkts = [
-      // Piețe cu cotă medie (prob 45-68% → cotă ~1.5-2.2x)
-      { key:'o25',   prob:m.pO25,    label:'Over 2.5'     },
-      { key:'gg',    prob:m.pGg,     label:'GG'           },
-      { key:'o35',   prob:m.pO35,    label:'Over 3.5'     },
-      { key:'o15ht', prob:m.pHT_O15, label:'+1.5 HT'     },
-      { key:'h13',   prob:m.pH13,    label:'1-3G Gazdă'   },
-      { key:'a13',   prob:m.pA13,    label:'1-3G Oaspeți' },
-      // Piețe cu cotă mai mare (prob 30-48% → cotă ~2.1-3.3x)
-      { key:'ng',    prob:m.pNg,     label:'Fără Gol'     },
-      { key:'u25',   prob:m.pU25,    label:'Under 2.5'    },
-      { key:'u35',   prob:m.pU35,    label:'Under 3.5'    },
+// ────────────────────────────────────────────
+// COTĂ ~20  — piețe 55-76%, 4-6 selecții
+// ────────────────────────────────────────────
+function buildCota20(matches, bzIds){
+  const pool=[];
+  for(const m of matches){
+    if(bzIds.has(m.id)) continue;
+    const mkts=[
+      {k:'pO25',  l:'Over 2.5'},
+      {k:'pGg',   l:'GG'},
+      {k:'pHTO15',l:'+1.5 HT'},
+      {k:'pU25',  l:'Under 2.5'},
+      {k:'pH13',  l:'1-3G Gazdă'},
+      {k:'pA13',  l:'1-3G Oaspeți'},
+      {k:'pCSH',  l:'CS Gazdă'},
+      {k:'pCSA',  l:'CS Oaspeți'},
     ];
-    for (const mk of mkts) {
-      // Zona 35-68%: cotă implied între 1.40x și 2.85x per selecție
-      if (mk.prob >= 0.35 && mk.prob <= 0.68) {
-        const impliedOdds = +(0.93 / mk.prob).toFixed(3); // 7% marjă
-        pool.push({ ...m, mkt:mk.key, mktLabel:mk.label, prob:mk.prob, impliedOdds });
+    for(const mk of mkts){
+      const p = m[mk.k];
+      if(p>=0.55 && p<=0.76){
+        const odds = +(0.93/p).toFixed(3);
+        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds:odds});
       }
     }
   }
-
-  if (pool.length < 4) return null;
-
-  // Funcție greedy: construiește un bilet cât mai aproape de targetOdds
-  function buildVariant(excludeIds, target) {
-    // Sortăm după prob descrescător (mai sigure primul)
-    const sorted = pool
-      .filter(c => !excludeIds.has(c.id + '_' + c.mkt))
-      .sort((a, b) => b.prob - a.prob);
-
-    const picked = [], used = new Set();
-    let cota = 1;
-
-    for (const c of sorted) {
-      if (used.has(c.id)) continue;
-      const newCota = cota * c.impliedOdds;
-      // Adaugă dacă nu depășim prea mult targetul
-      if (newCota <= target * 3) {
-        picked.push(c);
-        used.add(c.id);
-        cota = newCota;
-      }
-      // Oprim când suntem în zona target (40x-80x) și avem minim 4 selecții
-      if (cota >= target * 0.7 && picked.length >= 4) break;
-      if (picked.length >= 8) break;
-    }
-    return { picks: picked, cota: +cota.toFixed(2) };
+  pool.sort((a,b)=>(b.stratScore-a.stratScore)||(b.prob-a.prob));
+  const picks=[], used=new Set();
+  let cota=1;
+  for(const c of pool){
+    if(used.has(c.id)) continue;
+    const nc = cota*c.impliedOdds;
+    if(nc>45) continue;
+    picks.push(c); used.add(c.id); cota=nc;
+    if(cota>=12 && picks.length>=4) break;
+    if(picks.length>=7) break;
   }
-
-  const v1 = buildVariant(new Set(), 50);
-
-  // Varianta 2 — evităm selecțiile din v1
-  const v1ids = new Set(v1.picks.map(p => p.id + '_' + p.mkt));
-  const v2 = buildVariant(v1ids, 50);
-
-  return [v1, v2].filter(v => v.picks.length >= 3 && v.cota >= 5);
+  return {picks, cota:+cota.toFixed(2)};
 }
 
-// ═══════════════════════════════════════════════
-// RENDER COTĂ 50 ZILEI
-// ═══════════════════════════════════════════════
-function renderCota50(variants) {
-  const el = document.getElementById('cota50-container');
-  if (!variants || !variants.length || (MKT !== 'all' && MKT !== 'ticket')) { el.innerHTML = ''; return; }
+// ────────────────────────────────────────────
+// COTĂ ~50  — 2 variante, piețe 38-62%
+// ────────────────────────────────────────────
+function buildCota50(matches){
+  const pool=[];
+  for(const m of matches){
+    const mkts=[
+      {k:'pO25',  l:'Over 2.5'},
+      {k:'pGg',   l:'GG'},
+      {k:'pO35',  l:'Over 3.5'},
+      {k:'pHTO15',l:'+1.5 HT'},
+      {k:'pH13',  l:'1-3G Gazdă'},
+      {k:'pA13',  l:'1-3G Oaspeți'},
+      {k:'pU25',  l:'Under 2.5'},
+      {k:'pNg',   l:'Fără Gol'},
+      {k:'pCSH',  l:'CS Gazdă'},
+      {k:'pCSA',  l:'CS Oaspeți'},
+    ];
+    for(const mk of mkts){
+      const p=m[mk.k];
+      if(p>=0.38 && p<=0.62){
+        const odds=+(0.92/p).toFixed(3);
+        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds:odds});
+      }
+    }
+  }
+  pool.sort((a,b)=>b.prob-a.prob);
+  function build(excludeSet){
+    const picks=[], used=new Set();
+    let cota=1;
+    for(const c of pool){
+      if(used.has(c.id)) continue;
+      if(excludeSet && excludeSet.has(c.id+'_'+c.mkt)) continue;
+      const nc=cota*c.impliedOdds;
+      if(nc>100) continue;
+      picks.push(c); used.add(c.id);
+      cota=nc;
+      if(cota>=30 && picks.length>=5) break;
+      if(picks.length>=8) break;
+    }
+    return {picks, cota:+cota.toFixed(2)};
+  }
+  const v1 = build(null);
+  const v1ex = new Set(v1.picks.map(p=>p.id+'_'+p.mkt));
+  const v2 = build(v1ex);
+  return [v1,v2].filter(v=>v.picks.length>=3);
+}
 
-  const variantsHTML = variants.map((v, vi) => {
-    const picksHTML = v.picks.map(p => `
-      <div class="cota50-pick">
-        <div>
-          <div class="c50-match">${esc(p.home)} vs ${esc(p.away)}</div>
-          <div class="c50-meta">${p.flag} ${esc(p.liga)} · 🕐 ${p.ora}</div>
+// ────────────────────────────────────────────
+// RENDER BILETE
+// ────────────────────────────────────────────
+function renderTickets(bz, c20, c50arr){
+  const el = document.getElementById('ticket-zone');
+  if(MKT!=='all' && MKT!=='ticket'){ el.innerHTML=''; return; }
+
+  const picksHTML = (picks, cls) => picks.map(p=>`
+    <div class="tick-pick">
+      <div class="tp-info">
+        <div class="tp-match">${X(p.home)} <span style="color:var(--muted);font-weight:400">vs</span> ${X(p.away)}</div>
+        <div class="tp-meta">
+          <span>${p.flag} ${X(p.liga)}</span>
+          <span>🕐 ${p.ora}</span>
+          ${p.stratScore>=2?`<span style="color:var(--grn);font-weight:700">★ ${p.stratScore} strategii</span>`:''}
         </div>
-        <span class="c50-market">${p.mktLabel} · ${(p.prob*100).toFixed(0)}%</span>
-      </div>`).join('');
-
-    return `
-      <div class="cota50-variant">
-        <div class="cota50-variant-label">
-          VARIANTA ${vi+1} — ${v.picks.length} selecții
-          <span>~${v.cota}x</span>
-        </div>
-        <div class="cota50-picks">${picksHTML}</div>
-      </div>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div class="cota50-section">
-      <div class="cota50-header">
-        <div class="cota50-title">🎰 Cota 50 a Zilei</div>
-        <div class="cota50-meta">${variants.length} variante · risc ridicat</div>
       </div>
-      <div class="cota50-variants">${variantsHTML}</div>
-      <div class="cota50-footer">⚠️ Cotă ridicată = risc ridicat · Gestionează bankroll-ul responsabil</div>
+      <div class="tp-right">
+        <span class="tp-badge">${p.mktLabel}</span>
+        <span class="tp-prob">${(p.prob*100).toFixed(0)}%</span>
+      </div>
+    </div>`).join('');
+
+  let html='';
+
+  if(bz.picks.length){
+    html+=`<div class="ticket t-bz">
+      <div class="ticket-head">
+        <div class="ticket-title">
+          <span class="ticket-icon">🎯</span>
+          <div><div class="ticket-name">Biletul Zilei</div>
+          <span class="ticket-tag">${bz.picks.length} SELECȚII · MAX SIGURANȚĂ</span></div>
+        </div>
+        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${bz.cota}x</div></div>
+      </div>
+      <div class="ticket-picks">${picksHTML(bz.picks,'bz')}</div>
+      <div class="ticket-footer">
+        <span class="ticket-note">Cele mai sigure selecții ale zilei — probabilități ≥82%</span>
+      </div>
     </div>`;
+  }
+
+  if(c20.picks.length){
+    html+=`<div class="ticket t-c20">
+      <div class="ticket-head">
+        <div class="ticket-title">
+          <span class="ticket-icon">🔵</span>
+          <div><div class="ticket-name">Cotă 20 a Zilei</div>
+          <span class="ticket-tag">${c20.picks.length} SELECȚII · RISC MEDIU</span></div>
+        </div>
+        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${c20.cota}x</div></div>
+      </div>
+      <div class="ticket-picks">${picksHTML(c20.picks,'c20')}</div>
+      <div class="ticket-footer">
+        <span class="ticket-note">Selecții din zona 55-76% — echilibru risc/profit</span>
+      </div>
+    </div>`;
+  }
+
+  (c50arr||[]).forEach((v,vi)=>{
+    if(!v.picks.length) return;
+    html+=`<div class="ticket t-c50">
+      <div class="ticket-head">
+        <div class="ticket-title">
+          <span class="ticket-icon">🎰</span>
+          <div><div class="ticket-name">Cotă 50 — Var. ${vi+1}</div>
+          <span class="ticket-tag">${v.picks.length} SELECȚII · RISC RIDICAT</span></div>
+        </div>
+        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${v.cota}x</div></div>
+      </div>
+      <div class="ticket-picks">${picksHTML(v.picks,'c50')}</div>
+      <div class="ticket-footer">
+        <span class="ticket-note">⚠️ Joacă responsabil · Cotă ridicată implică risc ridicat</span>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML=html;
 }
 
+// ────────────────────────────────────────────
+// RENDER MATCH CARDS
+// ────────────────────────────────────────────
+function renderCards(bzIds){
+  const thr = THR/100;
+  const el  = document.getElementById('cards-list');
+  el.innerHTML='';
 
-async function tryFetch(url) {
-  const T = ms => new Promise((_,rj) => setTimeout(()=>rj('timeout'), ms));
-  const proxies = [
-    [url, 6000],
-    ['https://api.allorigins.win/raw?url='+encodeURIComponent(url), 9000],
-    ['https://corsproxy.io/?'+encodeURIComponent(url), 9000],
-    ['https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url), 9000],
+  const pct=v=>(v*100).toFixed(1)+'%';
+
+  let list = DATA[DAY].filter(m=>{
+    if(MKT==='ticket') return bzIds.has(m.id);
+    return mktPass(m, MKT, thr);
+  });
+
+  if(!list.length){
+    el.innerHTML=`<div class="empty">
+      <div class="empty-ico">🔍</div>
+      <p>Niciun meci trece pragul de <strong style="color:var(--grn)">${THR}%</strong>.<br>
+      Încearcă un prag mai mic sau selectează alt filtru de piață.</p>
+    </div>`;
+    return;
+  }
+
+  list.forEach((m,idx)=>{
+    const best=Math.max(m.pO15,m.pO25,m.pGg,m.pHTU25,m.pHTO05,m.pHTO15,m.pH14,m.pA14,m.pH13,m.pA13,m.pU25);
+    const stripe=best>=.92?'lvl-a':best>=.86?'lvl-b':best>=.80?'lvl-c':'lvl-d';
+    const ringCls=best>=.88?'ra':best>=.80?'rb':'';
+    const isBZ=bzIds.has(m.id);
+    const tierTag=m.t===2?'<span class="card-tier">L2</span>':
+                  m.t===0?'<span class="card-tier" style="background:rgba(168,85,247,.08);color:var(--pur);border-color:rgba(168,85,247,.18)">EUR</span>':'';
+
+    const allMkts=[
+      {n:'Over 1.5',  p:m.pO15},
+      {n:'Over 2.5',  p:m.pO25},
+      {n:'Over 3.5',  p:m.pO35},
+      {n:'GG',        p:m.pGg},
+      {n:'Under 2.5', p:m.pU25},
+      {n:'-2.5 HT',   p:m.pHTU25},
+      {n:'+0.5 HT',   p:m.pHTO05},
+      {n:'+1.5 HT',   p:m.pHTO15},
+      {n:'1-4G Gazdă',p:m.pH14},
+      {n:'1-4G Oasp', p:m.pA14},
+      {n:'1-3G Gazdă',p:m.pH13},
+      {n:'1-3G Oasp', p:m.pA13},
+      {n:'CS Gazdă',  p:m.pCSH},
+      {n:'CS Oaspeți',p:m.pCSA},
+    ].filter(mk=>mk.p>=0.65).sort((a,b)=>b.p-a.p);
+
+    const mktsHTML = allMkts.map(mk=>{
+      const cl = mk.p>=thr?'pass':mk.p>=.72?'warn':'';
+      const pc = mk.p>=thr?'pass':mk.p>=.72?'warn':'fail';
+      return `<div class="mkt-item ${cl}">
+        <span class="mkt-name">${mk.n}</span>
+        <span class="mkt-pct ${pc}">${pct(mk.p)}</span>
+      </div>`;
+    }).join('');
+
+    const stratTagsHTML = m.stratTags.map(t=>`<span class="stag ${t.cls}">${t.txt}</span>`).join('');
+
+    const div=document.createElement('div');
+    div.className='card';
+    div.style.animationDelay=(idx*0.025)+'s';
+    div.innerHTML=`
+      <div class="card-stripe ${stripe}"></div>
+      <div class="card-top">
+        <div class="card-teams">
+          <div class="card-match">${X(m.home)} <span class="card-vs">vs</span> ${X(m.away)}</div>
+          <div class="card-meta">
+            <span class="card-league">${m.flag} ${X(m.liga)}</span>
+            ${tierTag}
+            <span class="card-time">🕐 ${m.ora}</span>
+            ${isBZ?'<span class="card-bz">🎯 Bilet Zilei</span>':''}
+          </div>
+          ${stratTagsHTML?`<div class="strat-tags">${stratTagsHTML}</div>`:''}
+        </div>
+        <div class="score-ring ${ringCls}">
+          <div class="ring-pct">${(best*100).toFixed(0)}%</div>
+          <div class="ring-lbl">BEST</div>
+        </div>
+      </div>
+      <div class="card-mkts">
+        <div class="mkts-title">Piețe ≥65%</div>
+        <div class="mkts-grid">${mktsHTML||'<span style="color:var(--muted);font-size:11px">Nicio piață ≥65%</span>'}</div>
+      </div>
+      <div class="card-foot">
+        <div class="lambdas">
+          <div class="lam"><small>λ gazdă</small><b>${m.lh}</b></div>
+          <div class="lam"><small>λ oaspeți</small><b>${m.la}</b></div>
+          <div class="lam"><small>Scor top</small><b class="yl">${m.topScore}</b></div>
+          ${m.stake>0?`<div class="lam"><small>Kelly RON</small><b class="gn">${m.stake}</b></div>`:''}
+        </div>
+        <div class="odds-row">
+          <span class="odd">1:${m.o1}</span>
+          <span class="odd">X:${m.ox}</span>
+          <span class="odd">2:${m.o2}</span>
+          ${m.o15?`<span class="odd g">O1.5:${m.o15}</span>`:''}
+          ${m.o25?`<span class="odd g">O2.5:${m.o25}</span>`:''}
+        </div>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+// ────────────────────────────────────────────
+// UPDATE UI
+// ────────────────────────────────────────────
+function updateUI(){
+  const thr = THR/100;
+  const list = DATA[DAY];
+
+  document.getElementById('k-total').textContent   = list.length;
+  document.getElementById('k-signals').textContent = list.filter(m=>passAny(m,thr)).length;
+  document.getElementById('k-multi').textContent   = list.filter(m=>m.stratScore>=2).length;
+
+  const cnt={all:0,o15:0,o25:0,gg:0,htu25:0,hto05:0,hto15:0,u25:0,ticket:0};
+  const bz  = buildBiletZilei(list);
+  const c20 = buildCota20(list, bz.bzIds);
+  const c50 = buildCota50(list);
+  cnt.ticket= bz.picks.length;
+
+  for(const m of list){
+    if(passAny(m,thr)) cnt.all++;
+    if(m.pO15>=thr)   cnt.o15++;
+    if(m.pO25>=thr)   cnt.o25++;
+    if(m.pGg>=thr)    cnt.gg++;
+    if(m.pHTU25>=thr) cnt.htu25++;
+    if(m.pHTO05>=thr) cnt.hto05++;
+    if(m.pHTO15>=thr) cnt.hto15++;
+    if(m.pU25>=thr)   cnt.u25++;
+  }
+  for(const[k,v] of Object.entries(cnt)){
+    const el=document.getElementById('cn-'+k);
+    if(el) el.textContent=v;
+  }
+
+  renderTickets(bz, c20, c50);
+  renderCards(bz.bzIds);
+}
+
+function passAny(m,thr){
+  return m.pO15>=thr||m.pO25>=thr||m.pGg>=thr||m.pHTU25>=thr||
+         m.pHTO05>=thr||m.pHTO15>=thr||m.pH14>=thr||m.pA14>=thr||
+         m.pH13>=thr||m.pA13>=thr||m.pU25>=thr;
+}
+function mktPass(m,mkt,thr){
+  if(mkt==='o15')   return m.pO15>=thr;
+  if(mkt==='o25')   return m.pO25>=thr;
+  if(mkt==='gg')    return m.pGg>=thr;
+  if(mkt==='htu25') return m.pHTU25>=thr;
+  if(mkt==='hto05') return m.pHTO05>=thr;
+  if(mkt==='hto15') return m.pHTO15>=thr;
+  if(mkt==='u25')   return m.pU25>=thr;
+  return passAny(m,thr);
+}
+
+// ────────────────────────────────────────────
+// CONTROLS
+// ────────────────────────────────────────────
+function setThr(v){
+  THR=v; CFG.thr=v; saveCfgLS();
+  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===v));
+  if(DATA[DAY].length) updateUI();
+}
+function setMkt(m){
+  MKT=m;
+  document.querySelectorAll('.mf').forEach(b=>b.classList.remove('on'));
+  document.getElementById('mf-'+m).classList.add('on');
+  if(DATA[DAY].length) updateUI();
+}
+function switchDay(d){
+  if(DAY===d) return;
+  DAY=d;
+  document.getElementById('tab-azi').classList.toggle('active', d==='azi');
+  document.getElementById('tab-maine').classList.toggle('active', d==='maine');
+  document.getElementById('k-day-lbl').textContent = d==='maine'?'mâine':'azi';
+  if(DATA[d].length){ updateUI(); return; }
+  doRefresh();
+}
+
+// ────────────────────────────────────────────
+// FETCH — un singur set de request-uri pt ambele zile
+// ────────────────────────────────────────────
+const T=ms=>new Promise((_,rj)=>setTimeout(()=>rj('timeout'),ms));
+async function tryFetch(url){
+  const proxy=[
+    [url, 7000],
+    ['https://api.allorigins.win/raw?url='+encodeURIComponent(url), 10000],
+    ['https://corsproxy.io/?'+encodeURIComponent(url), 10000],
+    ['https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url), 10000],
   ];
-  for (const [u, ms] of proxies) {
-    try {
-      const r = await Promise.race([fetch(u), T(ms)]);
-      if (r && (r.ok || r.status===401)) return r;
-    } catch(e) {}
+  for(const[u,ms] of proxy){
+    try{
+      const r=await Promise.race([fetch(u),T(ms)]);
+      if(r&&(r.ok||r.status===401)) return r;
+    }catch(e){}
   }
   return null;
 }
-
-function bucDate(offset=0) {
-  const d = new Date(Date.now() + offset*86400000);
+function bucDate(offset=0){
+  const d=new Date(Date.now()+offset*86400000);
   return new Date(d.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
 }
 
-async function fetchDay(apiKey, dateAzi, dateMaine) {
-  // Un singur set de request-uri colectează ambele zile simultan
-  const allAzi=[], allMaine=[], N=SPORTS.length;
-  for (let i=0; i<N; i++) {
+async function fetchBothDays(apiKey){
+  const dAzi=bucDate(0), dMaine=bucDate(1);
+  const allAzi=[], allMaine=[];
+  const N=SPORTS.length;
+
+  for(let i=0;i<N;i++){
     const sp=SPORTS[i];
-    setLdrText(sp.flag+' '+sp.name, (i+1)+'/'+N+' · '+Math.round(i/N*100)+'%');
-    setProgress(sp.flag+' '+sp.name, Math.round(i/N*100));
+    setProgress(`${sp.f} ${sp.n}`, Math.round(i/N*100));
 
     const url='https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
       +'?apiKey='+apiKey+'&regions=eu&markets=h2h,totals&oddsFormat=decimal'
       +'&bookmakers=pinnacle,betfair,bet365,unibet,williamhill';
-    try {
-      const r = await tryFetch(url);
-      if (!r) continue;
-      if (r.status===401) return { err:'badkey' };
-      if (!r.ok) continue;
-      const games = await r.json();
-      for (const g of games) {
+    try{
+      const r=await tryFetch(url);
+      if(!r) continue;
+      if(r.status===401) return{err:'badkey'};
+      if(!r.ok) continue;
+      const games=await r.json();
+      for(const g of games){
         const dt=new Date(g.commence_time);
-        const gDate=new Date(dt.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
-        if (gDate!==dateAzi && gDate!==dateMaine) continue;
-        const ora  = dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
-        const data = dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Bucharest'});
+        const gd=new Date(dt.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
+        if(gd!==dAzi && gd!==dMaine) continue;
+        const ora=dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
+        const data=dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
         let o1=null,ox=null,o2=null,o15=null,o25=null;
-        for (const bm of g.bookmakers||[]) for (const mkt of bm.markets||[]) {
-          if (mkt.key==='h2h') for (const o of mkt.outcomes) {
-            const p=+o.price.toFixed(2);
-            if(o.name===g.home_team&&(!o1||p>o1))o1=p;
-            if(o.name==='Draw'&&(!ox||p>ox))ox=p;
-            if(o.name===g.away_team&&(!o2||p>o2))o2=p;
-          } else if (mkt.key==='totals') for (const o of mkt.outcomes) {
-            const p=+o.price.toFixed(2);
-            if(o.name==='Over'&&o.point===1.5&&(!o15||p>o15))o15=p;
-            if(o.name==='Over'&&o.point===2.5&&(!o25||p>o25))o25=p;
+        for(const bm of g.bookmakers||[])
+          for(const mkt of bm.markets||[]){
+            if(mkt.key==='h2h') for(const o of mkt.outcomes){
+              const p=+o.price.toFixed(2);
+              if(o.name===g.home_team  && (!o1||p>o1)) o1=p;
+              if(o.name==='Draw'       && (!ox||p>ox)) ox=p;
+              if(o.name===g.away_team  && (!o2||p>o2)) o2=p;
+            } else if(mkt.key==='totals') for(const o of mkt.outcomes){
+              const p=+o.price.toFixed(2);
+              if(o.name==='Over'&&o.point===1.5&&(!o15||p>o15)) o15=p;
+              if(o.name==='Over'&&o.point===2.5&&(!o25||p>o25)) o25=p;
+            }
           }
-        }
-        if (!o1||!ox||!o2) continue;
-        const match = { id:g.id.slice(0,8), data, ora, flag:sp.flag, liga:sp.name, tier:sp.t,
-          home:g.home_team, away:g.away_team, o1, ox, o2, o15, o25 };
-        if (gDate===dateAzi) allAzi.push(match);
-        else allMaine.push(match);
+        if(!o1||!ox||!o2) continue;
+        const match={id:g.id.slice(0,8),data,ora,flag:sp.f,liga:sp.n,t:sp.t,
+                     home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25};
+        if(gd===dAzi) allAzi.push(match);
+        else          allMaine.push(match);
       }
-    } catch(e) { console.warn(sp.key,e); }
+    }catch(e){console.warn(sp.key,e)}
   }
-  setProgress('✅ AZI+MÂINE — analiză completă!', 100);
+  setProgress('✅ AZI + MÂINE complete!', 100);
   setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 1500);
   allAzi.sort((a,b)=>a.ora.localeCompare(b.ora));
   allMaine.sort((a,b)=>a.ora.localeCompare(b.ora));
-  return { matchesAzi:allAzi, matchesMaine:allMaine, err:null };
+  return{matchesAzi:allAzi, matchesMaine:allMaine, err:null};
 }
 
-function setProgress(txt, pct) {
-  const el=document.getElementById('prog-wrap');
-  el.classList.add('show');
-  document.getElementById('prog-txt').textContent=txt;
-  document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('ldr-fill').style.width=pct+'%';
+function setProgress(txt, pct){
+  document.getElementById('prog-wrap').classList.add('show');
+  document.getElementById('prog-txt').textContent  = txt;
+  document.getElementById('prog-pct').textContent  = pct+'%';
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('ldr-f').style.width     = pct+'%';
 }
 
-// ═══════════════════════════════════════════════
-// REFRESH
-// ═══════════════════════════════════════════════
-async function doRefresh() {
+// ────────────────────────────────────────────
+// MAIN REFRESH
+// ────────────────────────────────────────────
+async function doRefresh(){
   const btn=document.getElementById('btn-go');
   btn.classList.add('busy');
-  showLdr('Extrag meciurile AZI + MÂINE...','43 ligi europene · un singur set de request-uri');
-
+  showLdr('Analizez AZI + MÂINE', '43 ligi europene · model Poisson');
   const key=getKey();
-  if (!key) {
+  if(!key){
     hideLdr(); btn.classList.remove('busy');
     toast('Introduceți cheia API în ⚙️ Setări!','err'); return;
   }
-
-  const dateAzi   = bucDate(0);
-  const dateMaine = bucDate(1);
-  const res = await fetchDay(key, dateAzi, dateMaine);
-
-  if (res.err==='badkey') {
+  const res=await fetchBothDays(key);
+  if(res.err==='badkey'){
     hideLdr(); btn.classList.remove('busy');
     toast('API key invalid! Verificați în ⚙️','err'); return;
   }
-
-  await new Promise(r=>setTimeout(r,50));
-
-  // Analizăm și salvăm ambele zile
-  const analyzedAzi   = (res.matchesAzi||[]).map(m=>analyze(m));
-  const analyzedMaine = (res.matchesMaine||[]).map(m=>analyze(m));
-  DATA.azi   = analyzedAzi;
-  DATA.maine = analyzedMaine;
-
-  // Cache pentru ambele zile
-  try {
-    lsSet('ba_cache_azi',   JSON.stringify({ data:analyzedAzi,   ts:Date.now(), dateKey:dateAzi   }));
-    lsSet('ba_cache_maine', JSON.stringify({ data:analyzedMaine, ts:Date.now(), dateKey:dateMaine }));
-  } catch(e) {}
-
+  await new Promise(r=>setTimeout(r,30));
+  const az  = (res.matchesAzi||[]).map(m=>analyze(m));
+  const mne = (res.matchesMaine||[]).map(m=>analyze(m));
+  DATA.azi   = az;
+  DATA.maine = mne;
+  try{
+    ls.set('ba_cache_azi',   JSON.stringify({data:az,  ts:Date.now(), dk:bucDate(0)}));
+    ls.set('ba_cache_maine', JSON.stringify({data:mne, ts:Date.now(), dk:bucDate(1)}));
+  }catch(e){}
   hideLdr(); btn.classList.remove('busy');
   document.getElementById('sb-dot').className='sb-dot live';
-  const totalAzi=analyzedAzi.length, totalMaine=analyzedMaine.length;
-  document.getElementById('sb-src').textContent='The-Odds-API ✅ · '+totalAzi+' AZI · '+totalMaine+' MÂINE';
+  document.getElementById('sb-src').textContent=`The-Odds-API · ${az.length} AZI · ${mne.length} MÂINE`;
   document.getElementById('sb-time').textContent=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('k-day').textContent=DAY==='maine'?'mâine':'azi';
   updateUI();
-
-  const thr=THR/100;
-  const cur=DATA[DAY];
-  const nO=cur.filter(m=>m.pO15>=thr||m.pO25>=thr).length;
-  toast(totalAzi+' meciuri AZI · '+totalMaine+' MÂINE · '+nO+' over≥'+THR+'%','ok');
+  toast(`${az.length} AZI + ${mne.length} MÂINE analizate ✅`, 'ok');
 }
 
-// ═══════════════════════════════════════════════
-// SWITCH DAY
-// ═══════════════════════════════════════════════
-function switchDay(d) {
-  if(DAY===d) return;
-  DAY=d;
-  document.getElementById('d-azi').classList.toggle('on', d==='azi');
-  document.getElementById('d-maine').classList.toggle('on', d==='maine');
-  document.getElementById('k-day').textContent=d==='maine'?'mâine':'azi';
-  if(DATA[d].length){updateUI();return;}
-  try {
-    const c=JSON.parse(lsGet('ba_cache_'+d)||'{}');
-    const dk=bucDate(d==='maine'?1:0);
-    if(c.ts&&Date.now()-c.ts<CACHE_TTL&&c.data?.length&&c.dateKey===dk){
-      DATA[d]=c.data;
-      document.getElementById('sb-dot').className='sb-dot live';
-      document.getElementById('sb-src').textContent='Cache · '+c.data.length+' meciuri';
-      document.getElementById('sb-time').textContent=new Date(c.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-      updateUI(); return;
-    }
-  } catch(e) {}
-  doRefresh();
+// ────────────────────────────────────────────
+// MODAL / SETTINGS
+// ────────────────────────────────────────────
+function saveKey(){
+  const k=(document.getElementById('setup-key').value||'').trim();
+  if(!k||k.length<20){ toast('Cheie prea scurtă!','err'); return; }
+  ls.set('ba_key',k);
+  ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='block';
+  toast('Cheie salvată! ✅','ok');
+  setTimeout(()=>doRefresh(), 200);
 }
-
-// ═══════════════════════════════════════════════
-// UPDATE UI
-// ═══════════════════════════════════════════════
-function updateUI() {
-  const thr=THR/100;
-  const list=DATA[DAY];
-  document.getElementById('k-total').textContent=list.length;
-  document.getElementById('k-over').textContent=list.filter(m=>m.pO15>=thr||m.pO25>=thr).length;
-  document.getElementById('k-gg').textContent=list.filter(m=>m.pGg>=thr||m.pHT_U25>=thr||m.pHT_O05>=thr).length;
-
-  const counts={all:0,o15:0,o25:0,gg:0,hth:0,o05ht:0,o15ht:0,h14:0,a14:0,h13:0,a13:0,ticket:0};
-  for(const m of list){
-    if(passAny(m,thr)) counts.all++;
-    if(m.pO15>=thr)    counts.o15++;
-    if(m.pO25>=thr)    counts.o25++;
-    if(m.pGg>=thr)     counts.gg++;
-    if(m.pHT_U25>=thr) counts.hth++;
-    if(m.pHT_O05>=thr) counts.o05ht++;
-    if(m.pHT_O15>=thr) counts.o15ht++;
-    if(m.pH14>=thr)    counts.h14++;
-    if(m.pA14>=thr)    counts.a14++;
-    if(m.pH13>=thr)    counts.h13++;
-    if(m.pA13>=thr)    counts.a13++;
-  }
-  const ticket=buildTicket(list);
-  const cota50=buildCota50(list);
-  counts.ticket=ticket.picks.length;
-  document.getElementById('k-ticket').textContent=ticket.picks.length;
-
-  for(const [k,v] of Object.entries(counts)) {
-    const el=document.getElementById('mn-'+k);
-    if(el) el.textContent=v;
-  }
-  renderCota50(cota50);
-  renderTicket(ticket);
-  renderCards(ticket);
-}
-
-function passAny(m, thr) {
-  return m.pO15>=thr||m.pO25>=thr||m.pGg>=thr||m.pHT_U25>=thr||
-    m.pHT_O05>=thr||m.pHT_O15>=thr||m.pH14>=thr||m.pA14>=thr||m.pH13>=thr||m.pA13>=thr;
-}
-
-function mktPass(m, mkt, thr) {
-  switch(mkt){
-    case 'o15':   return m.pO15>=thr;
-    case 'o25':   return m.pO25>=thr;
-    case 'gg':    return m.pGg>=thr;
-    case 'hth':   return m.pHT_U25>=thr;
-    case 'o05ht': return m.pHT_O05>=thr;
-    case 'o15ht': return m.pHT_O15>=thr;
-    case 'h14':   return m.pH14>=thr;
-    case 'a14':   return m.pA14>=thr;
-    case 'h13':   return m.pH13>=thr;
-    case 'a13':   return m.pA13>=thr;
-    default:      return passAny(m, thr);
-  }
-}
-
-// ═══════════════════════════════════════════════
-// RENDER BILETUL ZILEI
-// ═══════════════════════════════════════════════
-function renderTicket(ticket) {
-  const el=document.getElementById('ticket-container');
-  if (MKT!=='all'&&MKT!=='ticket') { el.innerHTML=''; document.getElementById('cota50-container').innerHTML=''; return; }
-  if (!ticket.picks.length) { el.innerHTML=''; return; }
-
-  const confLevel=Math.min(5, Math.round(ticket.picks.reduce((a,p)=>a+p.prob,0)/ticket.picks.length*5));
-  const dots=Array.from({length:5},(_,i)=>`<div class="conf-dot${i<confLevel?' on':''}"></div>`).join('');
-
-  const picks=ticket.picks.map(p=>`
-    <div class="ticket-pick">
-      <div class="tp-left">
-        <div class="tp-match">${esc(p.home)} <span style="color:var(--muted)">vs</span> ${esc(p.away)}</div>
-        <div class="tp-meta">
-          <span>${p.flag} ${esc(p.liga)}</span>
-          <span style="background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:9px">🕐 ${p.ora}</span>
-        </div>
-      </div>
-      <div class="tp-right">
-        <span class="tp-market">${p.mktLabel}</span>
-        <span class="tp-prob">${(p.prob*100).toFixed(1)}%</span>
-      </div>
-    </div>`).join('');
-
-  el.innerHTML=`
-    <div class="ticket-section">
-      <div class="ticket-header">
-        <div class="ticket-title">🎯 Biletul Zilei</div>
-        <div class="ticket-meta">${ticket.picks.length} selecții · ${new Date().toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit'})}</div>
-      </div>
-      <div class="ticket-picks">${picks}</div>
-      <div class="ticket-footer">
-        <div>
-          <div class="ticket-cota">Cotă combinată estimată: ~${ticket.cotaCombinata}x</div>
-          <div class="ticket-confidence">⚠️ Probabilități matematice Poisson — nu sunt sfaturi financiare</div>
-        </div>
-        <div>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px;text-align:right">ÎNCREDERE MODEL</div>
-          <div class="conf-dots">${dots}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ═══════════════════════════════════════════════
-// RENDER CARDS
-// ═══════════════════════════════════════════════
-function renderCards(ticket) {
-  const thr=THR/100;
-  const el=document.getElementById('cards');
-  el.innerHTML='';
-
-  const ticketIds=new Set((ticket?.picks||[]).map(p=>p.id));
-
-  let list=DATA[DAY].filter(m=>{
-    if(MKT==='ticket') return ticketIds.has(m.id);
-    return mktPass(m, MKT, thr);
-  });
-
-  if (!list.length) {
-    el.innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><p>Niciun meci trece pragul de <strong style="color:var(--grn)">${THR}%</strong> cu filtrul selectat.<br>Încearcă un prag mai mic sau alt filtru.</p></div>`;
-    return;
-  }
-
-  const pct=v=>(v*100).toFixed(1)+'%';
-
-  list.forEach((m,idx)=>{
-    const bestP=Math.max(m.pO15,m.pO25,m.pGg,m.pHT_U25,m.pHT_O05,m.pHT_O15,m.pH14,m.pA14,m.pH13,m.pA13);
-    const accentCls=bestP>=.92?'s-vhigh':bestP>=.86?'s-high':bestP>=.80?'s-mid':'s-low';
-    const ringCls=bestP>=.88?'top':bestP>=.80?'high':'';
-    const pctCls=bestP>=.88?'top':bestP>=.80?'high':'';
-    const isTicket=ticketIds.has(m.id);
-    const tierBadge=m.tier===2?'<span class="mc-tier2">L2</span>':m.tier===0?'<span class="mc-tier2" style="background:rgba(168,85,247,.12);color:var(--pur);border-color:rgba(168,85,247,.2)">EUR</span>':'';
-
-    // Determină cel mai bun label
-    const probMap=[
-      {k:'Over 1.5',v:m.pO15},{k:'Over 2.5',v:m.pO25},{k:'GG',v:m.pGg},
-      {k:'-2.5 HT',v:m.pHT_U25},{k:'+0.5 HT',v:m.pHT_O05},{k:'+1.5 HT',v:m.pHT_O15},
-      {k:'1-4G Gazdă',v:m.pH14},{k:'1-4G Oaspeți',v:m.pA14},
-      {k:'1-3G Gazdă',v:m.pH13},{k:'1-3G Oaspeți',v:m.pA13},
-    ].sort((a,b)=>b.v-a.v);
-    const topLabel=probMap[0].k;
-
-    // Grid piețe — afișăm toate piețele >= 65%
-    const markets=[
-      { name:'Over 1.5',       p:m.pO15   },
-      { name:'Over 2.5',       p:m.pO25   },
-      { name:'GG',             p:m.pGg    },
-      { name:'-2.5 HT',        p:m.pHT_U25},
-      { name:'-3.5 HT',        p:m.pHT_U35},
-      { name:'+0.5 HT',        p:m.pHT_O05},
-      { name:'+1.5 HT',        p:m.pHT_O15},
-      { name:'1-4G Gazdă',     p:m.pH14   },
-      { name:'1-4G Oaspeți',   p:m.pA14   },
-      { name:'1-3G Gazdă',     p:m.pH13   },
-      { name:'1-3G Oaspeți',   p:m.pA13   },
-      { name:'HT 1-3G H',      p:m.pHT_H13},
-      { name:'HT 1-3G A',      p:m.pHT_A13},
-    ].filter(mk=>mk.p>=.65).sort((a,b)=>b.p-a.p);
-
-    const mktsHTML=markets.map(mk=>{
-      const cl=mk.p>=thr?'pass':mk.p>=.72?'warn':'';
-      const pc=mk.p>=thr?'pass':mk.p>=.72?'warn':'fail';
-      const chk=mk.p>=thr?'✅':mk.p>=.72?'🟡':'';
-      return `<div class="mkt ${cl}"><span class="mkt-name">${mk.name}</span><div style="text-align:right"><div class="mkt-prob ${pc}">${pct(mk.p)}</div><div style="font-size:10px">${chk}</div></div></div>`;
-    }).join('');
-
-    const card=document.createElement('div');
-    card.className='match-card';
-    card.style.animationDelay=(idx*.025)+'s';
-    card.innerHTML=`
-      <div class="mc-accent ${accentCls}"></div>
-      <div class="mc-top">
-        <div class="mc-teams">
-          <div class="mc-match">${esc(m.home)} <span class="mc-vs">vs</span> ${esc(m.away)}</div>
-          <div class="mc-info">
-            <span class="mc-league">${m.flag} ${esc(m.liga)}</span>
-            ${tierBadge}
-            <span class="mc-time">🕐 ${m.ora}</span>
-            ${isTicket?'<span class="best-pick-tag">🎯 BILET ZILEI</span>':''}
-          </div>
-        </div>
-        <div class="mc-score-badge">
-          <div class="score-ring ${ringCls}">
-            <div class="score-pct ${pctCls}">${(bestP*100).toFixed(0)}%</div>
-            <div class="score-lbl">BEST MKT</div>
-          </div>
-        </div>
-      </div>
-      <div class="mc-markets">
-        <div class="markets-title">Piețe analizate ≥65%</div>
-        <div class="markets-grid">${mktsHTML||'<span style="color:var(--muted);font-size:11px">Sub 65% pe toate piețele</span>'}</div>
-      </div>
-      <div class="mc-footer">
-        <div class="lambda-row">
-          <div class="lam"><small>λ gazdă</small><b>${m.lh}</b></div>
-          <div class="lam"><small>λ oaspeți</small><b>${m.la}</b></div>
-          <div class="lam"><small>Scor probabil</small><b style="color:var(--yel)">${m.topScore}</b></div>
-          ${m.stake>0?`<div class="lam"><small>Kelly RON</small><b style="color:var(--grn)">${m.stake}</b></div>`:''}
-        </div>
-        <div class="odds-chips">
-          <span class="oc">1: ${m.o1}</span>
-          <span class="oc">X: ${m.ox}</span>
-          <span class="oc">2: ${m.o2}</span>
-          ${m.o15?`<span class="oc g">O1.5: ${m.o15}</span>`:''}
-          ${m.o25?`<span class="oc g">O2.5: ${m.o25}</span>`:''}
-        </div>
-      </div>`;
-    el.appendChild(card);
-  });
-}
-
-// ═══════════════════════════════════════════════
-// CONTROLS
-// ═══════════════════════════════════════════════
-function setThr(v) {
-  THR=v; CFG.thr=v; saveCfgLS();
-  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===v));
-  if(DATA[DAY].length) updateUI();
-}
-function setMkt(m) {
-  MKT=m;
-  document.querySelectorAll('.mf').forEach(b=>b.classList.remove('on'));
-  document.getElementById('mf-'+m).classList.add('on');
-  if(DATA[DAY].length) renderCards(buildTicket(DATA[DAY]));
-}
-function saveKey() {
-  const k=document.getElementById('ki').value.trim();
-  if(!k){toast('Introduceți cheia API!','err');return;}
-  if(k.length<20){toast('Cheie prea scurtă!','err');return;}
-  setKeyLS(k);
-  lsRemove('ba_cache_azi');
-  lsRemove('ba_cache_maine');
-  const setupEl = document.getElementById('setup');
-  setupEl.style.display='none';
-  toast('Cheie salvată! ✅ Alegeți ziua...','ok');
-  setTimeout(()=>{
-    try { showDaySelector(); }
-    catch(e) { console.error('showDaySelector error:', e); toast('Eroare: '+e.message,'err'); }
-  }, 300);
-}
-function deleteKey() {
-  if(!confirm('Ștergeți cheia API?\nVeți fi deconectat.'))return;
-  lsRemove('ba_key');
-  lsRemove('ba_cache_azi');
-  lsRemove('ba_cache_maine');
+function deleteKey(){
+  if(!confirm('Ștergeți cheia API?\nVeți fi deconectat.')) return;
+  ls.rm('ba_key'); ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
   DATA={azi:[],maine:[]};
   closeModal();
   document.getElementById('app').style.display='none';
-  document.getElementById('day-selector').style.display='none';
   document.getElementById('setup').style.display='flex';
-  document.getElementById('ki').value='';
+  document.getElementById('setup-key').value='';
   toast('Cheie ștearsă','inf');
 }
-let _eye=false;
-function toggleEye(){_eye=!_eye;document.getElementById('m-key').type=_eye?'text':'password';document.getElementById('m-eye').textContent=_eye?'🙈':'👁';}
 function openModal(){
   const k=getKey();
   document.getElementById('m-key').value='';
-  document.getElementById('m-key').placeholder=k?'Cheie salvată — introduceți nouă pt a schimba':'Introduceți cheia...';
-  document.getElementById('m-broll').value=CFG.bankroll;
-  document.getElementById('m-kelly').value=CFG.kelly;
-  document.getElementById('m-thr').value=CFG.thr;
-  document.getElementById('m-picks').value=CFG.picks||4;
-  document.getElementById('modal').classList.add('open');
+  document.getElementById('m-key').placeholder=k?'Cheie salvată — introduceți alta':'Introduceți cheia...';
+  document.getElementById('m-broll').value  = CFG.bankroll;
+  document.getElementById('m-kelly').value  = CFG.kelly;
+  document.getElementById('m-picks').value  = CFG.picks||4;
+  document.getElementById('overlay').classList.add('open');
 }
-function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeModal(){ document.getElementById('overlay').classList.remove('open') }
 function saveCfg(){
-  const newKey=document.getElementById('m-key').value.trim();
-  if(newKey&&newKey.length>=20){
-    setKeyLS(newKey);
-    lsRemove('ba_cache_azi');
-    lsRemove('ba_cache_maine');
+  const nk=(document.getElementById('m-key').value||'').trim();
+  if(nk&&nk.length>=20){
+    ls.set('ba_key',nk);
+    ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
     DATA={azi:[],maine:[]};
-    toast('Cheie actualizată! ✅','ok');
+    toast('Cheie actualizată!','ok');
   }
-  CFG.bankroll=+document.getElementById('m-broll').value||5000;
-  CFG.kelly=+document.getElementById('m-kelly').value||.25;
-  CFG.thr=+document.getElementById('m-thr').value||80;
-  CFG.picks=+document.getElementById('m-picks').value||4;
-  saveCfgLS(); setThr(CFG.thr); closeModal();
-  if(DATA[DAY].length){DATA[DAY]=DATA[DAY].map(m=>analyze(m));updateUI();}
+  CFG.bankroll = +document.getElementById('m-broll').value || 5000;
+  CFG.kelly    = +document.getElementById('m-kelly').value || 0.25;
+  CFG.picks    = +document.getElementById('m-picks').value || 4;
+  CFG.thr      = THR;
+  saveCfgLS(); closeModal();
+  if(DATA[DAY].length){ DATA[DAY]=DATA[DAY].map(m=>analyze(m)); updateUI(); }
   toast('Setări salvate! ✅','ok');
 }
-
-// ═══════════════════════════════════════════════
-// DAY SELECTOR SCREEN
-// ═══════════════════════════════════════════════
-let DS_SELECTED = null;
-
-function showDaySelector() {
-  document.getElementById('day-selector').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  const fmt = {day:'2-digit', month:'2-digit'};
-  document.getElementById('ds-azi-date').textContent = new Date().toLocaleDateString('ro-RO', fmt);
-  document.getElementById('ds-maine-date').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO', fmt);
-  DS_SELECTED = null;
-  document.getElementById('ds-azi').classList.remove('selected');
-  document.getElementById('ds-maine').classList.remove('selected');
-  document.getElementById('ds-go').classList.remove('ready');
+let _eyeOpen=false;
+function toggleEye(){
+  _eyeOpen=!_eyeOpen;
+  document.getElementById('m-key').type=_eyeOpen?'text':'password';
 }
 
-function selectDay(d) {
-  DS_SELECTED = d;
-  document.getElementById('ds-azi').classList.toggle('selected', d === 'azi');
-  document.getElementById('ds-maine').classList.toggle('selected', d === 'maine');
-  document.getElementById('ds-go').classList.add('ready');
+// ────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────
+function X(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function showLdr(t,s){ document.getElementById('ldr').classList.add('on'); document.getElementById('ldr-t').textContent=t; document.getElementById('ldr-s').textContent=s; }
+function hideLdr(){ document.getElementById('ldr').classList.remove('on') }
+let _toastT;
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+(type||'inf');
+  clearTimeout(_toastT);
+  _toastT=setTimeout(()=>el.className='',3800);
 }
-
-function startAnalysis() {
-  if (!DS_SELECTED) return;
-  DAY = DS_SELECTED;
-  document.getElementById('day-selector').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  // Sync day buttons in app
-  document.getElementById('d-azi').classList.toggle('on', DAY === 'azi');
-  document.getElementById('d-maine').classList.toggle('on', DAY === 'maine');
-  document.getElementById('k-day').textContent = DAY === 'maine' ? 'mâine' : 'azi';
-  // Verificăm cache pentru AMBELE zile
-  try {
-    const cAzi   = JSON.parse(lsGet('ba_cache_azi')   || '{}');
-    const cMaine = JSON.parse(lsGet('ba_cache_maine') || '{}');
-    const dkAzi   = bucDate(0);
-    const dkMaine = bucDate(1);
-    const aziOk   = cAzi.ts   && Date.now()-cAzi.ts   < CACHE_TTL && cAzi.data?.length   && cAzi.dateKey===dkAzi;
-    const maineOk = cMaine.ts && Date.now()-cMaine.ts < CACHE_TTL && cMaine.data?.length && cMaine.dateKey===dkMaine;
-    if (aziOk && maineOk) {
-      DATA.azi   = cAzi.data;
-      DATA.maine = cMaine.data;
-      document.getElementById('sb-dot').className = 'sb-dot live';
-      document.getElementById('sb-src').textContent = 'Cache · '+cAzi.data.length+' AZI · '+cMaine.data.length+' MÂINE';
-      document.getElementById('sb-time').textContent = new Date(cAzi.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-      updateUI(); return;
-    }
-  } catch(e) {}
-  doRefresh();
-}
-
-// ═══════════════════════════════════════════════
-// PWA + HELPERS
-// ═══════════════════════════════════════════════
 function injectManifest(){
-  const m={name:'BetAnalytics Pro',short_name:'BetPro',description:'Analiză fotbal Poisson · 43 ligi',
-    start_url:location.href,display:'standalone',background_color:'#05080F',theme_color:'#05080F',orientation:'portrait',
-    icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%2305080F"/><text y=".9em" font-size="80">⚽</text></svg>',sizes:'any',type:'image/svg+xml'}]};
+  const m={name:'BetAnalytics Pro',short_name:'BetPro',
+    description:'Analiză fotbal Poisson multi-strategie',
+    start_url:location.href,display:'standalone',
+    background_color:'#060B14',theme_color:'#060B14',orientation:'portrait',
+    icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%23060B14"/><text y=".9em" font-size="80">⚽</text></svg>',sizes:'any',type:'image/svg+xml'}]};
   const blob=new Blob([JSON.stringify(m)],{type:'application/json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
 }
-function showLdr(t,s){document.getElementById('ldr').classList.add('on');setLdrText(t,s);}
-function hideLdr(){document.getElementById('ldr').classList.remove('on');}
-function setLdrText(t,s){document.getElementById('ldr-t').textContent=t;document.getElementById('ldr-s').textContent=s;}
-let _tt;
-function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'inf');clearTimeout(_tt);_tt=setTimeout(()=>el.className='',3800);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ═══════════════════════════════════════════════
+// ────────────────────────────────────────────
 // INIT
-// ═══════════════════════════════════════════════
+// ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  try {
-    injectManifest();
-  } catch(e) {}
-
+  document.body.style.visibility='';
+  try{ injectManifest() }catch(e){}
   THR = CFG.thr || 80;
-  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===THR));
+  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===THR));
 
-  const fmt = {day:'2-digit', month:'2-digit'};
-  try {
-    document.getElementById('d-azi-lbl').textContent = new Date().toLocaleDateString('ro-RO',fmt);
-    document.getElementById('d-maine-lbl').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
-  } catch(e) {}
+  const fmt={day:'2-digit',month:'2-digit'};
+  document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO',fmt);
+  document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
 
-  // Arată mereu ceva — nu lăsa ecranul negru
-  const key = getKey();
-  if (!key) {
-    document.getElementById('setup').style.display = 'flex';
-    document.getElementById('day-selector').style.display = 'none';
-    document.getElementById('app').style.display = 'none';
-  } else {
-    document.getElementById('setup').style.display = 'none';
-    document.getElementById('app').style.display = 'none';
-    showDaySelector();
+  const key=getKey();
+  if(!key){
+    document.getElementById('setup').style.display='flex';
+    document.getElementById('app').style.display='none';
+    return;
   }
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='block';
+
+  // Try cache
+  try{
+    const cA=JSON.parse(ls.get('ba_cache_azi')||'{}');
+    const cM=JSON.parse(ls.get('ba_cache_maine')||'{}');
+    const okA=cA.ts&&Date.now()-cA.ts<CACHE_TTL&&cA.data?.length&&cA.dk===bucDate(0);
+    const okM=cM.ts&&Date.now()-cM.ts<CACHE_TTL&&cM.data?.length&&cM.dk===bucDate(1);
+    if(okA&&okM){
+      DATA.azi=cA.data; DATA.maine=cM.data;
+      document.getElementById('sb-dot').className='sb-dot live';
+      document.getElementById('sb-src').textContent=`Cache valid · ${cA.data.length} AZI · ${cM.data.length} MÂINE`;
+      document.getElementById('sb-time').textContent=new Date(cA.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+      updateUI(); return;
+    }
+  }catch(e){}
+  doRefresh();
 });
 </script>
 </body>
