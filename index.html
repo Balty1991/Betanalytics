@@ -1042,8 +1042,9 @@ function bucDate(offset=0) {
   return new Date(d.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
 }
 
-async function fetchDay(apiKey, targetDate) {
-  const all=[], N=SPORTS.length;
+async function fetchDay(apiKey, dateAzi, dateMaine) {
+  // Un singur set de request-uri colectează ambele zile simultan
+  const allAzi=[], allMaine=[], N=SPORTS.length;
   for (let i=0; i<N; i++) {
     const sp=SPORTS[i];
     setLdrText(sp.flag+' '+sp.name, (i+1)+'/'+N+' · '+Math.round(i/N*100)+'%');
@@ -1061,7 +1062,7 @@ async function fetchDay(apiKey, targetDate) {
       for (const g of games) {
         const dt=new Date(g.commence_time);
         const gDate=new Date(dt.toLocaleString('en-US',{timeZone:'Europe/Bucharest'})).toISOString().split('T')[0];
-        if (gDate!==targetDate) continue;
+        if (gDate!==dateAzi && gDate!==dateMaine) continue;
         const ora  = dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
         const data = dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'Europe/Bucharest'});
         let o1=null,ox=null,o2=null,o15=null,o25=null;
@@ -1078,15 +1079,18 @@ async function fetchDay(apiKey, targetDate) {
           }
         }
         if (!o1||!ox||!o2) continue;
-        all.push({ id:g.id.slice(0,8), data, ora, flag:sp.flag, liga:sp.name, tier:sp.t,
-          home:g.home_team, away:g.away_team, o1, ox, o2, o15, o25 });
+        const match = { id:g.id.slice(0,8), data, ora, flag:sp.flag, liga:sp.name, tier:sp.t,
+          home:g.home_team, away:g.away_team, o1, ox, o2, o15, o25 };
+        if (gDate===dateAzi) allAzi.push(match);
+        else allMaine.push(match);
       }
     } catch(e) { console.warn(sp.key,e); }
   }
-  setProgress('✅ Analiză completă', 100);
+  setProgress('✅ AZI+MÂINE — analiză completă!', 100);
   setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 1500);
-  all.sort((a,b)=>a.ora.localeCompare(b.ora));
-  return { matches:all, err:null };
+  allAzi.sort((a,b)=>a.ora.localeCompare(b.ora));
+  allMaine.sort((a,b)=>a.ora.localeCompare(b.ora));
+  return { matchesAzi:allAzi, matchesMaine:allMaine, err:null };
 }
 
 function setProgress(txt, pct) {
@@ -1104,9 +1108,7 @@ function setProgress(txt, pct) {
 async function doRefresh() {
   const btn=document.getElementById('btn-go');
   btn.classList.add('busy');
-  const offset=DAY==='maine'?1:0;
-  const dl=DAY==='maine'?'MÂINE':'AZI';
-  showLdr('Extrag meciurile '+dl+'...','43 ligi europene · Superbet coverage');
+  showLdr('Extrag meciurile AZI + MÂINE...','43 ligi europene · un singur set de request-uri');
 
   const key=getKey();
   if (!key) {
@@ -1114,44 +1116,41 @@ async function doRefresh() {
     toast('Introduceți cheia API în ⚙️ Setări!','err'); return;
   }
 
-  const target=bucDate(offset);
-  const res=await fetchDay(key,target);
+  const dateAzi   = bucDate(0);
+  const dateMaine = bucDate(1);
+  const res = await fetchDay(key, dateAzi, dateMaine);
+
   if (res.err==='badkey') {
     hideLdr(); btn.classList.remove('busy');
     toast('API key invalid! Verificați în ⚙️','err'); return;
   }
-  if (!res.matches||!res.matches.length) {
-    hideLdr(); btn.classList.remove('busy');
-    document.getElementById('sb-dot').className='sb-dot';
-    document.getElementById('sb-src').textContent='Fără meciuri '+dl.toLowerCase();
-    document.getElementById('sb-time').textContent=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('k-total').textContent='0';
-    document.getElementById('k-over').textContent='0';
-    document.getElementById('k-gg').textContent='0';
-    document.getElementById('k-ticket').textContent='0';
-    document.getElementById('cards').innerHTML=`<div class="empty"><div class="empty-ico">📭</div><p>Niciun meci disponibil pentru <strong style="color:var(--acc)">${dl}</strong>.<br>Verificați mai târziu sau schimbați ziua.</p></div>`;
-    document.getElementById('ticket-container').innerHTML='';
-    toast('Niciun meci disponibil '+dl.toLowerCase(),'inf'); return;
-  }
 
   await new Promise(r=>setTimeout(r,50));
-  const analyzed=res.matches.map(m=>analyze(m));
-  analyzed.sort((a,b)=>a.ora.localeCompare(b.ora));
-  DATA[DAY]=analyzed;
+
+  // Analizăm și salvăm ambele zile
+  const analyzedAzi   = (res.matchesAzi||[]).map(m=>analyze(m));
+  const analyzedMaine = (res.matchesMaine||[]).map(m=>analyze(m));
+  DATA.azi   = analyzedAzi;
+  DATA.maine = analyzedMaine;
+
+  // Cache pentru ambele zile
+  try {
+    lsSet('ba_cache_azi',   JSON.stringify({ data:analyzedAzi,   ts:Date.now(), dateKey:dateAzi   }));
+    lsSet('ba_cache_maine', JSON.stringify({ data:analyzedMaine, ts:Date.now(), dateKey:dateMaine }));
+  } catch(e) {}
 
   hideLdr(); btn.classList.remove('busy');
   document.getElementById('sb-dot').className='sb-dot live';
-  document.getElementById('sb-src').textContent='The-Odds-API ✅ · '+analyzed.length+' meciuri '+dl;
+  const totalAzi=analyzedAzi.length, totalMaine=analyzedMaine.length;
+  document.getElementById('sb-src').textContent='The-Odds-API ✅ · '+totalAzi+' AZI · '+totalMaine+' MÂINE';
   document.getElementById('sb-time').textContent=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('k-day').textContent=DAY==='maine'?'mâine':'azi';
   updateUI();
 
   const thr=THR/100;
-  const nO=analyzed.filter(m=>m.pO15>=thr||m.pO25>=thr).length;
-  toast(analyzed.length+' meciuri analizate · '+nO+' over≥'+THR+'%','ok');
-
-  try { lsSet('ba_cache_'+DAY, JSON.stringify({ data:analyzed, ts:Date.now(), dateKey:bucDate(offset) })); }
-  catch(e) {}
+  const cur=DATA[DAY];
+  const nO=cur.filter(m=>m.pO15>=thr||m.pO25>=thr).length;
+  toast(totalAzi+' meciuri AZI · '+totalMaine+' MÂINE · '+nO+' over≥'+THR+'%','ok');
 }
 
 // ═══════════════════════════════════════════════
@@ -1497,16 +1496,20 @@ function startAnalysis() {
   document.getElementById('d-azi').classList.toggle('on', DAY === 'azi');
   document.getElementById('d-maine').classList.toggle('on', DAY === 'maine');
   document.getElementById('k-day').textContent = DAY === 'maine' ? 'mâine' : 'azi';
-  // Check cache first
+  // Verificăm cache pentru AMBELE zile
   try {
-    const offset = DAY === 'maine' ? 1 : 0;
-    const c = JSON.parse(lsGet('ba_cache_' + DAY) || '{}');
-    const dk = bucDate(offset);
-    if (c.ts && Date.now() - c.ts < CACHE_TTL && c.data?.length && c.dateKey === dk) {
-      DATA[DAY] = c.data;
+    const cAzi   = JSON.parse(lsGet('ba_cache_azi')   || '{}');
+    const cMaine = JSON.parse(lsGet('ba_cache_maine') || '{}');
+    const dkAzi   = bucDate(0);
+    const dkMaine = bucDate(1);
+    const aziOk   = cAzi.ts   && Date.now()-cAzi.ts   < CACHE_TTL && cAzi.data?.length   && cAzi.dateKey===dkAzi;
+    const maineOk = cMaine.ts && Date.now()-cMaine.ts < CACHE_TTL && cMaine.data?.length && cMaine.dateKey===dkMaine;
+    if (aziOk && maineOk) {
+      DATA.azi   = cAzi.data;
+      DATA.maine = cMaine.data;
       document.getElementById('sb-dot').className = 'sb-dot live';
-      document.getElementById('sb-src').textContent = 'Cache · ' + c.data.length + ' meciuri ' + (DAY==='maine'?'MÂINE':'AZI');
-      document.getElementById('sb-time').textContent = new Date(c.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('sb-src').textContent = 'Cache · '+cAzi.data.length+' AZI · '+cMaine.data.length+' MÂINE';
+      document.getElementById('sb-time').textContent = new Date(cAzi.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
       updateUI(); return;
     }
   } catch(e) {}
