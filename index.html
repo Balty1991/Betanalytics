@@ -1383,6 +1383,7 @@ async function tryFetch(url){
     new Promise(async (resolve) => {
       try{
         const r = await Promise.race([fetch(u), T(ms)]);
+        if(r && r.status===429){ resolve({status:429, ok:false, _noCredits:true}); return; }
         if(r && (r.ok || r.status===401)){
           if(direct){
             const rem  = r.headers.get('x-requests-remaining');
@@ -1474,6 +1475,7 @@ async function fetchBothDays(apiKey){
         const r = await tryFetch(makeUrl(sp));
         if(!r) return null;
         if(r.status===401) return {err:'badkey'};
+        if(r.status===429 || r._noCredits) return {err:'nocredits'};
         if(!r.ok) return null;
         try{ const games=await r.json(); return {sp, games}; }
         catch(e){ return null; }
@@ -1483,6 +1485,7 @@ async function fetchBothDays(apiKey){
     for(const res of results){
       if(res.status!=='fulfilled'||!res.value) continue;
       if(res.value.err==='badkey') return{err:'badkey'};
+      if(res.value.err==='nocredits') return{err:'nocredits'};
       const {sp, games} = res.value;
       const parsed = parseGames(games, sp);
       allAzi.push(...parsed.azi);
@@ -1522,9 +1525,36 @@ async function doRefresh(){
   const res=await fetchBothDays(key);
   if(res.err==='badkey'){
     hideLdr(); btn.classList.remove('busy');
-    toast('API key invalid! Verificați în ⚙️','err'); return;
+    showApiError('❌ Cheie API invalidă!',
+      'Cheia introdusă nu este acceptată de the-odds-api.com.<br>Mergi la <b>⚙️ Setări</b> și introdu o cheie validă.');
+    return;
+  }
+  if(res.err==='nocredits'){
+    hideLdr(); btn.classList.remove('busy');
+    showApiError('🔴 Credite API epuizate!',
+      'Cheia ta a consumat toate creditele disponibile (500/lună).<br><br>'+
+      '<b>Ce poți face:</b><br>'+
+      '• Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> → Dashboard<br>'+
+      '• Generează o <b>cheie nouă</b> (cont nou gratuit = 500 credite noi)<br>'+
+      '• Sau așteaptă resetarea lunară<br><br>'+
+      'Introdu noua cheie în <b>⚙️ Setări</b>.');
+    return;
   }
   await new Promise(r=>setTimeout(r,30));
+  // Dacă 0 meciuri total — posibil problema de rețea sau credite
+  if((res.matchesAzi||[]).length===0 && (res.matchesMaine||[]).length===0){
+    // Verifică dacă avem credite în cache
+    try{
+      const cc=JSON.parse(ls.get('ba_credits')||'{}');
+      if(cc.remaining===0){
+        hideLdr(); btn.classList.remove('busy');
+        showApiError('🔴 Credite API epuizate!',
+          'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
+          'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> → generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
+        return;
+      }
+    }catch(e){}
+  }
   const az  = (res.matchesAzi||[]).map(m=>analyze(m));
   const mne = (res.matchesMaine||[]).map(m=>analyze(m));
   DATA.azi   = az;
@@ -1575,6 +1605,38 @@ function openModal(){
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(){ document.getElementById('overlay').classList.remove('open') }
+
+function showApiError(title, msg){
+  // Afișează un banner de eroare persistent deasupra aplicației
+  let el = document.getElementById('api-error-banner');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'api-error-banner';
+    el.style.cssText = `position:fixed;top:0;left:0;right:0;z-index:9999;
+      background:linear-gradient(135deg,#1a0a0a,#2d0f0f);
+      border-bottom:2px solid #ef4444;padding:16px 20px;
+      display:flex;align-items:flex-start;gap:14px;`;
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `
+    <div style="font-size:28px;flex-shrink:0">${title.split(' ')[0]}</div>
+    <div style="flex:1">
+      <div style="font-size:16px;font-weight:800;color:#fca5a5;margin-bottom:6px">${title.slice(title.indexOf(' ')+1)}</div>
+      <div style="font-size:13px;color:#fcd5d5;line-height:1.6">${msg}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+      <button onclick="openModal();document.getElementById('api-error-banner').remove()"
+        style="padding:9px 16px;background:#22c55e;color:#000;border:none;border-radius:8px;
+        font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap">
+        ⚙️ Schimbă Cheia
+      </button>
+      <button onclick="document.getElementById('api-error-banner').remove()"
+        style="padding:7px 16px;background:transparent;color:#9ca3af;border:1px solid #374151;
+        border-radius:8px;font-size:12px;cursor:pointer">
+        Închide
+      </button>
+    </div>`;
+}
 
 async function checkCreditsNow(){
   const key=getKey();
