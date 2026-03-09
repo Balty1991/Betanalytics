@@ -1370,34 +1370,52 @@ const T=ms=>new Promise((_,rj)=>setTimeout(()=>rj('timeout'),ms));
 let API_CREDITS = {remaining: null, used: null, last: null};
 
 async function tryFetch(url){
-  // Direct request first — the-odds-api are CORS activat
-  try{
-    const r = await Promise.race([fetch(url), T(4000)]);
-    if(r && (r.ok || r.status===401)){
-      const rem  = r.headers.get('x-requests-remaining');
-      const used = r.headers.get('x-requests-used');
-      if(rem!==null){
-        API_CREDITS={remaining:+rem, used:+used, last:0};
-        ls.set('ba_credits', JSON.stringify({...API_CREDITS, ts:Date.now()}));
-        updateCreditsDisplay();
-      }
-      return r;
+  // Încearcă direct + 2 proxy-uri ÎN PARALEL, ia primul răspuns valid
+  const enc = encodeURIComponent(url);
+  const attempts = [
+    {u: url,                                                 ms: 8000,  direct: true},
+    {u: 'https://api.allorigins.win/raw?url='+enc,           ms: 10000, direct: false},
+    {u: 'https://corsproxy.io/?'+enc,                        ms: 10000, direct: false},
+  ];
+
+  // Race: primul care răspunde OK câștigă
+  const promises = attempts.map(({u, ms, direct}) =>
+    new Promise(async (resolve) => {
+      try{
+        const r = await Promise.race([fetch(u), T(ms)]);
+        if(r && (r.ok || r.status===401)){
+          if(direct){
+            const rem  = r.headers.get('x-requests-remaining');
+            const used = r.headers.get('x-requests-used');
+            if(rem!==null){
+              API_CREDITS={remaining:+rem, used:+used, last:0};
+              ls.set('ba_credits', JSON.stringify({...API_CREDITS, ts:Date.now()}));
+              updateCreditsDisplay();
+            }
+          }
+          resolve(r);
+        } else resolve(null);
+      }catch(e){ resolve(null); }
+    })
+  );
+
+  // Ia primul non-null
+  return new Promise(resolve => {
+    let done=0;
+    for(const p of promises){
+      p.then(r => {
+        if(r) resolve(r);
+        else if(++done===promises.length) resolve(null);
+      });
     }
-  }catch(e){}
-
-  // Fallback: un singur proxy rapid
-  const proxyUrl = 'https://api.allorigins.win/raw?url='+encodeURIComponent(url);
-  try{
-    const r = await Promise.race([fetch(proxyUrl), T(6000)]);
-    if(r && (r.ok || r.status===401)) return r;
-  }catch(e){}
-
-  return null;
+  });
 }
 
 async function fetchBothDays(apiKey){
   const dAzi=bucDate(0), dMaine=bucDate(1);
   const allAzi=[], allMaine=[];
+  const BATCH=10;
+  const N=SPORTS.length;
 
   const tFrom = new Date(); tFrom.setHours(0,0,0,0);
   const tTo   = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(0,0,0,0);
@@ -1442,34 +1460,37 @@ async function fetchBothDays(apiKey){
     return {azi, maine};
   }
 
-  setProgress('⚡ Se preiau toate cele 66 ligi în paralel...', 10);
+  for(let i=0; i<N; i+=BATCH){
+    const batch = SPORTS.slice(i, i+BATCH);
+    const batchNum = Math.floor(i/BATCH)+1;
+    const totalBatches = Math.ceil(N/BATCH);
+    setProgress(
+      `⚡ Batch ${batchNum}/${totalBatches} · ${batch.map(s=>s.f).join(' ')}`,
+      Math.round(i/N*100)
+    );
 
-  // TOATE 66 simultan — Promise.allSettled
-  const results = await Promise.allSettled(
-    SPORTS.map(async sp => {
-      const r = await tryFetch(makeUrl(sp));
-      if(!r) return null;
-      if(r.status===401) return {err:'badkey'};
-      if(!r.ok) return null;
-      const games = await r.json();
-      return {sp, games};
-    })
-  );
+    const results = await Promise.allSettled(
+      batch.map(async sp => {
+        const r = await tryFetch(makeUrl(sp));
+        if(!r) return null;
+        if(r.status===401) return {err:'badkey'};
+        if(!r.ok) return null;
+        try{ const games=await r.json(); return {sp, games}; }
+        catch(e){ return null; }
+      })
+    );
 
-  setProgress('🔍 Se analizează meciurile...', 80);
-
-  let found=0;
-  for(const res of results){
-    if(res.status!=='fulfilled'||!res.value) continue;
-    if(res.value.err==='badkey') return{err:'badkey'};
-    const {sp, games} = res.value;
-    const parsed = parseGames(games, sp);
-    allAzi.push(...parsed.azi);
-    allMaine.push(...parsed.maine);
-    found += parsed.azi.length + parsed.maine.length;
+    for(const res of results){
+      if(res.status!=='fulfilled'||!res.value) continue;
+      if(res.value.err==='badkey') return{err:'badkey'};
+      const {sp, games} = res.value;
+      const parsed = parseGames(games, sp);
+      allAzi.push(...parsed.azi);
+      allMaine.push(...parsed.maine);
+    }
   }
 
-  setProgress(`✅ ${allAzi.length} meciuri AZI · ${allMaine.length} MÂINE · 66 ligi`, 100);
+  setProgress(`✅ ${allAzi.length} AZI · ${allMaine.length} MÂINE`, 100);
   setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 2000);
   allAzi.sort((a,b)=>a.ora.localeCompare(b.ora));
   allMaine.sort((a,b)=>a.ora.localeCompare(b.ora));
