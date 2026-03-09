@@ -330,13 +330,14 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     <div class="brand-icon">⚽</div>
     <div>
       <div class="brand-name">Bet<em>Analytics</em> Pro</div>
-      <div class="brand-sub">POISSON · MULTI-STRAT · 63 LIGI</div>
+      <div class="brand-sub">POISSON · MULTI-STRAT · TOP 31 / 66 LIGI</div>
     </div>
   </div>
   <div class="topbar-r">
-    <button class="btn-primary" id="btn-go" onclick="doRefresh()">
+    <button class="btn-primary" id="btn-go" onclick="doRefresh(false)">
       <span class="spin-ico">↻</span><span class="go-ico">▶</span> ANALIZEAZĂ
     </button>
+    <button class="btn-full" id="btn-full" onclick="doRefresh(true)" title="Toate ligile Americas+Asia (66 credite)">🌍</button>
     <button class="btn-icon" onclick="openModal()">⚙</button>
   </div>
 </div>
@@ -347,7 +348,7 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     <span class="setup-emoji">⚽</span>
     <h1 class="setup-h">Bet<em>Analytics</em><br>Pro</h1>
     <p class="setup-p">Cel mai avansat instrument de analiză fotbal.<br>
-    Model Poisson multi-strategie · 43 ligi europene<br>
+    Model Poisson multi-strategie · 66 ligi · Europa + Americas + Asia<br>
     <strong style="color:var(--wht)">3 bilete zilnice</strong> — Biletul Zilei · Cotă 20 · Cotă 50</p>
     <div class="input-wrap">
       <span class="input-label">Cheie API — the-odds-api.com</span>
@@ -428,7 +429,6 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
       <button class="thr-btn"    id="tb80" onclick="setThr(80)">80%</button>
       <button class="thr-btn"    id="tb85" onclick="setThr(85)">85%</button>
       <button class="thr-btn"    id="tb90" onclick="setThr(90)">90%</button>
-      <button class="thr-btn"    id="tb95" onclick="setThr(95)">95%</button>
     </div>
   </div>
 
@@ -502,7 +502,7 @@ const ls = {
   rm:k=>{try{localStorage.removeItem(k)}catch(e){}delete _MEM[k]}
 };
 
-const CACHE_TTL = 2*3600*1000;
+const CACHE_TTL = 6*3600*1000; // 6h cache — economisește credite
 let CFG = loadCfg();
 let MKT = 'all';
 let THR = 70; // prag dinamic 70-99%
@@ -1434,64 +1434,95 @@ function bucDate(offset=0){
     year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
 }
 
-async function fetchBothDays(apiKey){
+async function fetchBothDays(apiKey, fullMode=false){
   const dAzi=bucDate(0), dMaine=bucDate(1);
   const allAzi=[], allMaine=[];
-  const N=SPORTS.length;
 
-  for(let i=0;i<N;i++){
-    const sp=SPORTS[i];
-    setProgress(`${sp.f} ${sp.n}`, Math.round(i/N*100));
+  // Mod normal: doar Tier 0+1 (31 ligi = 31 credite)
+  // Mod extins: toate 66 ligi (66 credite)
+  const toFetch = fullMode ? SPORTS : SPORTS.filter(s=>s.t<=1);
+  const N = toFetch.length;
+  const creditCost = N;
 
-    // Fetch meciuri pentru AZI + MÂINE (limitat explicit la 48h)
-    const tFrom = new Date(); tFrom.setHours(0,0,0,0);
-    const tTo   = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(0,0,0,0);
-    const url='https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
+  const tFrom = new Date(); tFrom.setHours(0,0,0,0);
+  const tTo   = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(0,0,0,0);
+  const tFromISO = tFrom.toISOString();
+  const tToISO   = tTo.toISOString();
+
+  function makeUrl(sp){
+    return 'https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
       +'?apiKey='+apiKey+'&regions=eu,uk&markets=h2h,totals&oddsFormat=decimal'
-      +'&commenceTimeFrom='+tFrom.toISOString()+'&commenceTimeTo='+tTo.toISOString();
-    try{
-      const r=await tryFetch(url);
-      if(!r) continue;
-      if(r.status===401) return{err:'badkey'};
-      if(!r.ok) continue;
-      const games=await r.json();
-      for(const g of games){
-        const dt=new Date(g.commence_time);
-        // Extrage data corect în timezone Bucharest (fără bug-ul double-conversion)
-        const bucParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',
-          year:'numeric',month:'2-digit',day:'2-digit'}).format(dt);
-        const gd=bucParts; // format: YYYY-MM-DD
-        if(gd!==dAzi && gd!==dMaine) continue;
-        const ora=dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
-        const data=dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
-        let o1=null,ox=null,o2=null,o15=null,o25=null;
-        for(const bm of g.bookmakers||[])
-          for(const mkt of bm.markets||[]){
-            if(mkt.key==='h2h') for(const o of mkt.outcomes){
-              const p=+o.price.toFixed(2);
-              if(o.name===g.home_team  && (!o1||p>o1)) o1=p;
-              if(o.name==='Draw'       && (!ox||p>ox)) ox=p;
-              if(o.name===g.away_team  && (!o2||p>o2)) o2=p;
-            } else if(mkt.key==='totals') for(const o of mkt.outcomes){
-              const p=+o.price.toFixed(2);
-              if(o.name==='Over'&&o.point===1.5&&(!o15||p>o15)) o15=p;
-              if(o.name==='Over'&&o.point===2.5&&(!o25||p>o25)) o25=p;
-            }
-          }
-        if(!o1||!ox||!o2) continue;
-        const match={id:g.id.slice(0,8),data,ora,flag:sp.f,liga:sp.n,t:sp.t,
-                     home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25};
-        if(gd===dAzi) allAzi.push(match);
-        else          allMaine.push(match);
-      }
-    }catch(e){console.warn(sp.key,e)}
+      +'&commenceTimeFrom='+tFromISO+'&commenceTimeTo='+tToISO;
   }
-  setProgress('✅ AZI + MÂINE complete!', 100);
-  setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 1500);
+
+  function parseGames(games, sp){
+    const azi=[], maine=[];
+    for(const g of games){
+      const dt  = new Date(g.commence_time);
+      const gd  = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',
+                    year:'numeric',month:'2-digit',day:'2-digit'}).format(dt);
+      if(gd!==dAzi && gd!==dMaine) continue;
+      const ora  = dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
+      const data = dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
+      let o1=null,ox=null,o2=null,o15=null,o25=null;
+      for(const bm of g.bookmakers||[])
+        for(const mkt of bm.markets||[]){
+          if(mkt.key==='h2h') for(const o of mkt.outcomes){
+            const p=+o.price.toFixed(2);
+            if(o.name===g.home_team  && (!o1||p>o1)) o1=p;
+            if(o.name==='Draw'       && (!ox||p>ox)) ox=p;
+            if(o.name===g.away_team  && (!o2||p>o2)) o2=p;
+          } else if(mkt.key==='totals') for(const o of mkt.outcomes){
+            const p=+o.price.toFixed(2);
+            if(o.name==='Over'  && o.point===1.5 && (!o15||p>o15)) o15=p;
+            if(o.name==='Over'  && o.point===2.5 && (!o25||p>o25)) o25=p;
+          }
+        }
+      if(!o1||!ox||!o2) continue;
+      const match={id:g.id.slice(0,8),data,ora,flag:sp.f,liga:sp.n,t:sp.t,
+                   home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25};
+      if(gd===dAzi) azi.push(match);
+      else          maine.push(match);
+    }
+    return {azi, maine};
+  }
+
+  // Batch paralel de 8
+  const BATCH = 8;
+  const modeLabel = fullMode ? '66 ligi' : '31 ligi top';
+  for(let i=0; i<N; i+=BATCH){
+    const batch = toFetch.slice(i, i+BATCH);
+    setProgress(
+      `⚡ ${modeLabel} · Batch ${Math.floor(i/BATCH)+1}/${Math.ceil(N/BATCH)} ${batch.map(s=>s.f).join('')}`,
+      Math.round(i/N*100)
+    );
+    const results = await Promise.allSettled(
+      batch.map(async sp => {
+        const r = await tryFetch(makeUrl(sp));
+        if(!r) return null;
+        if(r.status===401) return {err:'badkey'};
+        if(!r.ok) return null;
+        const games = await r.json();
+        return {sp, games};
+      })
+    );
+    for(const res of results){
+      if(res.status!=='fulfilled'||!res.value) continue;
+      if(res.value.err==='badkey') return{err:'badkey'};
+      const {sp, games} = res.value;
+      const parsed = parseGames(games, sp);
+      allAzi.push(...parsed.azi);
+      allMaine.push(...parsed.maine);
+    }
+  }
+
+  setProgress(`✅ Gata! ${allAzi.length} AZI · ${allMaine.length} MÂINE · ${creditCost} credite folosite`, 100);
+  setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 2500);
   allAzi.sort((a,b)=>a.ora.localeCompare(b.ora));
   allMaine.sort((a,b)=>a.ora.localeCompare(b.ora));
-  return{matchesAzi:allAzi, matchesMaine:allMaine, err:null};
+  return{matchesAzi:allAzi, matchesMaine:allMaine, err:null, credits:creditCost, fullMode};
 }
+
 
 function setProgress(txt, pct){
   document.getElementById('prog-wrap').classList.add('show');
@@ -1504,16 +1535,20 @@ function setProgress(txt, pct){
 // ────────────────────────────────────────────
 // MAIN REFRESH
 // ────────────────────────────────────────────
-async function doRefresh(){
+async function doRefresh(fullMode=false){
   const btn=document.getElementById('btn-go');
   btn.classList.add('busy');
-  showLdr('Analizez AZI + MÂINE', '63 ligi · Europa · Americas · Asia · model Poisson');
+  const ldrMode = fullMode ? '66 ligi · ~66 credite' : '31 ligi top · ~31 credite · model Poisson';
+  showLdr('Analizez AZI + MÂINE', ldrMode);
   const key=getKey();
   if(!key){
     hideLdr(); btn.classList.remove('busy');
+  if(btnFull) btnFull.classList.remove('busy');
     toast('Introduceți cheia API în ⚙️ Setări!','err'); return;
   }
-  const res=await fetchBothDays(key);
+  const btnFull=document.getElementById('btn-full');
+  if(btnFull) btnFull.classList.add('busy');
+  const res=await fetchBothDays(key, fullMode);
   if(res.err==='badkey'){
     hideLdr(); btn.classList.remove('busy');
     toast('API key invalid! Verificați în ⚙️','err'); return;
