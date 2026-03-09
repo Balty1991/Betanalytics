@@ -424,11 +424,12 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     <button class="mf on" id="mf-all"    onclick="setMkt('all')">🔍 Toate <span class="cnt" id="cn-all">0</span></button>
     <button class="mf"    id="mf-o15"    onclick="setMkt('o15')">⚽ O1.5 <span class="cnt" id="cn-o15">0</span></button>
     <button class="mf"    id="mf-o25"    onclick="setMkt('o25')">⚽ O2.5 <span class="cnt" id="cn-o25">0</span></button>
-    <button class="mf"    id="mf-gg"     onclick="setMkt('gg')">🤝 GG <span class="cnt" id="cn-gg">0</span></button>
+    <button class="mf"    id="mf-h14"    onclick="setMkt('h14')">🏠 1-4G Gazdă <span class="cnt" id="cn-h14">0</span></button>
+    <button class="mf"    id="mf-a14"    onclick="setMkt('a14')">✈️ 1-4G Oaspeți <span class="cnt" id="cn-a14">0</span></button>
+    <button class="mf"    id="mf-h13"    onclick="setMkt('h13')">🏠 1-3G Gazdă <span class="cnt" id="cn-h13">0</span></button>
+    <button class="mf"    id="mf-a13"    onclick="setMkt('a13')">✈️ 1-3G Oaspeți <span class="cnt" id="cn-a13">0</span></button>
     <button class="mf"    id="mf-htu25"  onclick="setMkt('htu25')">⏱ -2.5HT <span class="cnt" id="cn-htu25">0</span></button>
-    <button class="mf"    id="mf-hto05"  onclick="setMkt('hto05')">⏱ +0.5HT <span class="cnt" id="cn-hto05">0</span></button>
-    <button class="mf"    id="mf-hto15"  onclick="setMkt('hto15')">⏱ +1.5HT <span class="cnt" id="cn-hto15">0</span></button>
-    <button class="mf"    id="mf-u25"    onclick="setMkt('u25')">🔒 U2.5 <span class="cnt" id="cn-u25">0</span></button>
+    <button class="mf"    id="mf-htu35"  onclick="setMkt('htu35')">⏱ -3.5HT <span class="cnt" id="cn-htu35">0</span></button>
     <button class="mf"    id="mf-ticket" onclick="setMkt('ticket')">🎯 Bilete <span class="cnt" id="cn-ticket">0</span></button>
   </div>
 
@@ -500,52 +501,86 @@ function getKey(){ return ls.get('ba_key')||'' }
 // SPORTS LIST (43 ligi)
 // ────────────────────────────────────────────
 const SPORTS=[
-  {key:'soccer_uefa_champs_league',           n:'Champions League',      f:'🏆',t:0},
-  {key:'soccer_uefa_europa_league',           n:'Europa League',         f:'🏆',t:0},
-  {key:'soccer_uefa_europa_conference_league',n:'Conference League',     f:'🏆',t:0},
-  {key:'soccer_epl',                          n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
-  {key:'soccer_spain_la_liga',                n:'La Liga',               f:'🇪🇸',t:1},
-  {key:'soccer_germany_bundesliga',           n:'Bundesliga',            f:'🇩🇪',t:1},
-  {key:'soccer_italy_serie_a',                n:'Serie A',               f:'🇮🇹',t:1},
-  {key:'soccer_france_ligue_one',             n:'Ligue 1',               f:'🇫🇷',t:1},
-  {key:'soccer_portugal_primeira_liga',       n:'Primeira Liga',         f:'🇵🇹',t:1},
-  {key:'soccer_netherlands_eredivisie',       n:'Eredivisie',            f:'🇳🇱',t:1},
-  {key:'soccer_turkey_super_league',          n:'Süper Lig',             f:'🇹🇷',t:1},
-  {key:'soccer_belgium_first_div',            n:'Pro League BE',         f:'🇧🇪',t:1},
-  {key:'soccer_russia_premier_league',        n:'Premier Liga RU',       f:'🇷🇺',t:1},
-  {key:'soccer_scotland_premiership',         n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
-  {key:'soccer_greece_super_league',          n:'Super League GR',       f:'🇬🇷',t:1},
-  {key:'soccer_romania_1',                    n:'Superliga RO',          f:'🇷🇴',t:1},
-  {key:'soccer_austria_football_bundesliga',  n:'Bundesliga AT',         f:'🇦🇹',t:1},
-  {key:'soccer_switzerland_superleague',      n:'Super League CH',       f:'🇨🇭',t:1},
-  {key:'soccer_denmark_superliga',            n:'Superliga DK',          f:'🇩🇰',t:1},
-  {key:'soccer_sweden_allsvenskan',           n:'Allsvenskan',           f:'🇸🇪',t:1},
-  {key:'soccer_norway_eliteserien',           n:'Eliteserien',           f:'🇳🇴',t:1},
-  {key:'soccer_czech_liga',                   n:'1. Liga CZ',            f:'🇨🇿',t:1},
-  {key:'soccer_poland_ekstraklasa',           n:'Ekstraklasa',           f:'🇵🇱',t:1},
-  {key:'soccer_croatia_hnl',                  n:'HNL',                   f:'🇭🇷',t:1},
-  {key:'soccer_ukraine_premier_league',       n:'Premier Liha UA',       f:'🇺🇦',t:1},
-  {key:'soccer_serbia_superliga',             n:'SuperLiga RS',          f:'🇷🇸',t:1},
-  {key:'soccer_hungary_nb_i',                 n:'OTP Liga HU',           f:'🇭🇺',t:1},
-  {key:'soccer_slovakia_super_liga',          n:'Niké Liga SK',          f:'🇸🇰',t:1},
-  {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',    f:'🇧🇬',t:1},
-  {key:'soccer_england_league1',              n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_england_league2',              n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_spain_segunda_division',       n:'Segunda División',      f:'🇪🇸',t:2},
-  {key:'soccer_germany_bundesliga2',          n:'2. Bundesliga',         f:'🇩🇪',t:2},
-  {key:'soccer_italy_serie_b',                n:'Serie B',               f:'🇮🇹',t:2},
-  {key:'soccer_france_ligue_two',             n:'Ligue 2',               f:'🇫🇷',t:2},
-  {key:'soccer_netherlands_eerste_divisie',   n:'Eerste Divisie',        f:'🇳🇱',t:2},
-  {key:'soccer_portugal_segunda_liga',        n:'Liga Portugal 2',       f:'🇵🇹',t:2},
-  {key:'soccer_turkey_1_lig',                 n:'1. Lig TR',             f:'🇹🇷',t:2},
-  {key:'soccer_belgium_second_div',           n:'Nationale B BE',        f:'🇧🇪',t:2},
-  {key:'soccer_scotland_championship',        n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
-  {key:'soccer_austria_bundesliga',           n:'2. Liga AT',            f:'🇦🇹',t:2},
-  {key:'soccer_switzerland_challenge_league', n:'Challenge Lge CH',      f:'🇨🇭',t:2},
-  {key:'soccer_denmark_1st_division',         n:'1. Division DK',        f:'🇩🇰',t:2},
+  // ── UEFA ──
+  {key:'soccer_uefa_champs_league',             n:'Champions League',      f:'🏆',t:0},
+  {key:'soccer_uefa_europa_league',             n:'Europa League',         f:'🏆',t:0},
+  {key:'soccer_uefa_europa_conference_league',  n:'Conference League',     f:'🏆',t:0},
+  // ── TOP 5 LIGI EUROPENE ──
+  {key:'soccer_epl',                            n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
+  {key:'soccer_spain_la_liga',                  n:'La Liga',               f:'🇪🇸',t:1},
+  {key:'soccer_germany_bundesliga',             n:'Bundesliga',            f:'🇩🇪',t:1},
+  {key:'soccer_italy_serie_a',                  n:'Serie A',               f:'🇮🇹',t:1},
+  {key:'soccer_france_ligue_one',               n:'Ligue 1',               f:'🇫🇷',t:1},
+  // ── EUROPA ──
+  {key:'soccer_portugal_primeira_liga',         n:'Primeira Liga',         f:'🇵🇹',t:1},
+  {key:'soccer_netherlands_eredivisie',         n:'Eredivisie',            f:'🇳🇱',t:1},
+  {key:'soccer_turkey_super_league',            n:'Süper Lig',             f:'🇹🇷',t:1},
+  {key:'soccer_belgium_first_div',              n:'Pro League BE',         f:'🇧🇪',t:1},
+  {key:'soccer_russia_premier_league',          n:'Premier Liga RU',       f:'🇷🇺',t:1},
+  {key:'soccer_scotland_premiership',           n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
+  {key:'soccer_greece_super_league',            n:'Super League GR',       f:'🇬🇷',t:1},
+  {key:'soccer_romania_1',                      n:'Superliga RO',          f:'🇷🇴',t:1},
+  {key:'soccer_austria_football_bundesliga',    n:'Bundesliga AT',         f:'🇦🇹',t:1},
+  {key:'soccer_switzerland_superleague',        n:'Super League CH',       f:'🇨🇭',t:1},
+  {key:'soccer_denmark_superliga',              n:'Superliga DK',          f:'🇩🇰',t:1},
+  {key:'soccer_sweden_allsvenskan',             n:'Allsvenskan',           f:'🇸🇪',t:1},
+  {key:'soccer_norway_eliteserien',             n:'Eliteserien',           f:'🇳🇴',t:1},
+  {key:'soccer_czech_liga',                     n:'1. Liga CZ',            f:'🇨🇿',t:1},
+  {key:'soccer_poland_ekstraklasa',             n:'Ekstraklasa',           f:'🇵🇱',t:1},
+  {key:'soccer_croatia_hnl',                    n:'HNL',                   f:'🇭🇷',t:1},
+  {key:'soccer_ukraine_premier_league',         n:'Premier Liha UA',       f:'🇺🇦',t:1},
+  {key:'soccer_serbia_superliga',               n:'SuperLiga RS',          f:'🇷🇸',t:1},
+  {key:'soccer_hungary_nb_i',                   n:'OTP Liga HU',           f:'🇭🇺',t:1},
+  {key:'soccer_slovakia_super_liga',            n:'Niké Liga SK',          f:'🇸🇰',t:1},
+  {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',       f:'🇧🇬',t:1},
+  {key:'soccer_finland_veikkausliiga',          n:'Veikkausliiga FI',      f:'🇫🇮',t:1},
+  {key:'soccer_israel_premier_league',          n:'Premier League IL',     f:'🇮🇱',t:1},
+  {key:'soccer_cyprus_1_liga',                  n:'1. Liga CY',            f:'🇨🇾',t:1},
+  // ── EUROPA DIV 2 ──
+  {key:'soccer_england_league1',                n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_england_league2',                n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_spain_segunda_division',         n:'Segunda División',      f:'🇪🇸',t:2},
+  {key:'soccer_germany_bundesliga2',            n:'2. Bundesliga',         f:'🇩🇪',t:2},
+  {key:'soccer_italy_serie_b',                  n:'Serie B',               f:'🇮🇹',t:2},
+  {key:'soccer_france_ligue_two',               n:'Ligue 2',               f:'🇫🇷',t:2},
+  {key:'soccer_netherlands_eerste_divisie',     n:'Eerste Divisie',        f:'🇳🇱',t:2},
+  {key:'soccer_portugal_segunda_liga',          n:'Liga Portugal 2',       f:'🇵🇹',t:2},
+  {key:'soccer_turkey_1_lig',                   n:'1. Lig TR',             f:'🇹🇷',t:2},
+  {key:'soccer_scotland_championship',          n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
+  {key:'soccer_austria_bundesliga',             n:'2. Liga AT',            f:'🇦🇹',t:2},
+  {key:'soccer_denmark_1st_division',           n:'1. Division DK',        f:'🇩🇰',t:2},
+  // ── AMERICAS (jocuri de noapte RO) ──
+  {key:'soccer_brazil_campeonato',              n:'Brasileirão Série A',   f:'🇧🇷',t:3},
+  {key:'soccer_brazil_serie_b',                 n:'Brasileirão Série B',   f:'🇧🇷',t:3},
+  {key:'soccer_argentina_primera_division',     n:'Argentina Primera',     f:'🇦🇷',t:3},
+  {key:'soccer_argentina_primera_b_nacional',   n:'Argentina Primera B',   f:'🇦🇷',t:3},
+  {key:'soccer_colombia_primera_a',             n:'Liga BetPlay CO',       f:'🇨🇴',t:3},
+  {key:'soccer_chile_campeonato',               n:'Primera División CL',   f:'🇨🇱',t:3},
+  {key:'soccer_ecuador_liga_pro',               n:'LigaPro Serie A EC',    f:'🇪🇨',t:3},
+  {key:'soccer_peru_liga_1',                    n:'Liga 1 PE',             f:'🇵🇪',t:3},
+  {key:'soccer_usa_mls',                        n:'MLS',                   f:'🇺🇸',t:3},
+  {key:'soccer_mexico_ligamx',                  n:'Liga MX',               f:'🇲🇽',t:3},
+  {key:'soccer_mexico_expansion',               n:'Liga Expansion MX',     f:'🇲🇽',t:3},
+  {key:'soccer_costa_rica_primera_division',    n:'Primera División CR',   f:'🇨🇷',t:3},
+  {key:'soccer_venezuela_primera_profesional',  n:'Primera Pro VE',        f:'🇻🇪',t:3},
+  {key:'soccer_uruguay_primera_division',       n:'Primera División UY',   f:'🇺🇾',t:3},
+  {key:'soccer_paraguay_primera_division',      n:'División Prof. PY',     f:'🇵🇾',t:3},
+  // ── ASIA / PACIFIC ──
+  {key:'soccer_japan_j_league',                 n:'J1 League JP',          f:'🇯🇵',t:4},
+  {key:'soccer_japan_j_league_2',               n:'J2 League JP',          f:'🇯🇵',t:4},
+  {key:'soccer_korea_k_league1',                n:'K League 1 KR',         f:'🇰🇷',t:4},
+  {key:'soccer_korea_k_league2',                n:'K League 2 KR',         f:'🇰🇷',t:4},
+  {key:'soccer_australia_aleague',              n:'A-League AU',           f:'🇦🇺',t:4},
+  {key:'soccer_china_superleague',              n:'Super League CN',       f:'🇨🇳',t:4},
+  {key:'soccer_thailand_premier_league',        n:'Thai Premier League',   f:'🇹🇭',t:4},
+  {key:'soccer_india_isl',                      n:'ISL India',             f:'🇮🇳',t:4},
+  // ── AFRICA / ORIENTUL MIJLOCIU ──
+  {key:'soccer_saudi_arabia_pro_league',        n:'Pro League SA',         f:'🇸🇦',t:4},
+  {key:'soccer_uae_pro_league',                 n:'UAE Pro League',        f:'🇦🇪',t:4},
+  {key:'soccer_south_africa_premier_division',  n:'DStv Prem. SA',         f:'🇿🇦',t:4},
 ];
 
-// ────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
 // MATEMATICĂ POISSON
 // ────────────────────────────────────────────
 function pois(k,lam){
@@ -612,6 +647,7 @@ function analyze(m){
   const pHTO05 = pOver(lh1,la1,0.5);
   const pHTO15 = pOver(lh1,la1,1.5);
   const pHTU25 = pUnder(lh1,la1,2.5);
+  const pHTU35 = pUnder(lh1,la1,3.5);
 
   // === Range ===
   const pH14  = pRange(lh,1,4);
@@ -671,6 +707,7 @@ function analyze(m){
     pHTO05:C(pHTO05,.950),
     pHTO15:C(pHTO15,.940),
     pHTU25:C(pHTU25,.960),
+    pHTU35:C(pHTU35,.970),
     pH14:  C(pH14, .960),
     pA14:  C(pA14, .960),
     pH13:  C(pH13, .960),
@@ -692,13 +729,17 @@ function buildBiletZilei(matches){
   const candidates=[];
   for(const m of matches){
     const mkts=[
-      {k:'pO15',  l:'Over 1.5'},
-      {k:'pO25',  l:'Over 2.5'},
-      {k:'pGg',   l:'GG'},
-      {k:'pHTU25',l:'-2.5 HT'},
-      {k:'pHTO05',l:'+0.5 HT'},
-      {k:'pH14',  l:'1-4G Gazdă'},
-      {k:'pA14',  l:'1-4G Oaspeți'},
+      {k:'pO15',   l:'Over 1.5'},
+      {k:'pO25',   l:'Over 2.5'},
+      {k:'pO35',   l:'Over 3.5'},
+      {k:'pU25',   l:'Under 2.5'},
+      {k:'pU35',   l:'Under 3.5'},
+      {k:'pH14',   l:'1-4G Gazdă'},
+      {k:'pA14',   l:'1-4G Oaspeți'},
+      {k:'pH13',   l:'1-3G Gazdă'},
+      {k:'pA13',   l:'1-3G Oaspeți'},
+      {k:'pHTU25', l:'-2.5 HT'},
+      {k:'pHTU35', l:'-3.5 HT'},
     ];
     for(const mk of mkts){
       const p = m[mk.k];
@@ -727,14 +768,18 @@ function buildCota20(matches, bzIds){
   for(const m of matches){
     if(bzIds.has(m.id)) continue;
     const mkts=[
-      {k:'pO25',  l:'Over 2.5'},
-      {k:'pGg',   l:'GG'},
-      {k:'pHTO15',l:'+1.5 HT'},
-      {k:'pU25',  l:'Under 2.5'},
-      {k:'pH13',  l:'1-3G Gazdă'},
-      {k:'pA13',  l:'1-3G Oaspeți'},
-      {k:'pCSH',  l:'CS Gazdă'},
-      {k:'pCSA',  l:'CS Oaspeți'},
+      {k:'pO25',   l:'Over 2.5'},
+      {k:'pO35',   l:'Over 3.5'},
+      {k:'pU25',   l:'Under 2.5'},
+      {k:'pU35',   l:'Under 3.5'},
+      {k:'pH14',   l:'1-4G Gazdă'},
+      {k:'pA14',   l:'1-4G Oaspeți'},
+      {k:'pH13',   l:'1-3G Gazdă'},
+      {k:'pA13',   l:'1-3G Oaspeți'},
+      {k:'pHTU25', l:'-2.5 HT'},
+      {k:'pHTU35', l:'-3.5 HT'},
+      {k:'pCSH',   l:'CS Gazdă'},
+      {k:'pCSA',   l:'CS Oaspeți'},
     ];
     for(const mk of mkts){
       const p = m[mk.k];
@@ -765,16 +810,18 @@ function buildCota50(matches){
   const pool=[];
   for(const m of matches){
     const mkts=[
-      {k:'pO25',  l:'Over 2.5'},
-      {k:'pGg',   l:'GG'},
-      {k:'pO35',  l:'Over 3.5'},
-      {k:'pHTO15',l:'+1.5 HT'},
-      {k:'pH13',  l:'1-3G Gazdă'},
-      {k:'pA13',  l:'1-3G Oaspeți'},
-      {k:'pU25',  l:'Under 2.5'},
-      {k:'pNg',   l:'Fără Gol'},
-      {k:'pCSH',  l:'CS Gazdă'},
-      {k:'pCSA',  l:'CS Oaspeți'},
+      {k:'pO25',   l:'Over 2.5'},
+      {k:'pO35',   l:'Over 3.5'},
+      {k:'pU25',   l:'Under 2.5'},
+      {k:'pU35',   l:'Under 3.5'},
+      {k:'pH14',   l:'1-4G Gazdă'},
+      {k:'pA14',   l:'1-4G Oaspeți'},
+      {k:'pH13',   l:'1-3G Gazdă'},
+      {k:'pA13',   l:'1-3G Oaspeți'},
+      {k:'pHTU25', l:'-2.5 HT'},
+      {k:'pHTU35', l:'-3.5 HT'},
+      {k:'pCSH',   l:'CS Gazdă'},
+      {k:'pCSA',   l:'CS Oaspeți'},
     ];
     for(const mk of mkts){
       const p=m[mk.k];
@@ -887,6 +934,95 @@ function renderTickets(bz, c20, c50arr){
 }
 
 // ────────────────────────────────────────────
+// BETBUILDER — combinații recomandate per meci
+// Combini 1-4G gazdă/oaspeți + HTU pentru cote mari
+// ────────────────────────────────────────────
+function betBuilderHTML(m){
+  const combos=[];
+  // Combo A: 1-4G Gazdă + -2.5HT
+  if(m.pH14>=0.72 && m.pHTU25>=0.72){
+    const pCombo=m.pH14*m.pHTU25;
+    if(pCombo>=0.55) combos.push({
+      label:'1-4G Gazdă + -2.5HT',
+      prob:pCombo,
+      desc:`${(m.pH14*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
+      color:'#F59E0B'
+    });
+  }
+  // Combo B: 1-4G Oaspeți + -2.5HT
+  if(m.pA14>=0.72 && m.pHTU25>=0.72){
+    const pCombo=m.pA14*m.pHTU25;
+    if(pCombo>=0.55) combos.push({
+      label:'1-4G Oaspeți + -2.5HT',
+      prob:pCombo,
+      desc:`${(m.pA14*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
+      color:'#F97316'
+    });
+  }
+  // Combo C: 1-4G Gazdă + -3.5HT
+  if(m.pH14>=0.72 && m.pHTU35>=0.80){
+    const pCombo=m.pH14*m.pHTU35;
+    if(pCombo>=0.60) combos.push({
+      label:'1-4G Gazdă + -3.5HT',
+      prob:pCombo,
+      desc:`${(m.pH14*100).toFixed(0)}% × ${(m.pHTU35*100).toFixed(0)}%`,
+      color:'#22C55E'
+    });
+  }
+  // Combo D: 1-4G Oaspeți + -3.5HT
+  if(m.pA14>=0.72 && m.pHTU35>=0.80){
+    const pCombo=m.pA14*m.pHTU35;
+    if(pCombo>=0.60) combos.push({
+      label:'1-4G Oaspeți + -3.5HT',
+      prob:pCombo,
+      desc:`${(m.pA14*100).toFixed(0)}% × ${(m.pHTU35*100).toFixed(0)}%`,
+      color:'#06B6D4'
+    });
+  }
+  // Combo E: 1-3G Gazdă + -2.5HT  
+  if(m.pH13>=0.72 && m.pHTU25>=0.72){
+    const pCombo=m.pH13*m.pHTU25;
+    if(pCombo>=0.55) combos.push({
+      label:'1-3G Gazdă + -2.5HT',
+      prob:pCombo,
+      desc:`${(m.pH13*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
+      color:'#A855F7'
+    });
+  }
+  // Combo F: Over 1.5 + -2.5HT (meciuri moderate)
+  if(m.pO15>=0.82 && m.pHTU25>=0.75){
+    const pCombo=m.pO15*m.pHTU25;
+    if(pCombo>=0.62) combos.push({
+      label:'Over 1.5 + -2.5HT',
+      prob:pCombo,
+      desc:`${(m.pO15*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
+      color:'#3B82F6'
+    });
+  }
+
+  if(!combos.length) return '';
+  combos.sort((a,b)=>b.prob-a.prob);
+
+  const rows=combos.map(c=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      background:rgba(0,0,0,.25);border-radius:8px;padding:7px 11px;gap:8px;flex-wrap:wrap;border-left:2px solid ${c.color}20">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:${c.color}">${c.label}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px">${c.desc}</div>
+      </div>
+      <div style="font-size:14px;font-weight:900;color:${c.color};font-family:'JetBrains Mono',monospace">
+        ${(c.prob*100).toFixed(1)}%
+      </div>
+    </div>`).join('');
+
+  return `<div style="padding:10px 16px 0">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
+      letter-spacing:2px;text-transform:uppercase;margin-bottom:7px">🔧 BetBuilder — combinații</div>
+    <div style="display:flex;flex-direction:column;gap:5px">${rows}</div>
+  </div>`;
+}
+
+// ────────────────────────────────────────────
 // RENDER MATCH CARDS
 // ────────────────────────────────────────────
 function renderCards(bzIds){
@@ -916,23 +1052,24 @@ function renderCards(bzIds){
     const ringCls=best>=.88?'ra':best>=.80?'rb':'';
     const isBZ=bzIds.has(m.id);
     const tierTag=m.t===2?'<span class="card-tier">L2</span>':
-                  m.t===0?'<span class="card-tier" style="background:rgba(168,85,247,.08);color:var(--pur);border-color:rgba(168,85,247,.18)">EUR</span>':'';
+                  m.t===0?'<span class="card-tier" style="background:rgba(168,85,247,.08);color:var(--pur);border-color:rgba(168,85,247,.18)">EUR</span>':
+                  m.t===3?'<span class="card-tier" style="background:rgba(34,197,94,.07);color:var(--grn);border-color:rgba(34,197,94,.18)">AME</span>':
+                  m.t===4?'<span class="card-tier" style="background:rgba(6,182,212,.07);color:var(--cyan);border-color:rgba(6,182,212,.18)">ASIA</span>':'';
 
     const allMkts=[
-      {n:'Over 1.5',  p:m.pO15},
-      {n:'Over 2.5',  p:m.pO25},
-      {n:'Over 3.5',  p:m.pO35},
-      {n:'GG',        p:m.pGg},
-      {n:'Under 2.5', p:m.pU25},
-      {n:'-2.5 HT',   p:m.pHTU25},
-      {n:'+0.5 HT',   p:m.pHTO05},
-      {n:'+1.5 HT',   p:m.pHTO15},
-      {n:'1-4G Gazdă',p:m.pH14},
-      {n:'1-4G Oasp', p:m.pA14},
-      {n:'1-3G Gazdă',p:m.pH13},
-      {n:'1-3G Oasp', p:m.pA13},
-      {n:'CS Gazdă',  p:m.pCSH},
-      {n:'CS Oaspeți',p:m.pCSA},
+      {n:'Over 1.5',     p:m.pO15},
+      {n:'Over 2.5',     p:m.pO25},
+      {n:'Over 3.5',     p:m.pO35},
+      {n:'Under 2.5',    p:m.pU25},
+      {n:'Under 3.5',    p:m.pU35},
+      {n:'1-4G Gazdă',  p:m.pH14},
+      {n:'1-4G Oaspeți',p:m.pA14},
+      {n:'1-3G Gazdă',  p:m.pH13},
+      {n:'1-3G Oaspeți',p:m.pA13},
+      {n:'-2.5HT',       p:m.pHTU25},
+      {n:'-3.5HT',       p:m.pHTU35},
+      {n:'CS Gazdă',     p:m.pCSH},
+      {n:'CS Oaspeți',   p:m.pCSA},
     ].filter(mk=>mk.p>=0.65).sort((a,b)=>b.p-a.p);
 
     const mktsHTML = allMkts.map(mk=>{
@@ -971,6 +1108,7 @@ function renderCards(bzIds){
         <div class="mkts-title">Piețe ≥65%</div>
         <div class="mkts-grid">${mktsHTML||'<span style="color:var(--muted);font-size:11px">Nicio piață ≥65%</span>'}</div>
       </div>
+      ${betBuilderHTML(m)}
       <div class="card-foot">
         <div class="lambdas">
           <div class="lam"><small>λ gazdă</small><b>${m.lh}</b></div>
@@ -1001,7 +1139,7 @@ function updateUI(){
   document.getElementById('k-signals').textContent = list.filter(m=>passAny(m,thr)).length;
   document.getElementById('k-multi').textContent   = list.filter(m=>m.stratScore>=2).length;
 
-  const cnt={all:0,o15:0,o25:0,gg:0,htu25:0,hto05:0,hto15:0,u25:0,ticket:0};
+  const cnt={all:0,o15:0,o25:0,h14:0,a14:0,h13:0,a13:0,htu25:0,htu35:0,ticket:0};
   const bz  = buildBiletZilei(list);
   const c20 = buildCota20(list, bz.bzIds);
   const c50 = buildCota50(list);
@@ -1011,11 +1149,12 @@ function updateUI(){
     if(passAny(m,thr)) cnt.all++;
     if(m.pO15>=thr)   cnt.o15++;
     if(m.pO25>=thr)   cnt.o25++;
-    if(m.pGg>=thr)    cnt.gg++;
+    if(m.pH14>=thr)   cnt.h14++;
+    if(m.pA14>=thr)   cnt.a14++;
+    if(m.pH13>=thr)   cnt.h13++;
+    if(m.pA13>=thr)   cnt.a13++;
     if(m.pHTU25>=thr) cnt.htu25++;
-    if(m.pHTO05>=thr) cnt.hto05++;
-    if(m.pHTO15>=thr) cnt.hto15++;
-    if(m.pU25>=thr)   cnt.u25++;
+    if(m.pHTU35>=thr) cnt.htu35++;
   }
   for(const[k,v] of Object.entries(cnt)){
     const el=document.getElementById('cn-'+k);
@@ -1027,18 +1166,20 @@ function updateUI(){
 }
 
 function passAny(m,thr){
-  return m.pO15>=thr||m.pO25>=thr||m.pGg>=thr||m.pHTU25>=thr||
-         m.pHTO05>=thr||m.pHTO15>=thr||m.pH14>=thr||m.pA14>=thr||
-         m.pH13>=thr||m.pA13>=thr||m.pU25>=thr;
+  return m.pO15>=thr||m.pO25>=thr||m.pO35>=thr||
+         m.pU25>=thr||m.pU35>=thr||
+         m.pH14>=thr||m.pA14>=thr||m.pH13>=thr||m.pA13>=thr||
+         m.pHTU25>=thr||m.pHTU35>=thr;
 }
 function mktPass(m,mkt,thr){
   if(mkt==='o15')   return m.pO15>=thr;
   if(mkt==='o25')   return m.pO25>=thr;
-  if(mkt==='gg')    return m.pGg>=thr;
+  if(mkt==='h14')   return m.pH14>=thr;
+  if(mkt==='a14')   return m.pA14>=thr;
+  if(mkt==='h13')   return m.pH13>=thr;
+  if(mkt==='a13')   return m.pA13>=thr;
   if(mkt==='htu25') return m.pHTU25>=thr;
-  if(mkt==='hto05') return m.pHTO05>=thr;
-  if(mkt==='hto15') return m.pHTO15>=thr;
-  if(mkt==='u25')   return m.pU25>=thr;
+  if(mkt==='htu35') return m.pHTU35>=thr;
   return passAny(m,thr);
 }
 
