@@ -1519,10 +1519,42 @@ async function doRefresh(){
   const key=getKey();
   if(!key){
     hideLdr(); btn.classList.remove('busy');
-
     toast('Introduceți cheia API în ⚙️ Setări!','err'); return;
   }
-  const res=await fetchBothDays(key);
+
+  // Verifică rapid creditele din cache înainte să înceapă
+  try{
+    const cc=JSON.parse(ls.get('ba_credits')||'{}');
+    if(cc.remaining===0){
+      hideLdr(); btn.classList.remove('busy');
+      showApiError('🔴 Credite API epuizate!',
+        'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
+        'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> '+
+        '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
+      return;
+    }
+  }catch(e){}
+
+  // Timeout global 45s — nu mai rămâne blocat
+  let res;
+  try{
+    const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),45000));
+    res = await Promise.race([fetchBothDays(key), timeout]);
+  }catch(err){
+    hideLdr(); btn.classList.remove('busy');
+    if(err.message==='timeout'){
+      showApiError('⏱️ Analiză expirată',
+        'Serverul nu a răspuns în 45 de secunde.<br><br>'+
+        '<b>Cauze posibile:</b><br>'+
+        '• Credite API epuizate → verifică pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a><br>'+
+        '• Conexiune lentă → încearcă din nou<br>'+
+        '• Proxy blocat → încearcă mai târziu');
+    } else {
+      toast('Eroare neașteptată: '+err.message,'err');
+    }
+    return;
+  }
+  // res is now the result from fetchBothDays
   if(res.err==='badkey'){
     hideLdr(); btn.classList.remove('busy');
     showApiError('❌ Cheie API invalidă!',
@@ -1767,12 +1799,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO',fmt);
   document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
 
-  // Restore cached credits
+  // Restore cached credits + arată banner dacă epuizate
   try{
     const cc=JSON.parse(ls.get('ba_credits')||'{}');
     if(cc.remaining!==undefined){
       API_CREDITS={remaining:cc.remaining,used:cc.used,last:cc.last};
       updateCreditsDisplay();
+      // Avertizează imediat dacă 0 credite
+      if(cc.remaining===0){
+        setTimeout(()=>showApiError('🔴 Credite API epuizate!',
+          'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
+          'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> '+
+          '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.'), 500);
+      }
     }
   }catch(e){}
 
