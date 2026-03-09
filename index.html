@@ -121,10 +121,12 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
 
 /* Controls */
 .controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+/* ctrl-label removed */
 .ctrl-label{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap}
-.thr-group{display:flex;gap:4px}
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.thr-group{display:flex;gap:4px;flex-wrap:wrap}
 .thr-btn{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
-  padding:7px 16px;border-radius:8px;border:1px solid var(--brd);
+  padding:7px 14px;border-radius:8px;border:1px solid var(--brd);
   background:var(--panel2);color:var(--muted);cursor:pointer;transition:all .15s}
 .thr-btn.on{background:var(--grn);border-color:var(--grn);color:#000}
 
@@ -392,7 +394,7 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     <div class="kpi" style="--kc:#3B82F6">
       <div class="kpi-lbl">Meciuri</div>
       <div class="kpi-val" id="k-total">—</div>
-      <div class="kpi-sub" id="k-day-lbl">analizate</div>
+      <div class="kpi-sub" id="k-signals-sub">≥70%</div>
     </div>
     <div class="kpi" style="--kc:#22C55E">
       <div class="kpi-lbl">Semnale</div>
@@ -411,19 +413,23 @@ body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-he
     </div>
   </div>
 
-  <div class="controls">
+  <!-- Prag selectabil 70-99% -->
+  <div class="controls" id="thr-controls">
     <span class="ctrl-label">Prag minim:</span>
     <div class="thr-group">
-      <button class="thr-btn" onclick="setThr(75)">75%</button>
-      <button class="thr-btn on" onclick="setThr(80)">80%</button>
-      <button class="thr-btn" onclick="setThr(90)">90%</button>
+      <button class="thr-btn on" id="tb70" onclick="setThr(70)">70%</button>
+      <button class="thr-btn"    id="tb75" onclick="setThr(75)">75%</button>
+      <button class="thr-btn"    id="tb80" onclick="setThr(80)">80%</button>
+      <button class="thr-btn"    id="tb85" onclick="setThr(85)">85%</button>
+      <button class="thr-btn"    id="tb90" onclick="setThr(90)">90%</button>
+      <button class="thr-btn"    id="tb95" onclick="setThr(95)">95%</button>
     </div>
   </div>
 
   <div class="mkt-filters" id="mkt-bar">
     <button class="mf on" id="mf-all"    onclick="setMkt('all')">🔍 Toate <span class="cnt" id="cn-all">0</span></button>
-    <button class="mf"    id="mf-o15"    onclick="setMkt('o15')">⚽ O1.5 <span class="cnt" id="cn-o15">0</span></button>
-    <button class="mf"    id="mf-o25"    onclick="setMkt('o25')">⚽ O2.5 <span class="cnt" id="cn-o25">0</span></button>
+    <button class="mf"    id="mf-o15"    onclick="setMkt('o15')">⚽ +1.5 Meci <span class="cnt" id="cn-o15">0</span></button>
+    <button class="mf"    id="mf-23t"    onclick="setMkt('23t')">🎯 2-3G Meci <span class="cnt" id="cn-23t">0</span></button>
     <button class="mf"    id="mf-h14"    onclick="setMkt('h14')">🏠 1-4G Gazdă <span class="cnt" id="cn-h14">0</span></button>
     <button class="mf"    id="mf-a14"    onclick="setMkt('a14')">✈️ 1-4G Oaspeți <span class="cnt" id="cn-a14">0</span></button>
     <button class="mf"    id="mf-h13"    onclick="setMkt('h13')">🏠 1-3G Gazdă <span class="cnt" id="cn-h13">0</span></button>
@@ -656,6 +662,8 @@ function analyze(m){
   const pA13  = pRange(la,1,3);
   const pHTH13= pRange(lh1,1,3);
   const pHTA13= pRange(la1,1,3);
+  // 2-3 goluri total in meci
+  const p23T  = scoreDist(lh,la).filter(s=>s.h+s.a>=2&&s.h+s.a<=3).reduce((a,s)=>a+s.p,0);
 
   // === S1 VALUE: edge fata de piata ===
   const mO15 = m.o15 ? 1/m.o15 : null;
@@ -716,7 +724,8 @@ function analyze(m){
     pHTA13:C(pHTA13,.955),
     s1, s2, s3, stratScore, stratTags, s1_edge:+s1_edge.toFixed(4),
     stake: kellyStake(pO15, o15e),
-    topScore:`${top.h}-${top.a}`, topP:+top.p.toFixed(4)
+    topScore:`${top.h}-${top.a}`, topP:+top.p.toFixed(4),
+    p23T: +Math.min(p23T*0.95, 0.972).toFixed(4)
   };
 }
 
@@ -729,11 +738,8 @@ function buildBiletZilei(matches){
   const candidates=[];
   for(const m of matches){
     const mkts=[
-      {k:'pO15',   l:'Over 1.5'},
-      {k:'pO25',   l:'Over 2.5'},
-      {k:'pO35',   l:'Over 3.5'},
-      {k:'pU25',   l:'Under 2.5'},
-      {k:'pU35',   l:'Under 3.5'},
+      {k:'pO15',   l:'+1.5 Meci'},
+      {k:'p23T',   l:'2-3G Total'},
       {k:'pH14',   l:'1-4G Gazdă'},
       {k:'pA14',   l:'1-4G Oaspeți'},
       {k:'pH13',   l:'1-3G Gazdă'},
@@ -743,7 +749,7 @@ function buildBiletZilei(matches){
     ];
     for(const mk of mkts){
       const p = m[mk.k];
-      if(p>=0.82){
+      if(p>=Math.max(THR70(),0.78)){
         const bonus = m.stratScore * 0.008;
         const quality = p + bonus;
         candidates.push({...m, mktLabel:mk.l, prob:p, quality});
@@ -768,18 +774,14 @@ function buildCota20(matches, bzIds){
   for(const m of matches){
     if(bzIds.has(m.id)) continue;
     const mkts=[
-      {k:'pO25',   l:'Over 2.5'},
-      {k:'pO35',   l:'Over 3.5'},
-      {k:'pU25',   l:'Under 2.5'},
-      {k:'pU35',   l:'Under 3.5'},
+      {k:'pO15',   l:'+1.5 Meci'},
+      {k:'p23T',   l:'2-3G Total'},
       {k:'pH14',   l:'1-4G Gazdă'},
       {k:'pA14',   l:'1-4G Oaspeți'},
       {k:'pH13',   l:'1-3G Gazdă'},
       {k:'pA13',   l:'1-3G Oaspeți'},
       {k:'pHTU25', l:'-2.5 HT'},
       {k:'pHTU35', l:'-3.5 HT'},
-      {k:'pCSH',   l:'CS Gazdă'},
-      {k:'pCSA',   l:'CS Oaspeți'},
     ];
     for(const mk of mkts){
       const p = m[mk.k];
@@ -810,18 +812,14 @@ function buildCota50(matches){
   const pool=[];
   for(const m of matches){
     const mkts=[
-      {k:'pO25',   l:'Over 2.5'},
-      {k:'pO35',   l:'Over 3.5'},
-      {k:'pU25',   l:'Under 2.5'},
-      {k:'pU35',   l:'Under 3.5'},
+      {k:'pO15',   l:'+1.5 Meci'},
+      {k:'p23T',   l:'2-3G Total'},
       {k:'pH14',   l:'1-4G Gazdă'},
       {k:'pA14',   l:'1-4G Oaspeți'},
       {k:'pH13',   l:'1-3G Gazdă'},
       {k:'pA13',   l:'1-3G Oaspeți'},
       {k:'pHTU25', l:'-2.5 HT'},
       {k:'pHTU35', l:'-3.5 HT'},
-      {k:'pCSH',   l:'CS Gazdă'},
-      {k:'pCSA',   l:'CS Oaspeți'},
     ];
     for(const mk of mkts){
       const p=m[mk.k];
@@ -856,7 +854,37 @@ function buildCota50(matches){
 // ────────────────────────────────────────────
 // RENDER BILETE
 // ────────────────────────────────────────────
-function renderTickets(bz, c20, c50arr){
+function buildSafeBet(matches){
+  // Evenimentele CELE MAI SIGURE din toate piețele, ≥88% probabilitate
+  const pool=[];
+  const mkts=[
+    {k:'pO15',  l:'+1.5 Meci'},
+    {k:'p23T',  l:'2-3G Total'},
+    {k:'pH14',  l:'1-4G Gazdă'},
+    {k:'pA14',  l:'1-4G Oaspeți'},
+    {k:'pH13',  l:'1-3G Gazdă'},
+    {k:'pA13',  l:'1-3G Oaspeți'},
+    {k:'pHTU25',l:'-2.5 HT'},
+    {k:'pHTU35',l:'-3.5 HT'},
+  ];
+  for(const m of matches){
+    for(const mk of mkts){
+      const p=m[mk.k];
+      if(p>=0.88) pool.push({...m, mktLabel:mk.l, prob:p, quality:p+(m.stratScore*0.01)});
+    }
+  }
+  pool.sort((a,b)=>b.quality-a.quality);
+  const picks=[], used=new Set();
+  for(const c of pool){
+    if(picks.length>=3) break;
+    if(used.has(c.id)) continue;
+    picks.push(c); used.add(c.id);
+  }
+  const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
+  return {picks, cota:+cota.toFixed(2)};
+}
+
+function renderTickets(safe, bz, c20, c50arr){
   const el = document.getElementById('ticket-zone');
   if(MKT!=='all' && MKT!=='ticket'){ el.innerHTML=''; return; }
 
@@ -877,6 +905,37 @@ function renderTickets(bz, c20, c50arr){
     </div>`).join('');
 
   let html='';
+
+  // ── Recomandarea Safe a Zilei ──
+  if(safe&&safe.picks.length){
+    html+=`<div class="ticket" style="background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(8,145,178,.03));border:1px solid rgba(6,182,212,.35);border-radius:16px;padding:18px;margin-bottom:10px">
+      <div class="ticket-head">
+        <div class="ticket-title">
+          <span class="ticket-icon">🛡️</span>
+          <div><div class="ticket-name" style="color:var(--cyan)">Recomandarea Safe</div>
+          <span class="ticket-tag" style="background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)">${safe.picks.length} SELECȚII · ≥88% PROB</span></div>
+        </div>
+        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div>
+        <div class="ticket-cota-val" style="color:var(--cyan)">~${safe.cota}x</div></div>
+      </div>
+      <div class="ticket-picks">${safe.picks.map(p=>`
+        <div class="tick-pick">
+          <div class="tp-info">
+            <div class="tp-match">${X(p.home)} <span style="color:var(--muted);font-weight:400">vs</span> ${X(p.away)}</div>
+            <div class="tp-meta"><span>${p.flag} ${X(p.liga)}</span><span>🕐 ${p.ora}</span>
+            ${p.stratScore>=2?'<span style="color:var(--cyan);font-weight:700">★ multi-strat</span>':''}</div>
+          </div>
+          <div class="tp-right">
+            <span style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:7px;background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${p.mktLabel}</span>
+            <span style="font-size:18px;font-weight:900;color:var(--cyan)">${(p.prob*100).toFixed(1)}%</span>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="ticket-footer">
+        <span class="ticket-note">🛡️ Cele mai sigure 2-3 evenimente ale zilei — probabilitate ≥88%</span>
+      </div>
+    </div>`;
+  }
 
   if(bz.picks.length){
     html+=`<div class="ticket t-bz">
@@ -931,6 +990,40 @@ function renderTickets(bz, c20, c50arr){
   });
 
   el.innerHTML=html;
+}
+
+// ────────────────────────────────────────────
+// GROUPS2HTML — render grouped pronostics sorted high→low
+// ────────────────────────────────────────────
+function groups2HTML(groups){
+  if(!groups.length) return '';
+  return groups.map(g=>{
+    const rows = g.items.map(item=>{
+      const p = item.p;
+      // Color gradient: 70%=yellow → 85%=green → 95%=bright green
+      const barW = Math.round((p-0.70)/(0.97-0.70)*100);
+      const barClr = p>=0.90?'#22C55E':p>=0.82?'#4ade80':p>=0.75?'#f59e0b':'#f97316';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;
+        padding:7px 12px;border-radius:9px;background:rgba(0,0,0,.25);gap:10px;margin-bottom:4px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#EFF6FF">${item.n}</div>
+          <div style="height:3px;background:#1C2E4A;border-radius:2px;margin-top:5px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:${barClr};border-radius:2px;transition:width .4s"></div>
+          </div>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:${barClr};font-family:'JetBrains Mono',monospace;
+          min-width:54px;text-align:right">${(p*100).toFixed(1)}%</div>
+      </div>`;
+    }).join('');
+    return `<div style="margin-bottom:10px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${g.color};
+        letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        ${g.label}
+        <span style="height:1px;flex:1;background:${g.color}22;display:inline-block"></span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
 }
 
 // ────────────────────────────────────────────
@@ -1023,18 +1116,18 @@ function betBuilderHTML(m){
 }
 
 // ────────────────────────────────────────────
-// RENDER MATCH CARDS
+// RENDER MATCH CARDS — grouped pronostics per match
 // ────────────────────────────────────────────
 function renderCards(bzIds){
-  const thr = THR/100;
   const el  = document.getElementById('cards-list');
   el.innerHTML='';
 
   const pct=v=>(v*100).toFixed(1)+'%';
+  const pctN=v=>(v*100).toFixed(0)+'%';
 
   let list = DATA[DAY].filter(m=>{
     if(MKT==='ticket') return bzIds.has(m.id);
-    return mktPass(m, MKT, thr);
+    return mktPass(m, MKT);
   });
 
   if(!list.length){
@@ -1056,30 +1149,39 @@ function renderCards(bzIds){
                   m.t===3?'<span class="card-tier" style="background:rgba(34,197,94,.07);color:var(--grn);border-color:rgba(34,197,94,.18)">AME</span>':
                   m.t===4?'<span class="card-tier" style="background:rgba(6,182,212,.07);color:var(--cyan);border-color:rgba(6,182,212,.18)">ASIA</span>':'';
 
-    const allMkts=[
-      {n:'Over 1.5',     p:m.pO15},
-      {n:'Over 2.5',     p:m.pO25},
-      {n:'Over 3.5',     p:m.pO35},
-      {n:'Under 2.5',    p:m.pU25},
-      {n:'Under 3.5',    p:m.pU35},
-      {n:'1-4G Gazdă',  p:m.pH14},
-      {n:'1-4G Oaspeți',p:m.pA14},
-      {n:'1-3G Gazdă',  p:m.pH13},
-      {n:'1-3G Oaspeți',p:m.pA13},
-      {n:'-2.5HT',       p:m.pHTU25},
-      {n:'-3.5HT',       p:m.pHTU35},
-      {n:'CS Gazdă',     p:m.pCSH},
-      {n:'CS Oaspeți',   p:m.pCSA},
-    ].filter(mk=>mk.p>=0.65).sort((a,b)=>b.p-a.p);
+    // Grupe de pronosticuri — sortate descrescator, doar ≥70%
+    const GROUPS = [
+      {
+        id:'goals', label:'⚽ Goluri meci', color:'#22C55E',
+        items:[
+          {n:'+1.5 Meci',    p:m.pO15},
+          {n:'2-3G Total',   p:m.p23T},
+        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
+      },
+      {
+        id:'home', label:'🏠 Goluri Gazdă', color:'#3B82F6',
+        items:[
+          {n:'1-4G Gazdă',  p:m.pH14},
+          {n:'1-3G Gazdă',  p:m.pH13},
+        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
+      },
+      {
+        id:'away', label:'✈️ Goluri Oaspeți', color:'#F97316',
+        items:[
+          {n:'1-4G Oaspeți',p:m.pA14},
+          {n:'1-3G Oaspeți',p:m.pA13},
+        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
+      },
+      {
+        id:'ht', label:'⏱ Half Time', color:'#A855F7',
+        items:[
+          {n:'-2.5 HT',     p:m.pHTU25},
+          {n:'-3.5 HT',     p:m.pHTU35},
+        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
+      },
+    ].filter(g=>g.items.length>0);
 
-    const mktsHTML = allMkts.map(mk=>{
-      const cl = mk.p>=thr?'pass':mk.p>=.72?'warn':'';
-      const pc = mk.p>=thr?'pass':mk.p>=.72?'warn':'fail';
-      return `<div class="mkt-item ${cl}">
-        <span class="mkt-name">${mk.n}</span>
-        <span class="mkt-pct ${pc}">${pct(mk.p)}</span>
-      </div>`;
-    }).join('');
+    const mktsHTML = groups2HTML(GROUPS);
 
     const stratTagsHTML = m.stratTags.map(t=>`<span class="stag ${t.cls}">${t.txt}</span>`).join('');
 
@@ -1105,8 +1207,8 @@ function renderCards(bzIds){
         </div>
       </div>
       <div class="card-mkts">
-        <div class="mkts-title">Piețe ≥65%</div>
-        <div class="mkts-grid">${mktsHTML||'<span style="color:var(--muted);font-size:11px">Nicio piață ≥65%</span>'}</div>
+        <div class="mkts-title">Pronosticuri ≥70% — sortate cel mai sigur → nesigur</div>
+        ${mktsHTML||'<div style="padding:6px 0;color:var(--muted);font-size:12px">Niciun pronostic ≥70% pentru acest meci</div>'}
       </div>
       ${betBuilderHTML(m)}
       <div class="card-foot">
@@ -1132,63 +1234,73 @@ function renderCards(bzIds){
 // UPDATE UI
 // ────────────────────────────────────────────
 function updateUI(){
-  const thr = THR/100;
   const list = DATA[DAY];
 
   document.getElementById('k-total').textContent   = list.length;
-  document.getElementById('k-signals').textContent = list.filter(m=>passAny(m,thr)).length;
+  document.getElementById('k-signals').textContent = list.filter(m=>passAny(m)).length;
+  const sigSub=document.getElementById('k-signals-sub');
+  if(sigSub) sigSub.textContent='≥'+THR+'%';
   document.getElementById('k-multi').textContent   = list.filter(m=>m.stratScore>=2).length;
 
-  const cnt={all:0,o15:0,o25:0,h14:0,a14:0,h13:0,a13:0,htu25:0,htu35:0,ticket:0};
+  const cnt={all:0,o15:0,'23t':0,h14:0,a14:0,h13:0,a13:0,htu25:0,htu35:0,ticket:0};
   const bz  = buildBiletZilei(list);
   const c20 = buildCota20(list, bz.bzIds);
   const c50 = buildCota50(list);
   cnt.ticket= bz.picks.length;
 
   for(const m of list){
-    if(passAny(m,thr)) cnt.all++;
-    if(m.pO15>=thr)   cnt.o15++;
-    if(m.pO25>=thr)   cnt.o25++;
-    if(m.pH14>=thr)   cnt.h14++;
-    if(m.pA14>=thr)   cnt.a14++;
-    if(m.pH13>=thr)   cnt.h13++;
-    if(m.pA13>=thr)   cnt.a13++;
-    if(m.pHTU25>=thr) cnt.htu25++;
-    if(m.pHTU35>=thr) cnt.htu35++;
+    if(passAny(m))         cnt.all++;
+    if(m.pO15>=THR70())      cnt.o15++;
+    if(m.p23T>=THR70())      cnt['23t']++;
+    if(m.pH14>=THR70())      cnt.h14++;
+    if(m.pA14>=THR70())      cnt.a14++;
+    if(m.pH13>=THR70())      cnt.h13++;
+    if(m.pA13>=THR70())      cnt.a13++;
+    if(m.pHTU25>=THR70())    cnt.htu25++;
+    if(m.pHTU35>=THR70())    cnt.htu35++;
   }
+  // Update cnt display for 23t key
+  const el23=document.getElementById('cn-23t');
+  if(el23) el23.textContent=cnt['23t'];
   for(const[k,v] of Object.entries(cnt)){
     const el=document.getElementById('cn-'+k);
     if(el) el.textContent=v;
   }
 
-  renderTickets(bz, c20, c50);
+  const safe = buildSafeBet(list);
+  renderTickets(safe, bz, c20, c50);
   renderCards(bz.bzIds);
 }
 
-function passAny(m,thr){
-  return m.pO15>=thr||m.pO25>=thr||m.pO35>=thr||
-         m.pU25>=thr||m.pU35>=thr||
-         m.pH14>=thr||m.pA14>=thr||m.pH13>=thr||m.pA13>=thr||
-         m.pHTU25>=thr||m.pHTU35>=thr;
+// Prag dinamic 70-99%
+let THR = 70;
+const THR70 = ()=>THR/100;
+function passAny(m){
+  return m.pO15>=THR70()||m.p23T>=THR70()||
+         m.pH14>=THR70()||m.pA14>=THR70()||
+         m.pH13>=THR70()||m.pA13>=THR70()||
+         m.pHTU25>=THR70()||m.pHTU35>=THR70();
 }
-function mktPass(m,mkt,thr){
-  if(mkt==='o15')   return m.pO15>=thr;
-  if(mkt==='o25')   return m.pO25>=thr;
-  if(mkt==='h14')   return m.pH14>=thr;
-  if(mkt==='a14')   return m.pA14>=thr;
-  if(mkt==='h13')   return m.pH13>=thr;
-  if(mkt==='a13')   return m.pA13>=thr;
-  if(mkt==='htu25') return m.pHTU25>=thr;
-  if(mkt==='htu35') return m.pHTU35>=thr;
-  return passAny(m,thr);
+function mktPass(m,mkt){
+  if(mkt==='o15')   return m.pO15>=THR70();
+  if(mkt==='23t')   return m.p23T>=THR70();
+  if(mkt==='h14')   return m.pH14>=THR70();
+  if(mkt==='a14')   return m.pA14>=THR70();
+  if(mkt==='h13')   return m.pH13>=THR70();
+  if(mkt==='a13')   return m.pA13>=THR70();
+  if(mkt==='htu25') return m.pHTU25>=THR70();
+  if(mkt==='htu35') return m.pHTU35>=THR70();
+  return passAny(m);
 }
 
 // ────────────────────────────────────────────
 // CONTROLS
 // ────────────────────────────────────────────
 function setThr(v){
-  THR=v; CFG.thr=v; saveCfgLS();
-  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===v));
+  THR=v;
+  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.remove('on'));
+  const btn=document.getElementById('tb'+v);
+  if(btn) btn.classList.add('on');
   if(DATA[DAY].length) updateUI();
 }
 function setMkt(m){
@@ -1410,8 +1522,6 @@ function injectManifest(){
 document.addEventListener('DOMContentLoaded',()=>{
   document.body.style.visibility='';
   try{ injectManifest() }catch(e){}
-  THR = CFG.thr || 80;
-  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.toggle('on',parseInt(b.textContent)===THR));
 
   const fmt={day:'2-digit',month:'2-digit'};
   document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO',fmt);
