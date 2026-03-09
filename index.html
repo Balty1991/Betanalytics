@@ -741,37 +741,59 @@ function analyze(m){
 // BILET ZILEI  — calitate maximă, prob ≥82%
 // ────────────────────────────────────────────
 function buildBiletZilei(matches){
-  const picks=[], usedIds=new Set();
-  const N = CFG.picks || 4;
+  // 1-3 selecții, probabilitate ≥78%, cotă finală ≥1.20
+  const MIN_PROB = Math.max(THR70(), 0.78);
+  const MIN_COTA = 1.20;
+  const MAX_PICKS = 3;
+
+  const mkts=[
+    {k:'pO15',   l:'+1.5 Meci'},
+    {k:'p23T',   l:'2-3G Total'},
+    {k:'pH14',   l:'1-4G Gazdă'},
+    {k:'pA14',   l:'1-4G Oaspeți'},
+    {k:'pH13',   l:'1-3G Gazdă'},
+    {k:'pA13',   l:'1-3G Oaspeți'},
+    {k:'pHTU25', l:'-2.5 HT'},
+    {k:'pHTU35', l:'-3.5 HT'},
+  ];
+
   const candidates=[];
   for(const m of matches){
-    const mkts=[
-      {k:'pO15',   l:'+1.5 Meci'},
-      {k:'p23T',   l:'2-3G Total'},
-      {k:'pH14',   l:'1-4G Gazdă'},
-      {k:'pA14',   l:'1-4G Oaspeți'},
-      {k:'pH13',   l:'1-3G Gazdă'},
-      {k:'pA13',   l:'1-3G Oaspeți'},
-      {k:'pHTU25', l:'-2.5 HT'},
-      {k:'pHTU35', l:'-3.5 HT'},
-    ];
     for(const mk of mkts){
       const p = m[mk.k];
-      if(p>=Math.max(THR70(),0.78)){
-        const bonus = m.stratScore * 0.008;
-        const quality = p + bonus;
+      if(p >= MIN_PROB){
+        const quality = p + m.stratScore * 0.008;
         candidates.push({...m, mktLabel:mk.l, prob:p, quality});
       }
     }
   }
   candidates.sort((a,b)=>b.quality-a.quality);
-  for(const c of candidates){
-    if(picks.length>=N) break;
-    if(usedIds.has(c.id)) continue;
-    picks.push(c); usedIds.add(c.id);
+
+  // Construiește biletul: 1-3 picks, fără același meci de 2 ori
+  // Încearcă să atingă cotă ≥1.20 cu cât mai puține selecții
+  const usedIds = new Set();
+  let best = null;
+
+  // Încearcă toate combinațiile de 1, 2, 3 picks
+  for(let n=1; n<=MAX_PICKS; n++){
+    const picks=[], ids=new Set();
+    for(const c of candidates){
+      if(picks.length>=n) break;
+      if(ids.has(c.id)) continue;
+      picks.push(c); ids.add(c.id);
+    }
+    if(!picks.length) break;
+    const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
+    if(cota >= MIN_COTA){
+      best = {picks, cota:+cota.toFixed(2), bzIds:ids};
+      break; // Cel mai puține selecții care atinge ≥1.20x
+    }
+    // Salvează ca fallback chiar dacă nu atinge 1.20
+    if(!best) best = {picks, cota:+cota.toFixed(2), bzIds:ids};
   }
-  const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
-  return {picks, cota:+cota.toFixed(2), bzIds:usedIds};
+
+  if(!best) best = {picks:[], cota:1.00, bzIds:new Set()};
+  return best;
 }
 
 // ────────────────────────────────────────────
@@ -817,46 +839,49 @@ function buildCota20(matches, bzIds){
 // COTĂ ~50  — 2 variante, piețe 38-62%
 // ────────────────────────────────────────────
 function buildCota50(matches){
+  // O singură variantă — probabilitate combinată maximă, cotă țintă ~50x
   const pool=[];
+  const mkts=[
+    {k:'pO15',   l:'+1.5 Meci'},
+    {k:'p23T',   l:'2-3G Total'},
+    {k:'pH14',   l:'1-4G Gazdă'},
+    {k:'pA14',   l:'1-4G Oaspeți'},
+    {k:'pH13',   l:'1-3G Gazdă'},
+    {k:'pA13',   l:'1-3G Oaspeți'},
+    {k:'pHTU25', l:'-2.5 HT'},
+    {k:'pHTU35', l:'-3.5 HT'},
+  ];
+
   for(const m of matches){
-    const mkts=[
-      {k:'pO15',   l:'+1.5 Meci'},
-      {k:'p23T',   l:'2-3G Total'},
-      {k:'pH14',   l:'1-4G Gazdă'},
-      {k:'pA14',   l:'1-4G Oaspeți'},
-      {k:'pH13',   l:'1-3G Gazdă'},
-      {k:'pA13',   l:'1-3G Oaspeți'},
-      {k:'pHTU25', l:'-2.5 HT'},
-      {k:'pHTU35', l:'-3.5 HT'},
-    ];
     for(const mk of mkts){
-      const p=m[mk.k];
-      if(p>=0.38 && p<=0.62){
-        const odds=+(0.92/p).toFixed(3);
-        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds:odds});
+      const p = m[mk.k];
+      // Piețe cu prob 38-65% → cote ~1.4-2.4x
+      if(p>=0.38 && p<=0.65){
+        const impliedOdds = +(0.92/p).toFixed(3);
+        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds});
       }
     }
   }
+
+  // Sortează: cele mai mari probabilitate PRIMUL → maximizăm șansa de reușită
   pool.sort((a,b)=>b.prob-a.prob);
-  function build(excludeSet){
-    const picks=[], used=new Set();
-    let cota=1;
-    for(const c of pool){
-      if(used.has(c.id)) continue;
-      if(excludeSet && excludeSet.has(c.id+'_'+c.mkt)) continue;
-      const nc=cota*c.impliedOdds;
-      if(nc>100) continue;
-      picks.push(c); used.add(c.id);
-      cota=nc;
-      if(cota>=30 && picks.length>=5) break;
-      if(picks.length>=8) break;
-    }
-    return {picks, cota:+cota.toFixed(2)};
+
+  const picks=[], used=new Set();
+  let cota=1;
+  for(const c of pool){
+    if(used.has(c.id)) continue;
+    const nc = cota * c.impliedOdds;
+    if(nc > 200) continue; // Nu depăși 200x
+    picks.push(c);
+    used.add(c.id);
+    cota = nc;
+    // Oprește când am atins ~50x sau max 8 selecții
+    if(cota >= 40 && picks.length >= 4) break;
+    if(picks.length >= 8) break;
   }
-  const v1 = build(null);
-  const v1ex = new Set(v1.picks.map(p=>p.id+'_'+p.mkt));
-  const v2 = build(v1ex);
-  return [v1,v2].filter(v=>v.picks.length>=3);
+
+  const result = {picks, cota:+cota.toFixed(2)};
+  return result.picks.length >= 2 ? [result] : [];
 }
 
 // ────────────────────────────────────────────
@@ -951,7 +976,7 @@ function renderTickets(safe, bz, c20, c50arr){
         <div class="ticket-title">
           <span class="ticket-icon">🎯</span>
           <div><div class="ticket-name">Biletul Zilei</div>
-          <span class="ticket-tag">${bz.picks.length} SELECȚII · MAX SIGURANȚĂ</span></div>
+          <span class="ticket-tag">${bz.picks.length} SELECȚI${bz.picks.length===1?'E':'I'} · MIN ${(bz.cota>=1.20?'✅':'⚠️')} 1.20x</span></div>
         </div>
         <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${bz.cota}x</div></div>
       </div>
@@ -1139,11 +1164,19 @@ function renderCards(bzIds){
   });
 
   if(!list.length){
-    el.innerHTML=`<div class="empty">
-      <div class="empty-ico">🔍</div>
-      <p>Niciun meci trece pragul de <strong style="color:var(--grn)">${THR}%</strong>.<br>
-      Încearcă un prag mai mic sau selectează alt filtru de piață.</p>
-    </div>`;
+    const baseEmpty = DATA[DAY].length===0;
+    const dayLabel  = DAY==='maine'?'mâine':'azi';
+    el.innerHTML = baseEmpty
+      ? `<div class="empty">
+           <div class="empty-ico">📭</div>
+           <p style="font-size:15px;font-weight:600;color:var(--txt);margin-bottom:6px">Niciun meci disponibil pentru ${dayLabel}</p>
+           <p>API-ul nu a returnat meciuri pentru această zi.<br>Încearcă să apeși <b>ANALIZEAZĂ</b> din nou sau revino mai târziu.</p>
+         </div>`
+      : `<div class="empty">
+           <div class="empty-ico">🔍</div>
+           <p>Niciun meci trece pragul de <strong style="color:var(--grn)">${THR}%</strong>.<br>
+           Încearcă un prag mai mic sau selectează alt filtru de piață.</p>
+         </div>`;
     return;
   }
 
@@ -1322,9 +1355,11 @@ function switchDay(d){
   document.getElementById('tab-azi').classList.toggle('active', d==='azi');
   document.getElementById('tab-maine').classList.toggle('active', d==='maine');
   document.getElementById('k-day-lbl').textContent = d==='maine'?'mâine':'azi';
-  // Dacă avem date (chiar și 0 meciuri după fetch), afișăm
-  // _fetched = flag că am făcut deja fetch complet
-  if(window._fetched || DATA[d].length){ updateUI(); return; }
+  // Dacă am făcut deja fetch (chiar și cu 0 meciuri) → afișăm ce avem
+  if(window._fetched){ updateUI(); return; }
+  // Dacă avem date în memorie pentru ziua asta → afișăm direct
+  if(DATA[d].length){ updateUI(); return; }
+  // Altfel → fetch complet
   doRefresh();
 }
 
@@ -1408,8 +1443,12 @@ async function fetchBothDays(apiKey){
     const sp=SPORTS[i];
     setProgress(`${sp.f} ${sp.n}`, Math.round(i/N*100));
 
+    // Fetch meciuri pentru AZI + MÂINE (limitat explicit la 48h)
+    const tFrom = new Date(); tFrom.setHours(0,0,0,0);
+    const tTo   = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(0,0,0,0);
     const url='https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
-      +'?apiKey='+apiKey+'&regions=eu&markets=h2h,totals&oddsFormat=decimal';
+      +'?apiKey='+apiKey+'&regions=eu,uk&markets=h2h,totals&oddsFormat=decimal'
+      +'&commenceTimeFrom='+tFrom.toISOString()+'&commenceTimeTo='+tTo.toISOString();
     try{
       const r=await tryFetch(url);
       if(!r) continue;
@@ -1581,6 +1620,11 @@ async function checkCreditsNow(){
     }catch(e){}
   }
   
+  // Afișează cheia (mascat: primele 4 + *** + ultimele 4)
+  const keyDisplay = key.length>8
+    ? key.slice(0,4)+'••••••••'+key.slice(-4)
+    : '••••';
+
   if(remaining!==null && used!==null){
     API_CREDITS={remaining,used,last:0};
     ls.set('ba_credits',JSON.stringify({...API_CREDITS,ts:Date.now()}));
@@ -1588,15 +1632,14 @@ async function checkCreditsNow(){
     const total=remaining+used;
     const pct=Math.round(remaining/total*100);
     const emoji=remaining>100?'🟢':remaining>30?'🟡':'🔴';
-    toast(`${emoji} ${remaining} credite rămase din ${total} (${pct}%)`,'ok');
+    toast(`${emoji} ${remaining}/${total} credite (${pct}%) · Cheie: ${keyDisplay}`,'ok');
   } else {
-    // Proxy nu transmite headerele — afișăm ultimele cunoscute din cache
     const cached=JSON.parse(ls.get('ba_credits')||'null');
     if(cached&&cached.remaining!==undefined){
       const ago=Math.round((Date.now()-cached.ts)/60000);
-      toast(`📦 Cache: ${cached.remaining} rămase (actualizat acum ${ago} min)`,'inf');
+      toast(`📦 ${cached.remaining} credite (cache ${ago} min) · Cheie: ${keyDisplay}`,'inf');
     } else {
-      toast('ℹ️ Creditele se citesc automat la prima analiză directă','inf');
+      toast(`ℹ️ Cheie: ${keyDisplay} · Creditele apar după prima analiză`,'inf');
     }
   }
 }
@@ -1679,7 +1722,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const cA=JSON.parse(ls.get('ba_cache_azi')||'{}');
     const cM=JSON.parse(ls.get('ba_cache_maine')||'{}');
     const okA=cA.ts&&Date.now()-cA.ts<CACHE_TTL&&cA.data?.length&&cA.dk===bucDate(0);
-    const okM=cM.ts&&Date.now()-cM.ts<CACHE_TTL&&cM.data?.length&&cM.dk===bucDate(1);
+    const okM=cM.ts&&Date.now()-cM.ts<CACHE_TTL&&Array.isArray(cM.data)&&cM.dk===bucDate(1);
     if(okA&&okM){
       DATA.azi=cA.data; DATA.maine=cM.data;
       window._fetched = true;
