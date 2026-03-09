@@ -491,8 +491,8 @@ const ls = {
 
 const CACHE_TTL = 2*3600*1000;
 let CFG = loadCfg();
-let THR = CFG.thr || 80;
 let MKT = 'all';
+let THR = 70; // prag dinamic 70-99%
 let DAY = 'azi';
 let DATA = {azi:[], maine:[]};
 
@@ -1272,8 +1272,7 @@ function updateUI(){
   renderCards(bz.bzIds);
 }
 
-// Prag dinamic 70-99%
-let THR = 70;
+// THR moved to globals
 const THR70 = ()=>THR/100;
 function passAny(m){
   return m.pO15>=THR70()||m.p23T>=THR70()||
@@ -1482,7 +1481,7 @@ function saveCfg(){
   CFG.bankroll = +document.getElementById('m-broll').value || 5000;
   CFG.kelly    = +document.getElementById('m-kelly').value || 0.25;
   CFG.picks    = +document.getElementById('m-picks').value || 4;
-  CFG.thr      = THR;
+  THR      = THR;
   saveCfgLS(); closeModal();
   if(DATA[DAY].length){ DATA[DAY]=DATA[DAY].map(m=>analyze(m)); updateUI(); }
   toast('Setări salvate! ✅','ok');
