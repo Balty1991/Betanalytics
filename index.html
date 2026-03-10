@@ -35,12 +35,11 @@ body{
   color:var(--txt);
   min-height:100vh;
   overscroll-behavior:none;
-  visibility:hidden;
 }
 
 /* ── SETUP SCREEN ── */
 #setup{
-  display:none;
+  display:flex;
   min-height:100vh;
   background:var(--bg);
   align-items:center;
@@ -82,7 +81,7 @@ body{
 }
 
 /* ── MAIN APP ── */
-#app{display:none;flex-direction:column;min-height:100vh}
+#app{display:none; /* hidden until key entered */flex-direction:column;min-height:100vh}
 
 /* TOPBAR */
 .topbar{
@@ -1573,8 +1572,6 @@ async function doAnalyze() {
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  document.body.style.visibility = '';
-
   const fmt = { day:'2-digit', month:'2-digit' };
   document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO', fmt);
   document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO', fmt);
