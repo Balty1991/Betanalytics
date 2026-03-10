@@ -269,7 +269,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:10
       <div class="brand-ico">⚽</div>
       <div>
         <div class="brand-name">Bet<span>Analytics</span> Pro</div>
-        <div class="brand-tag">POISSON · AI SCORE · 66 LIGI · v2</div>
+        <div class="brand-tag">POISSON · AI SCORE · 66 LIGI · v7</div>
       </div>
     </div>
     <div class="topbar-r">
@@ -413,6 +413,7 @@ function showSetup(){
 // ═══════════════════════════════════════
 let DAY='azi', DATA={azi:[],maine:[]}, FETCHED=false;
 const CACHE_TTL = 6*3600*1000;
+const CACHE_VER = 'v7';
 
 // ═══════════════════════════════════════
 // DATE
@@ -707,7 +708,7 @@ async function fetchDay(apiKey, dateAzi, dateMaine){
     const sp=SPORTS[i];
     setLdrPct(Math.round(i/N*90), sp.flag+' '+sp.name+' · '+(i+1)+'/'+N);
     const url='https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
-      +'?apiKey='+apiKey+'&regions=eu,uk&markets=h2h,totals&oddsFormat=decimal';
+      +'?apiKey='+apiKey+'&regions=eu,uk,us&markets=h2h,totals&oddsFormat=decimal&bookmakers=bet365,betfair,pinnacle,unibet,williamhill,betway,bwin,1xbet';
     try{
       const r=await tryFetch(url);
       if(!r) continue;
@@ -723,7 +724,7 @@ async function fetchDay(apiKey, dateAzi, dateMaine){
           if(gDate!==dateAzi&&gDate!==dateMaine) continue;
           const ora=dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
           const data=dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
-          let o1=null,ox=null,o2=null,o15=null,o25=null,o35=null;
+          let o1=null,ox=null,o2=null,o15=null,o25=null,o35=null,m_u25=null;
           for(const bm of g.bookmakers||[]) for(const mkt of bm.markets||[]){
             if(mkt.key==='h2h') for(const o of mkt.outcomes){
               const p=+o.price.toFixed(2);
@@ -735,12 +736,13 @@ async function fetchDay(apiKey, dateAzi, dateMaine){
               if(o.name==='Over'&&o.point===1.5&&(!o15||p>o15))o15=p;
               if(o.name==='Over'&&o.point===2.5&&(!o25||p>o25))o25=p;
               if(o.name==='Over'&&o.point===3.5&&(!o35||p>o35))o35=p;
+              if(o.name==='Under'&&o.point===2.5&&(!m_u25||p>m_u25))m_u25=p;
             }
           }
           if(!o1||!ox||!o2) continue;
           const match={id:g.id.slice(0,8),data,ora,flag:sp.flag,liga:sp.name,
             ligaKey:sp.key,t:sp.t,
-            home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25,o35};
+            home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25,o35,u25:m_u25};
           if(gDate===dateAzi) allAzi.push(match);
           else allMaine.push(match);
         }catch(e){}
@@ -874,7 +876,9 @@ function aiScoreLabel(s){
 // ANALYZE PER MATCH
 // ═══════════════════════════════════════
 function analyze(m){
-  const {lh,la}=lambdas(m.o1,m.ox,m.o2,m.o25);
+  // Folosim si Under 2.5 daca e disponibil pentru calibrare lambda mai precisa
+  const o25eff = m.o25 || (m.u25 ? 1/(1 - 1/m.u25) : null);
+  const {lh,la}=lambdas(m.o1,m.ox,m.o2,o25eff);
 
   // Poisson probabilitati clasice
   const pH14 = pRange(lh,1,4);
@@ -976,8 +980,9 @@ function buildBiletClasic(matches){
       for(const h of hts){
         if(h.p<0.86) continue;
         // Factor corelatie pozitiva intre goluri echipa si HT Under
-        const corrFactor = (g.p>=0.84&&h.p>=0.90) ? 1.12 : (g.p>=0.80&&h.p>=0.88) ? 1.08 : 1.05;
-        const combinedP = Math.min(0.97, g.p * h.p * corrFactor);
+        const independent = g.p * h.p;
+        const ceiling = Math.min(g.p, h.p);
+        const combinedP = independent + (ceiling - independent) * 0.12;
         // Cota implicita per selectie: tinta ~1.40-1.60 per pick → bilet ~6-10x
         const impliedOdds = Math.max(1.12, (0.91/g.p)*(0.91/h.p));
         cands.push({m,mktGoal:g.lbl,mktHT:h.lbl,pGoal:g.p,pHT:h.p,
@@ -1085,12 +1090,12 @@ function renderSafeZone(matches){
 // ═══════════════════════════════════════
 function renderCard(m){
   const goals=[
-    {n:'1-4G Gazdă',   p:m.pH14},
-    {n:'1-3G Gazdă',   p:m.pH13},
-    {n:'1-4G Oaspeți', p:m.pA14},
-    {n:'1-3G Oaspeți', p:m.pA13},
-    {n:'Gazdă marchează', p:m.pHscores},
-    {n:'Oaspete marchează',p:m.pAscores},
+    {n:'1-4G Gazdă',   p:m.pH14, tip:'int', echipa:'H'},
+    {n:'1-3G Gazdă',   p:m.pH13, tip:'int', echipa:'H'},
+    {n:'1-4G Oaspeți', p:m.pA14, tip:'int', echipa:'A'},
+    {n:'1-3G Oaspeți', p:m.pA13, tip:'int', echipa:'A'},
+    {n:'Gazdă marchează', p:m.pHscores, tip:'score', echipa:'H'},
+    {n:'Oaspete marchează',p:m.pAscores, tip:'score', echipa:'A'},
   ].filter(x=>x.p>=0.68).sort((a,b)=>b.p-a.p);
   const hts=[
     {n:'-2.5 HT', p:m.pHTU25},
@@ -1114,24 +1119,36 @@ function renderCard(m){
   // Rating liga badge
   const lrCls=`lr-${m.ligaRating||'B'}`;
 
-  // BetBuilder combos — cu factor de corelatie intre piete inrudite
-  // Goluri echipa + HT Under sunt CORELATE pozitiv (meci cu putine goluri HT → echipa marcheaza 1-3)
-  // Coeficient de corelatie: ~1.08-1.15 vs independent
+  // BetBuilder combos — ia cele mai mari probabilitati din TOATE categoriile
+  // si le combina intre ele (top 2 + top 3 pronosticuri ale meciului)
+  function jointP(pA, pB){
+    const independent = pA * pB;
+    const ceiling = Math.min(pA, pB);
+    const gap = ceiling - independent;
+    return Math.min(independent + gap * 0.12, ceiling * 0.995);
+  }
+
+  // Aduna toate pronosticurile vizibile intr-o singura lista
+  const allProns = [
+    ...goals.map(g=>({n:g.n, p:g.p})),
+    ...hts.map(h=>({n:h.n, p:h.p})),
+    ...totals.map(t=>({n:t.n, p:t.p})),
+  ].sort((a,b)=>b.p-a.p);
+
+  // Genereaza combos din top pronosticuri (perechi si triplete)
   const combos=[];
-  for(const g of goals) for(const h of hts){
-    if(g.p>=0.72&&h.p>=0.72){
-      // Factor corelatie: daca ambele > 0.80 → corelatie mai puternica
-      const corrFactor = (g.p>=0.82&&h.p>=0.82) ? 1.13 : (g.p>=0.78&&h.p>=0.78) ? 1.09 : 1.05;
-      const adjP = Math.min(0.97, g.p * h.p * corrFactor);
-      combos.push({n:`${g.n} + ${h.n}`, p:adjP});
+  const top = allProns.slice(0,5); // top 5 pronosticuri ale meciului
+  // Perechi: combina fiecare cu fiecare din top 5
+  for(let i=0;i<top.length;i++){
+    for(let j=i+1;j<top.length;j++){
+      const p2 = jointP(top[i].p, top[j].p);
+      combos.push({n:`${top[i].n} + ${top[j].n}`, p:+p2.toFixed(4), nrsel:2});
     }
   }
-  for(const g of goals.slice(0,2)) for(const t of totals.slice(0,2)){
-    if(g.p>=0.72&&t.p>=0.72){
-      // Goluri echipa + Total goluri meci: corelatie moderata ~1.04
-      const adjP = Math.min(0.97, g.p * t.p * 1.04);
-      combos.push({n:`${g.n} + ${t.n}`, p:adjP});
-    }
+  // Triplete: top3 combinate
+  if(top.length>=3){
+    const p3 = jointP(jointP(top[0].p, top[1].p), top[2].p);
+    combos.push({n:`${top[0].n} + ${top[1].n} + ${top[2].n}`, p:+p3.toFixed(4), nrsel:3});
   }
   combos.sort((a,b)=>b.p-a.p);
 
@@ -1163,8 +1180,11 @@ function renderCard(m){
   }).join('');
 
   const bbH=combos.length?`<div class="bb-wrap">
-    <div class="bb-title">🔧 BetBuilder Combos</div>
-    ${combos.slice(0,3).map(c=>`<div class="bb-row"><div class="bb-name">${c.n}</div><div class="bb-pct">${pct(c.p)}</div></div>`).join('')}
+    <div class="bb-title">🔧 BetBuilder Combos — Top pronosticuri combinate</div>
+    ${combos.slice(0,4).map(c=>`<div class="bb-row">
+      <div class="bb-name">${c.n}${c.nrsel===3?` <span style="font-size:9px;color:var(--pur);font-family:var(--mono)">×3</span>`:''}${c.nrsel===2?` <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">×2</span>`:''}</div>
+      <div class="bb-pct">${pct(c.p)}</div>
+    </div>`).join('')}
   </div>`:'';
 
   // Confidence bar
@@ -1397,8 +1417,8 @@ async function doRefresh(){
 
   // Cache valid?
   try{
-    const cA=JSON.parse(lsGet('ba_cache_azi')||'{}');
-    const cM=JSON.parse(lsGet('ba_cache_maine')||'{}');
+    const cA=JSON.parse(lsGet('ba_cache_azi_'+CACHE_VER)||'{}');
+    const cM=JSON.parse(lsGet('ba_cache_maine_'+CACHE_VER)||'{}');
     const dA=bucDate(0),dM=bucDate(1);
     const okA=cA.ts&&(Date.now()-cA.ts)<CACHE_TTL&&cA.dateKey===dA&&Array.isArray(cA.data);
     const okM=cM.ts&&(Date.now()-cM.ts)<CACHE_TTL&&cM.dateKey===dM&&Array.isArray(cM.data);
@@ -1446,8 +1466,8 @@ async function doRefresh(){
   FETCHED=true;
 
   try{
-    lsSet('ba_cache_azi', JSON.stringify({data:DATA.azi, ts:Date.now(), dateKey:dAzi}));
-    lsSet('ba_cache_maine', JSON.stringify({data:DATA.maine, ts:Date.now(), dateKey:dMaine}));
+    lsSet('ba_cache_azi_'+CACHE_VER, JSON.stringify({data:DATA.azi, ts:Date.now(), dateKey:dAzi}));
+    lsSet('ba_cache_maine_'+CACHE_VER, JSON.stringify({data:DATA.maine, ts:Date.now(), dateKey:dMaine}));
   }catch(e){}
 
   const now=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
