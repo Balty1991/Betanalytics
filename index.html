@@ -1014,8 +1014,12 @@ async function fetchOne(url) {
 async function fetchBothDays(apiKey) {
   const dAzi   = bucDate(0);
   const dMaine = bucDate(1);
-  const tFrom  = new Date(); tFrom.setHours(0,0,0,0);
-  const tTo    = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(3,0,0,0);
+  // API uses UTC — fetch window: today 00:00 UTC to day+2 23:59 UTC
+  const tFrom = new Date();
+  tFrom.setUTCHours(0,0,0,0);
+  const tTo = new Date();
+  tTo.setUTCDate(tTo.getUTCDate()+2);
+  tTo.setUTCHours(23,59,59,0);
 
   function makeUrl(sp) {
     return `https://api.the-odds-api.com/v4/sports/${sp.key}/odds`
@@ -1565,9 +1569,11 @@ async function doAnalyze() {
   hideLoader();
 
   const now = new Date().toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+  const totalRaw = res.azi.length + res.maine.length;
   document.getElementById('sb-dot').className   = 'sb-dot live';
   document.getElementById('sb-txt').textContent = `${DATA.azi.length} meciuri AZI · ${DATA.maine.length} MÂINE`;
   document.getElementById('sb-time').textContent = `ora ${now}`;
+  if(totalRaw === 0) toast('API a returnat 0 meciuri. Verifică credite sau încearcă mai târziu.', 'err');
 
   try { updateUI(); } catch(e) { toast('Eroare render: ' + e.message, 'err'); console.error(e); }
 }
