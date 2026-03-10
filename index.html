@@ -1025,6 +1025,7 @@ async function fetchBothDays(apiKey) {
 
   function parseGames(games, sp) {
     const azi = [], maine = [];
+    if(!Array.isArray(games)) return {azi, maine};
     for(const g of games) {
       try {
         const dt  = new Date(g.commence_time);
@@ -1088,8 +1089,11 @@ async function fetchBothDays(apiKey) {
         if(r.status === 401) return { err:'badkey' };
         if(r.status === 429) return { err:'nocredits' };
         if(!r.ok) return null;
-        try { return { sp, games: await r.json() }; }
-        catch(e) { return null; }
+        try {
+          const data = await r.json();
+          const games = Array.isArray(data) ? data : [];
+          return { sp, games };
+        } catch(e) { return null; }
       })
     );
 
@@ -1513,7 +1517,7 @@ async function doAnalyze() {
   } catch(err) {
     hideLoader();
     btn.classList.remove('busy');
-    if(err.message === 'timeout') {
+    if(err && err.message === 'timeout') {
       showError('⏱️ Analiză expirată (120s)',
         'Serverul nu a răspuns. Cauze posibile:<br>' +
         '• <b>Credite epuizate</b> → verifică pe <a href="https://the-odds-api.com" target="_blank">the-odds-api.com</a><br>' +
@@ -1565,7 +1569,7 @@ async function doAnalyze() {
   document.getElementById('sb-txt').textContent = `${DATA.azi.length} meciuri AZI · ${DATA.maine.length} MÂINE`;
   document.getElementById('sb-time').textContent = `ora ${now}`;
 
-  updateUI();
+  try { updateUI(); } catch(e) { toast('Eroare render: ' + e.message, 'err'); console.error(e); }
 }
 
 // ═══════════════════════════════════════════════════════
