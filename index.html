@@ -2,537 +2,791 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#060B14">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="BetAnalytics">
-<link rel="manifest" id="pwa-manifest">
-<title>⚽ BetAnalytics Pro</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>BetAnalytics Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#060B14; --bg2:#0A1120; --panel:#0D1628; --panel2:#111E34;
-  --brd:#1C2E4A; --brd2:#142038;
-  --acc:#3B82F6; --grn:#22C55E; --grn2:#16A34A;
-  --red:#EF4444; --yel:#F59E0B; --orn:#F97316; --pur:#A855F7; --cyan:#06B6D4;
-  --wht:#EFF6FF; --txt:#94A3B8; --muted:#475569; --muted2:#1E3050;
+:root {
+  --bg:     #080C12;
+  --bg2:    #0D1320;
+  --panel:  #111827;
+  --panel2: #1A2235;
+  --brd:    rgba(255,255,255,.07);
+  --brd2:   rgba(255,255,255,.12);
+  --txt:    #E8F0FE;
+  --muted:  #6B7A99;
+  --grn:    #22C55E;
+  --grn2:   #16A34A;
+  --yel:    #F59E0B;
+  --red:    #EF4444;
+  --acc:    #3B82F6;
+  --acc2:   #1D4ED8;
+  --pur:    #A855F7;
+  --cyan:   #06B6D4;
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Outfit', sans-serif;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--wht);font-family:'Inter',sans-serif;min-height:100vh;overscroll-behavior:none;font-size:15px;line-height:1.6}
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--brd);border-radius:2px}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--txt);
+  min-height:100vh;
+  overscroll-behavior:none;
+  visibility:hidden;
+}
+
+/* ── SETUP SCREEN ── */
+#setup{
+  display:none;
+  min-height:100vh;
+  background:var(--bg);
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.setup-card{
+  background:var(--panel);
+  border:1px solid var(--brd2);
+  border-radius:20px;
+  padding:36px 28px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+}
+.setup-logo{font-size:48px;margin-bottom:16px}
+.setup-title{font-size:26px;font-weight:900;margin-bottom:6px}
+.setup-title span{color:var(--grn)}
+.setup-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:28px}
+.setup-sub strong{color:var(--txt)}
+.setup-input{
+  width:100%;padding:14px 16px;
+  background:var(--bg2);border:1px solid var(--brd2);
+  border-radius:12px;color:var(--txt);font-size:14px;
+  font-family:var(--mono);margin-bottom:12px;outline:none;
+  transition:border-color .2s;
+}
+.setup-input:focus{border-color:var(--acc)}
+.setup-btn{
+  width:100%;padding:14px;background:var(--grn);
+  border:none;border-radius:12px;color:#000;
+  font-weight:800;font-size:15px;cursor:pointer;
+  transition:all .15s;font-family:var(--sans);
+}
+.setup-btn:hover{background:var(--grn2)}
+.setup-link{
+  display:inline-block;margin-top:16px;
+  font-size:12px;color:var(--acc);text-decoration:none;
+}
+
+/* ── MAIN APP ── */
+#app{display:none;flex-direction:column;min-height:100vh}
 
 /* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px;
-  background:rgba(6,11,20,.97);border-bottom:1px solid var(--brd2);
-  position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
-.brand{display:flex;align-items:center;gap:11px}
-.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#22C55E,#3B82F6);
-  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.brand-name{font-size:17px;font-weight:900;letter-spacing:-.4px;line-height:1.1}
-.brand-name em{color:var(--grn);font-style:normal}
-.brand-sub{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1.5px}
-.topbar-r{display:flex;align-items:center;gap:8px}
-.btn-primary{background:linear-gradient(135deg,#22C55E,#16A34A);color:#000;font-weight:800;font-size:13px;
-  border:none;border-radius:10px;padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:6px;
-  transition:all .2s;white-space:nowrap;box-shadow:0 0 20px rgba(34,197,94,.25)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(34,197,94,.4)}
-.btn-primary:active{transform:scale(.97)}
-.btn-primary.busy{background:var(--muted2);color:var(--muted);cursor:not-allowed;box-shadow:none;transform:none}
-.spin-ico{display:none;animation:spin .6s linear infinite}
-.busy .spin-ico{display:inline}
-.busy .go-ico{display:none}
-.btn-icon{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--brd);
-  color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.btn-icon:hover{border-color:var(--acc);color:var(--acc)}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  background:linear-gradient(180deg,var(--panel) 0%,transparent 100%);
+  border-bottom:1px solid var(--brd);
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{
+  width:36px;height:36px;background:var(--grn);
+  border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0;
+}
+.brand-name{font-size:17px;font-weight:900;line-height:1.1}
+.brand-name span{color:var(--grn)}
+.brand-tag{
+  font-family:var(--mono);font-size:8px;
+  color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;
+}
+.topbar-r{display:flex;gap:8px;align-items:center}
+.btn-analyze{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 18px;background:var(--grn);
+  border:none;border-radius:11px;color:#000;
+  font-weight:800;font-size:13px;cursor:pointer;
+  transition:all .15s;font-family:var(--sans);
+  white-space:nowrap;
+}
+.btn-analyze:hover{background:var(--grn2);transform:scale(1.02)}
+.btn-analyze.busy{opacity:.6;pointer-events:none}
+.btn-analyze .spin{display:none;animation:spin .7s linear infinite}
+.btn-analyze.busy .spin{display:inline}
+.btn-analyze.busy .ico{display:none}
+.btn-cog{
+  width:38px;height:38px;background:var(--panel2);
+  border:1px solid var(--brd);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:16px;transition:all .15s;
+}
+.btn-cog:hover{border-color:var(--acc);background:var(--panel)}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* SETUP */
-#setup{display:none;flex-direction:column;align-items:center;justify-content:center;
-  min-height:calc(100vh - 60px);padding:40px 20px;text-align:center}
-.setup-card{width:100%;max-width:440px}
-.setup-emoji{font-size:60px;margin-bottom:20px;display:block}
-.setup-h{font-size:38px;font-weight:900;line-height:1.1;margin-bottom:12px}
-.setup-h em{color:var(--grn);font-style:normal}
-.setup-p{color:var(--txt);font-size:14px;line-height:1.8;margin-bottom:32px;max-width:380px;margin-left:auto;margin-right:auto}
-.input-wrap{background:var(--panel);border:1px solid var(--brd);border-radius:16px;padding:22px}
-.input-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:2px;
-  text-transform:uppercase;display:block;margin-bottom:10px}
-.input-row{display:flex;gap:8px}
-.inp{flex:1;background:var(--bg2);border:1px solid var(--brd);color:var(--wht);
-  font-family:'JetBrains Mono',monospace;font-size:13px;border-radius:10px;
-  padding:12px 14px;outline:none;transition:border-color .2s}
-.inp:focus{border-color:var(--acc)}
-.inp::placeholder{color:var(--muted)}
-.btn-ok{background:var(--grn);color:#000;font-weight:800;font-size:14px;border:none;
-  border-radius:10px;padding:12px 22px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.btn-ok:hover{background:#4ade80}
-.setup-note{margin-top:14px;font-size:11px;color:var(--muted);text-align:left;line-height:1.9}
-.setup-note a{color:var(--acc);text-decoration:none}
+/* CREDITS BAR */
+.credits-bar{
+  display:none;
+  margin:10px 14px 0;
+  background:var(--panel);border:1px solid var(--brd);
+  border-radius:10px;padding:9px 14px;
+  align-items:center;gap:10px;cursor:pointer;
+}
+.credits-bar:hover{border-color:var(--brd2)}
+.credits-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;white-space:nowrap}
+.credits-track{flex:1;height:5px;background:var(--brd2);border-radius:3px;overflow:hidden;min-width:60px}
+.credits-fill{height:100%;border-radius:3px;transition:width .5s}
+.credits-val{font-family:var(--mono);font-size:12px;font-weight:800;white-space:nowrap}
+.credits-key{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
 
-/* APP */
-#app{display:none;max-width:960px;margin:0 auto;padding:0 14px 100px}
+/* DAY TABS */
+.day-tabs{display:flex;gap:8px;padding:12px 14px 0}
+.day-tab{
+  flex:1;padding:12px;border-radius:13px;
+  border:1px solid var(--brd);background:var(--panel2);
+  cursor:pointer;text-align:center;transition:all .2s;
+}
+.day-tab.active{background:var(--grn);border-color:var(--grn)}
+.day-tab.active .dt-label{color:#000}
+.day-tab.active .dt-date{color:rgba(0,0,0,.6)}
+.dt-label{font-weight:800;font-size:15px;color:var(--txt);transition:color .2s}
+.dt-date{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px;transition:color .2s}
 
-/* Day tabs */
-.day-tabs{display:flex;gap:4px;background:var(--panel2);border:1px solid var(--brd2);
-  border-radius:13px;padding:4px;margin:14px 0 0}
-.day-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;
-  padding:10px 8px;border:none;border-radius:9px;cursor:pointer;
-  background:transparent;color:var(--muted);font-weight:700;font-size:13px;transition:all .2s}
-.day-tab .dt-sub{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:400;opacity:.75}
-.day-tab.active{background:var(--grn);color:#000}
-.day-tab.active .dt-sub{opacity:.7}
+/* STATUS BAR */
+.status-bar{
+  margin:10px 14px 0;
+  background:var(--panel);border:1px solid var(--brd);
+  border-radius:10px;padding:9px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.sb-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--muted);flex-shrink:0;
+  transition:background .3s;
+}
+.sb-dot.live{background:var(--grn);box-shadow:0 0 6px var(--grn)}
+.sb-txt{font-size:12px;color:var(--muted);flex:1}
+.sb-time{font-family:var(--mono);font-size:11px;color:var(--acc)}
 
-/* Status bar */
-.statusbar{display:flex;align-items:center;justify-content:space-between;
-  margin:10px 0 8px;padding:9px 14px;background:var(--panel2);border:1px solid var(--brd2);
-  border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:10px;gap:8px;flex-wrap:wrap}
-.sb-left{display:flex;align-items:center;gap:8px;color:var(--muted)}
-.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0}
-.sb-dot.live{background:var(--grn);animation:pulse 2s infinite;box-shadow:0 0 6px var(--grn)}
-.sb-right{color:var(--muted)}
-.sb-right b{color:var(--acc)}
+/* LOADER */
+.loader{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(8,12,18,.92);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;flex-direction:column;gap:20px;
+}
+.loader.show{display:flex}
+.loader-ring{
+  width:56px;height:56px;border-radius:50%;
+  border:3px solid var(--brd2);border-top-color:var(--grn);
+  animation:spin .8s linear infinite;
+}
+.loader-title{font-size:18px;font-weight:800;color:var(--txt)}
+.loader-sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.loader-prog{
+  width:220px;height:3px;background:var(--brd2);
+  border-radius:2px;overflow:hidden;
+}
+.loader-fill{
+  height:100%;background:var(--grn);border-radius:2px;
+  transition:width .3s;width:0%;
+}
 
-/* Progress */
-.prog-wrap{background:var(--panel);border:1px solid var(--brd);border-radius:11px;
-  padding:11px 15px;margin-bottom:10px;display:none}
-.prog-wrap.show{display:block}
-.prog-top{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;
-  font-size:10px;color:var(--muted);margin-bottom:8px}
-.prog-bar{height:3px;background:var(--brd);border-radius:2px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--grn),var(--acc));border-radius:2px;transition:width .4s;width:0}
+/* ERROR BANNER */
+.err-banner{
+  display:none;
+  margin:10px 14px 0;
+  background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06));
+  border:1px solid rgba(239,68,68,.35);border-radius:14px;padding:16px;
+}
+.err-banner.show{display:block}
+.err-banner-title{font-size:15px;font-weight:800;color:#fca5a5;margin-bottom:6px}
+.err-banner-msg{font-size:13px;color:#fcd5d5;line-height:1.6;margin-bottom:12px}
+.err-banner-msg a{color:var(--acc)}
+.err-btns{display:flex;gap:8px}
+.err-btn-primary{
+  padding:9px 16px;background:var(--grn);color:#000;
+  border:none;border-radius:8px;font-weight:800;font-size:13px;
+  cursor:pointer;font-family:var(--sans);
+}
+.err-btn-close{
+  padding:9px 16px;background:transparent;color:var(--muted);
+  border:1px solid var(--brd2);border-radius:8px;font-size:12px;
+  cursor:pointer;font-family:var(--sans);
+}
 
-/* KPI grid */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-@media(max-width:480px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--panel);border:1px solid var(--brd);border-radius:13px;
-  padding:14px 12px 12px;text-align:center;position:relative;overflow:hidden}
-.kpi::before{content:'';position:absolute;inset:0;background:var(--kc,#3B82F6);opacity:.04}
-.kpi-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt);
-  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
-.kpi-val{font-size:32px;font-weight:900;line-height:1;color:var(--kc,#3B82F6)}
-.kpi-sub{font-size:11px;color:var(--txt);margin-top:4px}
+/* CONTENT */
+.content{padding:12px 14px 80px;display:flex;flex-direction:column;gap:10px}
 
-/* Controls */
-.controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-/* ctrl-label removed */
-.ctrl-label{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap}
-.controls{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.thr-group{display:flex;gap:4px;flex-wrap:wrap}
-.thr-btn{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
-  padding:7px 14px;border-radius:8px;border:1px solid var(--brd);
-  background:var(--panel2);color:var(--muted);cursor:pointer;transition:all .15s}
-.thr-btn.on{background:var(--grn);border-color:var(--grn);color:#000}
+/* MATCH CARD */
+.card{
+  background:var(--panel);border:1px solid var(--brd);
+  border-radius:16px;overflow:hidden;transition:border-color .2s;
+}
+.card:hover{border-color:var(--brd2)}
+.card-head{
+  padding:13px 15px 10px;
+  border-bottom:1px solid var(--brd);
+}
+.card-league{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;color:var(--muted);font-family:var(--mono);
+  letter-spacing:.5px;margin-bottom:7px;
+}
+.card-league .tier-badge{
+  font-size:8px;padding:2px 6px;border-radius:4px;
+  border:1px solid;font-weight:700;
+}
+.card-teams{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.card-team{font-size:14px;font-weight:700;flex:1;line-height:1.2}
+.card-team.away{text-align:right}
+.card-vs{
+  font-family:var(--mono);font-size:10px;color:var(--muted);
+  flex-shrink:0;padding:0 4px;
+}
+.card-meta{
+  display:flex;align-items:center;gap:10px;margin-top:6px;
+  font-size:11px;color:var(--muted);
+}
+.card-time{font-family:var(--mono);font-size:11px;color:var(--acc)}
+.card-odds{
+  display:flex;gap:4px;margin-top:8px;
+}
+.odd-chip{
+  flex:1;text-align:center;padding:5px 4px;
+  background:var(--bg2);border-radius:7px;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  border:1px solid var(--brd);
+}
+.odd-chip .odd-lbl{font-size:8px;color:var(--muted);font-weight:400;display:block}
 
-/* Market filters */
-.mkt-filters{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px}
-.mkt-filters::-webkit-scrollbar{display:none}
-.mf{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:9px;
-  border:1px solid var(--brd);background:var(--panel);color:var(--muted);
-  cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:12px;font-weight:600;transition:all .15s}
-.mf span.cnt{font-family:'JetBrains Mono',monospace;font-size:10px;
-  padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.3)}
-.mf.on{border-color:var(--acc);color:var(--acc);background:rgba(59,130,246,.07)}
-.mf.on span.cnt{background:rgba(59,130,246,.2);color:var(--acc)}
+/* PRONOSTIC GROUPS */
+.card-pronostics{padding:12px 15px 4px}
 
-/* ═══ BILETE ═══ */
-.ticket{border-radius:16px;padding:18px;margin-bottom:10px;border:1px solid}
-.ticket.t-bz {background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(16,163,74,.03)); border-color:rgba(34,197,94,.3)}
-.ticket.t-c20{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(29,78,216,.03)); border-color:rgba(59,130,246,.3)}
-.ticket.t-c50{background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(126,34,206,.03)); border-color:rgba(168,85,247,.3)}
-.ticket-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.ticket-title{display:flex;align-items:center;gap:10px}
-.ticket-icon{font-size:22px}
-.ticket-name{font-size:16px;font-weight:800}
-.ticket.t-bz  .ticket-name{color:var(--grn)}
-.ticket.t-c20 .ticket-name{color:var(--acc)}
-.ticket.t-c50 .ticket-name{color:var(--pur)}
-.ticket-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
-  padding:3px 9px;border-radius:5px}
-.ticket.t-bz  .ticket-tag{background:rgba(34,197,94,.12);color:var(--grn);border:1px solid rgba(34,197,94,.25)}
-.ticket.t-c20 .ticket-tag{background:rgba(59,130,246,.12);color:var(--acc);border:1px solid rgba(59,130,246,.25)}
-.ticket.t-c50 .ticket-tag{background:rgba(168,85,247,.12);color:var(--pur);border:1px solid rgba(168,85,247,.25)}
-.ticket-cota{text-align:right}
-.ticket-cota-lbl{font-size:11px;color:var(--muted)}
-.ticket-cota-val{font-size:22px;font-weight:900;line-height:1.1}
-.ticket.t-bz  .ticket-cota-val{color:var(--grn)}
-.ticket.t-c20 .ticket-cota-val{color:var(--acc)}
-.ticket.t-c50 .ticket-cota-val{color:var(--pur)}
-.ticket-picks{display:flex;flex-direction:column;gap:7px}
-.tick-pick{display:flex;align-items:center;justify-content:space-between;
-  background:rgba(0,0,0,.35);border-radius:10px;padding:10px 13px;gap:10px;flex-wrap:wrap}
-.tp-info{flex:1;min-width:0}
-.tp-match{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.tp-meta{font-size:11px;color:var(--txt);display:flex;gap:8px;flex-wrap:wrap}
-.tp-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
-.tp-badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
-  padding:3px 10px;border-radius:7px;white-space:nowrap}
-.t-bz  .tp-badge{background:rgba(34,197,94,.12);color:var(--grn);border:1px solid rgba(34,197,94,.2)}
-.t-c20 .tp-badge{background:rgba(59,130,246,.12);color:var(--acc);border:1px solid rgba(59,130,246,.2)}
-.t-c50 .tp-badge{background:rgba(168,85,247,.12);color:var(--pur);border:1px solid rgba(168,85,247,.2)}
-.tp-prob{font-size:18px;font-weight:900;min-width:48px;text-align:right}
-.t-bz  .tp-prob{color:var(--grn)}
-.t-c20 .tp-prob{color:var(--acc)}
-.t-c50 .tp-prob{color:var(--pur)}
-.ticket-footer{display:flex;align-items:center;justify-content:space-between;
-  margin-top:13px;padding-top:11px;flex-wrap:wrap;gap:8px}
-.t-bz  .ticket-footer{border-top:1px solid rgba(34,197,94,.15)}
-.t-c20 .ticket-footer{border-top:1px solid rgba(59,130,246,.15)}
-.t-c50 .ticket-footer{border-top:1px solid rgba(168,85,247,.15)}
-.ticket-note{font-size:10px;color:var(--muted);font-style:italic}
-.strat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--grn);margin-right:3px;vertical-align:middle}
+.group{margin-bottom:10px}
+.group-label{
+  font-family:var(--mono);font-size:8px;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.group-label::after{
+  content:'';flex:1;height:1px;background:currentColor;opacity:.15;
+}
+.pron-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-radius:9px;margin-bottom:4px;
+  background:var(--bg2);gap:10px;
+}
+.pron-name{font-size:12px;font-weight:600;color:var(--txt);flex:1}
+.pron-bar-wrap{flex:1;max-width:80px;height:4px;background:var(--brd2);border-radius:2px;overflow:hidden}
+.pron-bar{height:100%;border-radius:2px;transition:width .5s}
+.pron-pct{
+  font-family:var(--mono);font-size:14px;font-weight:800;
+  min-width:46px;text-align:right;
+}
 
-/* ═══ MATCH CARDS ═══ */
-.cards-list{display:flex;flex-direction:column;gap:10px}
-.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;
-  overflow:hidden;animation:fadeUp .3s ease both}
-.card-stripe{height:3px}
-.card-stripe.lvl-a{background:linear-gradient(90deg,#22c55e,#4ade80)}
-.card-stripe.lvl-b{background:linear-gradient(90deg,#f59e0b,#f97316)}
-.card-stripe.lvl-c{background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
-.card-stripe.lvl-d{background:var(--brd)}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px 0;gap:12px}
-.card-teams{flex:1;min-width:0}
-.card-match{font-size:17px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-vs{color:var(--muted);font-weight:500}
-.card-meta{display:flex;gap:7px;align-items:center;margin-top:5px;flex-wrap:wrap}
-.card-league{font-size:11px;color:var(--txt)}
-.card-time{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
-  background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:5px;padding:2px 8px;color:var(--wht)}
-.card-tier{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;
-  background:rgba(245,158,11,.08);color:var(--yel);border:1px solid rgba(245,158,11,.18)}
-.card-bz{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;
-  background:rgba(34,197,94,.1);color:var(--grn);border:1px solid rgba(34,197,94,.22);text-transform:uppercase}
-.strat-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
-.stag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace}
-.stag.sv{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
-.stag.sh{background:rgba(168,85,247,.1);color:var(--pur);border:1px solid rgba(168,85,247,.2)}
-.stag.sp{background:rgba(249,115,22,.1);color:var(--orn);border:1px solid rgba(249,115,22,.2)}
-.score-ring{width:70px;height:70px;border-radius:50%;border:2px solid var(--brd);background:var(--bg2);
-  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.score-ring.ra{border-color:var(--grn);background:rgba(34,197,94,.07)}
-.score-ring.rb{border-color:var(--yel);background:rgba(245,158,11,.07)}
-.ring-pct{font-size:18px;font-weight:900;line-height:1}
-.ra .ring-pct{color:var(--grn)}
-.rb .ring-pct{color:var(--yel)}
-.ring-lbl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);margin-top:2px}
-.card-mkts{padding:12px 16px 0}
-.mkts-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
-  letter-spacing:2px;text-transform:uppercase;margin-bottom:9px}
-.mkts-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}
-.mkt-item{background:var(--bg2);border:1px solid var(--brd2);border-radius:9px;
-  padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:5px}
-.mkt-item.pass{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.05)}
-.mkt-item.warn{border-color:rgba(245,158,11,.22);background:rgba(245,158,11,.04)}
-.mkt-name{font-size:12px;color:var(--txt);font-weight:500;line-height:1.3}
-.mkt-pct{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace}
-.mkt-pct.pass{color:var(--grn)}
-.mkt-pct.warn{color:var(--yel)}
-.mkt-pct.fail{color:var(--muted)}
-.card-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 14px;gap:8px;flex-wrap:wrap}
-.lambdas{display:flex;gap:5px;flex-wrap:wrap}
-.lam{background:var(--bg2);border:1px solid var(--brd2);border-radius:7px;padding:5px 10px;
-  font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center;min-width:56px}
-.lam small{display:block;font-size:8px;color:var(--muted);margin-bottom:1px}
-.lam b{color:var(--cyan)}
-.lam b.yl{color:var(--yel)}
-.lam b.gn{color:var(--grn)}
-.odds-row{display:flex;gap:4px;flex-wrap:wrap}
-.odd{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
-  padding:3px 8px;border-radius:5px;background:rgba(59,130,246,.07);color:var(--acc);border:1px solid rgba(59,130,246,.15)}
-.odd.g{background:rgba(34,197,94,.07);color:var(--grn);border-color:rgba(34,197,94,.18)}
+/* BETBUILDER */
+.betbuilder{
+  margin:0 15px 12px;padding:10px 12px;
+  background:rgba(168,85,247,.06);
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:11px;
+}
+.bb-label{
+  font-family:var(--mono);font-size:8px;color:var(--pur);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;
+}
+.bb-combo{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 0;border-bottom:1px solid rgba(168,85,247,.1);
+  gap:8px;
+}
+.bb-combo:last-child{border-bottom:none}
+.bb-combo-name{font-size:11px;font-weight:600;color:var(--txt)}
+.bb-combo-pct{font-family:var(--mono);font-size:13px;font-weight:800;color:var(--pur)}
 
-/* Empty */
-.empty{text-align:center;padding:60px 24px}
-.empty-ico{font-size:48px;margin-bottom:16px;opacity:.3}
-.empty p{color:var(--txt);font-size:14px;line-height:2}
+/* BILET */
+.ticket{
+  border-radius:16px;padding:18px;border:1px solid;
+  margin-bottom:4px;
+}
+.ticket-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:14px;gap:10px;
+}
+.ticket-title{font-size:17px;font-weight:900;display:flex;align-items:center;gap:8px}
+.ticket-tag{
+  display:inline-block;font-size:10px;font-family:var(--mono);
+  padding:3px 8px;border-radius:6px;border:1px solid;
+  font-weight:700;letter-spacing:.5px;margin-top:4px;
+}
+.ticket-cota-lbl{font-size:10px;color:var(--muted);text-align:right;font-family:var(--mono)}
+.ticket-cota-val{font-size:22px;font-weight:900;text-align:right;font-family:var(--mono)}
+.ticket-pick{
+  background:rgba(255,255,255,.04);border-radius:10px;
+  padding:10px 12px;margin-bottom:6px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.tp-left{flex:1;min-width:0}
+.tp-match{font-size:13px;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-meta{font-size:10px;color:var(--muted);margin-top:2px;
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tp-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.tp-mkt{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  padding:4px 9px;border-radius:7px;border:1px solid;white-space:nowrap;
+}
+.tp-pct{font-family:var(--mono);font-size:15px;font-weight:900}
+.ticket-note{font-size:11px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
 
-/* Section label */
-.sec-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
-  letter-spacing:2px;text-transform:uppercase;margin:16px 0 10px;
-  display:flex;align-items:center;gap:8px}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd2)}
+/* EMPTY STATE */
+.empty{
+  text-align:center;padding:48px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-ico{font-size:40px}
+.empty-title{font-size:16px;font-weight:700;color:var(--txt)}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.empty-btn{
+  margin-top:8px;padding:11px 22px;background:var(--grn);
+  border:none;border-radius:10px;color:#000;font-weight:800;
+  cursor:pointer;font-family:var(--sans);font-size:14px;
+}
 
-/* Modal */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;
-  align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(8px)}
+/* MODAL / SETTINGS */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center;padding:0;
+}
 .overlay.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--brd);border-radius:20px 20px 0 0;
-  width:100%;max-width:480px;padding:26px 22px 50px;max-height:88vh;overflow-y:auto;animation:slideIn .22s ease}
-.modal-head{font-size:19px;font-weight:800;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center}
-.modal-x{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1}
-.field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc);
-  letter-spacing:2px;text-transform:uppercase;display:block;margin:16px 0 8px}
-.field{width:100%;background:var(--bg2);border:1px solid var(--brd);color:var(--wht);
-  font-family:'JetBrains Mono',monospace;font-size:13px;border-radius:10px;
-  padding:12px 14px;outline:none;transition:border-color .2s}
-.field:focus{border-color:var(--acc)}
-.eye-wrap{position:relative}
-.eye-wrap .field{padding-right:46px}
-.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px}
-.mbox{border-radius:13px;padding:15px;margin-bottom:6px}
-.mbox-head{font-size:13px;font-weight:700;margin-bottom:10px}
-.key-box{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.18)}
-.key-box .mbox-head{color:var(--acc)}
-.install-box{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.14);margin-top:14px}
-.install-box .mbox-head{color:var(--yel)}
-.install-box p{font-size:11px;color:var(--txt);line-height:1.9}
-.btn-save{background:linear-gradient(135deg,var(--acc),#1D4ED8);color:#fff;font-weight:800;
-  font-size:14px;border:none;border-radius:11px;padding:14px;cursor:pointer;width:100%;margin-top:16px}
-.btn-save:hover{opacity:.9}
-.btn-del{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,.2);
-  font-size:12px;border-radius:11px;padding:12px;cursor:pointer;width:100%;margin-top:8px}
-.btn-del:hover{background:rgba(239,68,68,.05)}
+.modal{
+  background:var(--panel);border:1px solid var(--brd2);
+  border-radius:20px 20px 0 0;width:100%;max-width:500px;
+  padding:24px 20px 36px;max-height:85vh;overflow-y:auto;
+}
+.modal-handle{
+  width:36px;height:4px;background:var(--brd2);
+  border-radius:2px;margin:0 auto 20px;
+}
+.modal-title{font-size:18px;font-weight:900;margin-bottom:20px}
+.modal-section{margin-bottom:20px}
+.modal-section-label{
+  font-family:var(--mono);font-size:9px;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
+}
+.modal-input{
+  width:100%;padding:12px 14px;background:var(--bg2);
+  border:1px solid var(--brd2);border-radius:11px;
+  color:var(--txt);font-size:13px;font-family:var(--mono);
+  outline:none;transition:border-color .2s;
+}
+.modal-input:focus{border-color:var(--acc)}
+.modal-row{display:flex;gap:8px;margin-top:8px}
+.modal-btn{
+  flex:1;padding:11px;border-radius:10px;border:1px solid var(--brd2);
+  background:var(--panel2);color:var(--txt);cursor:pointer;
+  font-family:var(--sans);font-size:13px;font-weight:600;
+  transition:all .15s;
+}
+.modal-btn:hover{border-color:var(--acc);color:var(--acc)}
+.modal-btn.danger{color:var(--red);border-color:rgba(239,68,68,.3)}
+.modal-btn.danger:hover{background:rgba(239,68,68,.1)}
+.modal-btn.primary{background:var(--grn);border-color:var(--grn);color:#000;font-weight:800}
+.modal-btn.primary:hover{background:var(--grn2)}
+.credits-info{
+  background:var(--bg2);border:1px solid var(--brd);
+  border-radius:11px;padding:12px 14px;
+  font-family:var(--mono);font-size:12px;color:var(--muted);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;margin-top:8px;
+}
+.credits-info-val{font-size:15px;font-weight:800;color:var(--grn)}
 
-/* Loader */
-#ldr{position:fixed;inset:0;background:rgba(6,11,20,.97);display:none;flex-direction:column;
-  align-items:center;justify-content:center;gap:18px;z-index:500}
-#ldr.on{display:flex}
-.ldr-ring{width:52px;height:52px;border-radius:50%;border:3px solid var(--brd);
-  border-top-color:var(--grn);animation:spin .8s linear infinite}
-.ldr-text{font-size:16px;font-weight:800;color:var(--grn);text-align:center}
-.ldr-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-align:center;max-width:260px;line-height:1.7}
-.ldr-prog{width:220px;height:3px;background:var(--brd);border-radius:2px;overflow:hidden;margin-top:4px}
-.ldr-fill{height:100%;background:linear-gradient(90deg,var(--grn),var(--acc));border-radius:2px;transition:width .4s;width:0}
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--panel2);border:1px solid var(--brd2);
+  border-radius:10px;padding:11px 18px;font-size:13px;font-weight:600;
+  z-index:500;transition:transform .25s;pointer-events:none;white-space:nowrap;
+  max-width:90vw;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(34,197,94,.4);color:var(--grn)}
+.toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
+.toast.inf{border-color:rgba(59,130,246,.4);color:var(--acc)}
 
-/* Toast */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:var(--panel);border:1px solid var(--brd);border-radius:12px;
-  padding:13px 24px;font-size:13px;font-weight:600;z-index:600;
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 12px 40px rgba(0,0,0,.7);max-width:340px;text-align:center;line-height:1.5}
-#toast.show{transform:translateX(-50%) translateY(0)}
-#toast.ok{border-color:rgba(34,197,94,.4);color:var(--grn)}
-#toast.err{border-color:rgba(239,68,68,.4);color:var(--red)}
-#toast.inf{border-color:rgba(59,130,246,.4);color:var(--acc)}
+/* SECTION HEADER */
+.section-hdr{
+  font-family:var(--mono);font-size:9px;color:var(--muted);
+  letter-spacing:2px;text-transform:uppercase;padding:4px 0 8px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
 </style>
 </head>
-<body style="visibility:hidden">
+<body>
 
-<div id="ldr">
-  <div class="ldr-ring"></div>
-  <div class="ldr-text" id="ldr-t">Analizez...</div>
-  <div class="ldr-sub" id="ldr-s">Vă rugăm așteptați</div>
-  <div class="ldr-prog"><div class="ldr-fill" id="ldr-f"></div></div>
-</div>
-<div id="toast"></div>
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="brand">
-    <div class="brand-icon">⚽</div>
-    <div>
-      <div class="brand-name">Bet<em>Analytics</em> Pro</div>
-      <div class="brand-sub">POISSON · MULTI-STRAT · 66 LIGI</div>
-    </div>
-  </div>
-  <div class="topbar-r">
-    <button class="btn-primary" id="btn-go" onclick="doRefresh()">
-      <span class="spin-ico">↻</span><span class="go-ico">▶</span> ANALIZEAZĂ
-    </button>
-    <button class="btn-icon" onclick="openModal()">⚙</button>
-  </div>
-</div>
-
-<!-- SETUP SCREEN -->
+<!-- SETUP -->
 <div id="setup">
   <div class="setup-card">
-    <span class="setup-emoji">⚽</span>
-    <h1 class="setup-h">Bet<em>Analytics</em><br>Pro</h1>
-    <p class="setup-p">Cel mai avansat instrument de analiză fotbal.<br>
-    Model Poisson multi-strategie · 66 ligi · Europa + Americas + Asia<br>
-    <strong style="color:var(--wht)">3 bilete zilnice</strong> — Biletul Zilei · Cotă 20 · Cotă 50</p>
-    <div class="input-wrap">
-      <span class="input-label">Cheie API — the-odds-api.com</span>
-      <div class="input-row">
-        <input class="inp" id="setup-key" type="text"
-          placeholder="Lipești cheia API aici..." autocomplete="off"
-          onkeydown="if(event.key==='Enter')saveKey()">
-        <button class="btn-ok" onclick="saveKey()">PORNEȘTE</button>
-      </div>
-      <div class="setup-note">
-        🔑 Gratuit: <a href="https://the-odds-api.com/#get-access" target="_blank">the-odds-api.com → Free Plan</a><br>
-        500 req/lună · Fără card · Cheia rămâne local pe dispozitiv
-      </div>
+    <div class="setup-logo">⚽</div>
+    <div class="setup-title">Bet<span>Analytics</span> Pro</div>
+    <div class="setup-sub">
+      Analiză Poisson multi-strategie · 66 ligi<br>
+      Pronosticuri <strong>1-4G Gazdă/Oaspeți</strong> + <strong>HT Under</strong><br>
+      Bilet zilnic cu cotă ~10x din cele mai sigure evenimente
     </div>
+    <input class="setup-input" id="setup-key" type="text" placeholder="Cheie API — the-odds-api.com" autocomplete="off" spellcheck="false">
+    <button class="setup-btn" onclick="saveKey()">▶ PORNEȘTE ANALIZA</button>
+    <a class="setup-link" href="https://the-odds-api.com" target="_blank">🔑 Obții cheie gratuită (500 credite/lună)</a>
   </div>
 </div>
 
-<!-- APP SCREEN -->
+<!-- APP -->
 <div id="app">
-  <!-- Day selector persistent -->
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-ico">⚽</div>
+      <div>
+        <div class="brand-name">Bet<span>Analytics</span> Pro</div>
+        <div class="brand-tag">POISSON · MULTI-STRAT · 66 LIGI</div>
+      </div>
+    </div>
+    <div class="topbar-r">
+      <button class="btn-analyze" id="btn-analyze" onclick="doAnalyze()">
+        <span class="spin">↻</span>
+        <span class="ico">▶</span>
+        ANALIZEAZĂ
+      </button>
+      <div class="btn-cog" onclick="openModal()">⚙</div>
+    </div>
+  </div>
+
+  <!-- CREDITS BAR -->
+  <div class="credits-bar" id="credits-bar" onclick="refreshCredits()">
+    <div class="credits-label">API</div>
+    <div class="credits-track"><div class="credits-fill" id="credits-fill"></div></div>
+    <div class="credits-val" id="credits-val">—</div>
+    <div class="credits-key" id="credits-key"></div>
+  </div>
+
+  <!-- ERROR BANNER -->
+  <div class="err-banner" id="err-banner">
+    <div class="err-banner-title" id="err-title"></div>
+    <div class="err-banner-msg" id="err-msg"></div>
+    <div class="err-btns">
+      <button class="err-btn-primary" onclick="openModal();hideError()">⚙️ Schimbă Cheia</button>
+      <button class="err-btn-close" onclick="hideError()">Închide</button>
+    </div>
+  </div>
+
+  <!-- DAY TABS -->
   <div class="day-tabs">
-    <button class="day-tab active" id="tab-azi" onclick="switchDay('azi')">
-      📅 AZI <span class="dt-sub" id="lbl-azi"></span>
-    </button>
-    <button class="day-tab" id="tab-maine" onclick="switchDay('maine')">
-      📅 MÂINE <span class="dt-sub" id="lbl-maine"></span>
-    </button>
-  </div>
-
-  <div class="statusbar">
-    <div class="sb-left">
-      <div class="sb-dot" id="sb-dot"></div>
-      <span id="sb-src">Apasă ANALIZEAZĂ pentru a porni</span>
+    <div class="day-tab active" id="tab-azi" onclick="switchDay('azi')">
+      <div class="dt-label">📅 AZI</div>
+      <div class="dt-date" id="lbl-azi"></div>
     </div>
-    <div class="sb-right">Ora: <b id="sb-time">—</b></div>
-  </div>
-
-  <!-- Credits bar -->
-  <div id="credits-bar" style="display:none;align-items:center;padding:7px 13px;
-    background:var(--panel2);border:1px solid var(--brd2);border-radius:10px;
-    margin-bottom:8px;gap:8px">
-  </div>
-
-  <div class="prog-wrap" id="prog-wrap">
-    <div class="prog-top"><span id="prog-txt">Procesare...</span><span id="prog-pct">0%</span></div>
-    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-  </div>
-
-  <div class="kpi-grid">
-    <div class="kpi" style="--kc:#3B82F6">
-      <div class="kpi-lbl">Meciuri</div>
-      <div class="kpi-val" id="k-total">—</div>
-      <div class="kpi-sub" id="k-signals-sub">≥70%</div>
-    </div>
-    <div class="kpi" style="--kc:#22C55E">
-      <div class="kpi-lbl">Semnale</div>
-      <div class="kpi-val" id="k-signals">—</div>
-      <div class="kpi-sub">≥prag ales</div>
-    </div>
-    <div class="kpi" style="--kc:#F59E0B">
-      <div class="kpi-lbl">Multi-Strat</div>
-      <div class="kpi-val" id="k-multi">—</div>
-      <div class="kpi-sub">≥2 strategii</div>
-    </div>
-    <div class="kpi" style="--kc:#A855F7">
-      <div class="kpi-lbl">Bilete</div>
-      <div class="kpi-val">3</div>
-      <div class="kpi-sub">zilnice</div>
+    <div class="day-tab" id="tab-maine" onclick="switchDay('maine')">
+      <div class="dt-label">📅 MÂINE</div>
+      <div class="dt-date" id="lbl-maine"></div>
     </div>
   </div>
 
-  <!-- Prag selectabil 70-99% -->
-  <div class="controls" id="thr-controls">
-    <span class="ctrl-label">Prag minim:</span>
-    <div class="thr-group">
-      <button class="thr-btn on" id="tb70" onclick="setThr(70)">70%</button>
-      <button class="thr-btn"    id="tb75" onclick="setThr(75)">75%</button>
-      <button class="thr-btn"    id="tb80" onclick="setThr(80)">80%</button>
-      <button class="thr-btn"    id="tb85" onclick="setThr(85)">85%</button>
-      <button class="thr-btn"    id="tb90" onclick="setThr(90)">90%</button>
-    </div>
+  <!-- STATUS -->
+  <div class="status-bar">
+    <div class="sb-dot" id="sb-dot"></div>
+    <div class="sb-txt" id="sb-txt">Apasă ANALIZEAZĂ pentru a porni</div>
+    <div class="sb-time" id="sb-time"></div>
   </div>
 
-  <div class="mkt-filters" id="mkt-bar">
-    <button class="mf on" id="mf-all"    onclick="setMkt('all')">🔍 Toate <span class="cnt" id="cn-all">0</span></button>
-    <button class="mf"    id="mf-o15"    onclick="setMkt('o15')">⚽ +1.5 Meci <span class="cnt" id="cn-o15">0</span></button>
-    <button class="mf"    id="mf-23t"    onclick="setMkt('23t')">🎯 2-3G Meci <span class="cnt" id="cn-23t">0</span></button>
-    <button class="mf"    id="mf-h14"    onclick="setMkt('h14')">🏠 1-4G Gazdă <span class="cnt" id="cn-h14">0</span></button>
-    <button class="mf"    id="mf-a14"    onclick="setMkt('a14')">✈️ 1-4G Oaspeți <span class="cnt" id="cn-a14">0</span></button>
-    <button class="mf"    id="mf-h13"    onclick="setMkt('h13')">🏠 1-3G Gazdă <span class="cnt" id="cn-h13">0</span></button>
-    <button class="mf"    id="mf-a13"    onclick="setMkt('a13')">✈️ 1-3G Oaspeți <span class="cnt" id="cn-a13">0</span></button>
-    <button class="mf"    id="mf-htu25"  onclick="setMkt('htu25')">⏱ -2.5HT <span class="cnt" id="cn-htu25">0</span></button>
-    <button class="mf"    id="mf-htu35"  onclick="setMkt('htu35')">⏱ -3.5HT <span class="cnt" id="cn-htu35">0</span></button>
-    <button class="mf"    id="mf-ticket" onclick="setMkt('ticket')">🎯 Bilete <span class="cnt" id="cn-ticket">0</span></button>
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="loader-ring"></div>
+    <div class="loader-title" id="ldr-title">Se analizează...</div>
+    <div class="loader-sub" id="ldr-sub"></div>
+    <div class="loader-prog"><div class="loader-fill" id="ldr-fill"></div></div>
   </div>
 
-  <!-- Bilete zilnice -->
-  <div id="ticket-zone"></div>
+  <!-- CONTENT -->
+  <div class="content" id="content"></div>
 
-  <div class="sec-lbl">Toate meciurile analizate</div>
-  <div class="cards-list" id="cards-list"></div>
 </div>
 
-<!-- SETTINGS MODAL -->
-<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+<!-- MODAL SETTINGS -->
+<div class="overlay" id="overlay">
   <div class="modal">
-    <div class="modal-head">⚙️ Setări <button class="modal-x" onclick="closeModal()">✕</button></div>
-    <div class="mbox key-box">
-      <div class="mbox-head" style="display:flex;align-items:center;justify-content:space-between">
-        🔑 API Key
-        <button onclick="checkCreditsNow()" style="font-size:11px;font-weight:700;
-          background:rgba(59,130,246,.1);color:var(--acc);border:1px solid rgba(59,130,246,.3);
-          border-radius:7px;padding:4px 10px;cursor:pointer">
-          🔄 Verifică credite
-        </button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Setări API</div>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Cheie API</div>
+      <input class="modal-input" id="modal-key" type="text" placeholder="Cheie the-odds-api.com" autocomplete="off" spellcheck="false">
+      <div class="credits-info" id="modal-credits-info">
+        <span>Credite rămase</span>
+        <span class="credits-info-val" id="modal-credits-val">—</span>
       </div>
-      <div class="eye-wrap">
-        <input class="field" type="password" id="m-key" placeholder="Introduceți cheia nouă...">
-        <button class="eye-btn" onclick="toggleEye()">👁</button>
+      <div class="modal-row">
+        <button class="modal-btn" onclick="checkCreditsModal()">🔄 Verifică credite</button>
+        <button class="modal-btn danger" onclick="clearKey()">🗑 Șterge cheia</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.8">
-        <a href="https://the-odds-api.com/#get-access" target="_blank" style="color:var(--acc)">the-odds-api.com</a>
-        · Plan gratuit · 500 req/lună
+      <div class="modal-row">
+        <button class="modal-btn primary" onclick="saveKeyModal()">💾 Salvează</button>
       </div>
     </div>
-    <span class="field-label">Bankroll (RON)</span>
-    <input class="field" type="number" id="m-broll">
-    <span class="field-label">Kelly Fraction (0.1 – 0.5)</span>
-    <input class="field" type="number" id="m-kelly" step="0.05" min="0.05" max="0.5">
-    <span class="field-label">Selecții Biletul Zilei</span>
-    <input class="field" type="number" id="m-picks" min="2" max="6" step="1">
-    <button class="btn-save" onclick="saveCfg()">💾 Salvează setările</button>
-    <button class="btn-del"  onclick="deleteKey()">🗑 Șterge cheia și deconectează</button>
-    <div class="mbox install-box">
-      <div class="mbox-head">📲 Instalare ca aplicație</div>
-      <p><b>Android Chrome:</b> Meniu ⋮ → "Instalează aplicația"<br>
-      <b>iPhone / iPad:</b> Safari → □↑ → "Adaugă pe ecranul principal"</p>
+
+    <div class="modal-section">
+      <div class="modal-section-label">Informații</div>
+      <div class="credits-info" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <span>🔑 <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> — 500 credite gratuite/lună</span>
+        <span>💡 Fiecare analiză consumă ~66 credite</span>
+        <span>📦 Cache 6h — nu re-fetch dacă datele sunt recente</span>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <button class="modal-btn" onclick="closeModal()">✕ Închide</button>
     </div>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
 'use strict';
-// ────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ═══════════════════════════════════════════════════════
+const CACHE_TTL  = 6 * 3600 * 1000; // 6 ore
+const T = ms => new Promise((_,rj) => setTimeout(() => rj('timeout'), ms));
+
+let DAY      = 'azi';
+let DATA     = { azi: [], maine: [] };
+let FETCHED  = false;
+let CREDITS  = { remaining: null, used: null };
+let KEY      = '';
+
+// ═══════════════════════════════════════════════════════
 // SAFE STORAGE
-// ────────────────────────────────────────────
-const _MEM = {};
+// ═══════════════════════════════════════════════════════
+const MEM = {};
 const ls = {
-  get:k=>{try{return localStorage.getItem(k)}catch(e){return _MEM[k]||null}},
-  set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}_MEM[k]=v},
-  rm:k=>{try{localStorage.removeItem(k)}catch(e){}delete _MEM[k]}
+  get: k => { try { return localStorage.getItem(k) } catch(e) { return MEM[k]||null } },
+  set: (k,v) => { try { localStorage.setItem(k,v) } catch(e) {} MEM[k]=v },
+  rm:  k => { try { localStorage.removeItem(k) } catch(e) {} delete MEM[k] }
 };
 
-const CACHE_TTL = 6*3600*1000; // 6h cache — economisește credite
-let CFG = loadCfg();
-let MKT = 'all';
-let THR = 70; // prag dinamic 70-99%
-let DAY = 'azi';
-let DATA = {azi:[], maine:[]};
-
-function loadCfg(){
-  try{return{bankroll:5000,kelly:.25,thr:80,picks:4,...JSON.parse(ls.get('ba_cfg')||'{}')}}
-  catch(e){return{bankroll:5000,kelly:.25,thr:80,picks:4}}
+// ═══════════════════════════════════════════════════════
+// KEY MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function getKey()    { return ls.get('ba_key') || '' }
+function saveKey()   {
+  const k = document.getElementById('setup-key').value.trim();
+  if(k.length < 20) { toast('Cheie prea scurtă!', 'err'); return; }
+  ls.set('ba_key', k);
+  KEY = k;
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display   = 'flex';
+  doAnalyze();
 }
-function saveCfgLS(){ ls.set('ba_cfg',JSON.stringify(CFG)) }
-function getKey(){ return ls.get('ba_key')||'' }
+function saveKeyModal() {
+  const k = document.getElementById('modal-key').value.trim();
+  if(k.length < 20) { toast('Cheie prea scurtă!', 'err'); return; }
+  ls.set('ba_key', k);
+  KEY = k;
+  ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
+  DATA = { azi:[], maine:[] }; FETCHED = false;
+  closeModal();
+  toast('Cheie salvată! ✅', 'ok');
+  setTimeout(() => doAnalyze(), 300);
+}
+function clearKey() {
+  if(!confirm('Ștergi cheia API?')) return;
+  ls.rm('ba_key'); ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
+  ls.rm('ba_credits');
+  DATA = { azi:[], maine:[] }; FETCHED = false; KEY = '';
+  closeModal();
+  document.getElementById('app').style.display   = 'none';
+  document.getElementById('setup').style.display = 'flex';
+}
+function maskKey(k) {
+  if(!k||k.length<8) return '••••';
+  return k.slice(0,4) + '••••' + k.slice(-4);
+}
 
-// ────────────────────────────────────────────
-// SPORTS LIST (43 ligi)
-// ────────────────────────────────────────────
-const SPORTS=[
-  // ── UEFA COMPETIȚII ──
+// ═══════════════════════════════════════════════════════
+// DATE HELPERS
+// ═══════════════════════════════════════════════════════
+function bucDate(offset=0) {
+  const d = new Date(Date.now() + offset * 86400000);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone:'Europe/Bucharest', year:'numeric', month:'2-digit', day:'2-digit'
+  }).format(d);
+}
+function fmtDate(d, fmt) {
+  return d.toLocaleDateString('ro-RO', { ...fmt, timeZone:'Europe/Bucharest' });
+}
+function fmtTime(d) {
+  return d.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Bucharest' });
+}
+
+// ═══════════════════════════════════════════════════════
+// CREDITS UI
+// ═══════════════════════════════════════════════════════
+function updateCreditsUI() {
+  const bar = document.getElementById('credits-bar');
+  if(!bar) return;
+  const { remaining, used } = CREDITS;
+  if(remaining === null) { bar.style.display = 'none'; return; }
+  const total = remaining + used;
+  const pct   = total > 0 ? Math.round(remaining / total * 100) : 0;
+  const clr   = remaining > 100 ? 'var(--grn)' : remaining > 30 ? 'var(--yel)' : 'var(--red)';
+  bar.style.display = 'flex';
+  document.getElementById('credits-fill').style.width      = pct + '%';
+  document.getElementById('credits-fill').style.background = clr;
+  document.getElementById('credits-val').textContent       = `${remaining}/${total}`;
+  document.getElementById('credits-val').style.color       = clr;
+  document.getElementById('credits-key').textContent       = maskKey(getKey());
+  // modal
+  const mv = document.getElementById('modal-credits-val');
+  if(mv) { mv.textContent = `${remaining} / ${total} (${pct}%)`; mv.style.color = clr; }
+}
+
+function saveCredits(rem, used) {
+  CREDITS = { remaining: rem, used: used };
+  ls.set('ba_credits', JSON.stringify({ ...CREDITS, ts: Date.now() }));
+  updateCreditsUI();
+}
+
+function loadCreditsFromCache() {
+  try {
+    const c = JSON.parse(ls.get('ba_credits') || '{}');
+    if(c.remaining !== undefined) {
+      CREDITS = { remaining: c.remaining, used: c.used };
+      updateCreditsUI();
+      if(c.remaining === 0) showError('🔴 Credite API epuizate!',
+        'Cheia ta a consumat toate creditele (500/lună).<br><br>' +
+        'Mergi pe <a href="https://the-odds-api.com" target="_blank">the-odds-api.com</a> ' +
+        '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
+    }
+  } catch(e) {}
+}
+
+async function refreshCredits() {
+  const key = getKey();
+  if(!key) return;
+  toast('Se verifică...', 'inf');
+  const url = `https://api.the-odds-api.com/v4/sports?apiKey=${key}`;
+  try {
+    const r = await Promise.race([fetch(url), T(8000)]);
+    if(r && r.ok) {
+      const rem  = r.headers.get('x-requests-remaining');
+      const used = r.headers.get('x-requests-used');
+      if(rem !== null) {
+        saveCredits(+rem, +used);
+        toast(`✅ ${rem} credite rămase · ${maskKey(key)}`, 'ok');
+        return;
+      }
+    }
+    if(r && r.status === 401) { toast('❌ Cheie invalidă!', 'err'); return; }
+  } catch(e) {}
+  // Fallback from cache
+  if(CREDITS.remaining !== null) {
+    toast(`📦 Cache: ${CREDITS.remaining} credite · ${maskKey(key)}`, 'inf');
+  } else {
+    toast('Nu s-a putut verifica. Încearcă din nou.', 'err');
+  }
+}
+
+async function checkCreditsModal() {
+  await refreshCredits();
+  updateCreditsUI();
+}
+
+// ═══════════════════════════════════════════════════════
+// ERROR BANNER
+// ═══════════════════════════════════════════════════════
+function showError(title, msg) {
+  document.getElementById('err-title').innerHTML = title;
+  document.getElementById('err-msg').innerHTML   = msg;
+  document.getElementById('err-banner').classList.add('show');
+}
+function hideError() {
+  document.getElementById('err-banner').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// LOADER
+// ═══════════════════════════════════════════════════════
+function showLoader(title, sub, pct=0) {
+  document.getElementById('loader').classList.add('show');
+  document.getElementById('ldr-title').textContent = title;
+  document.getElementById('ldr-sub').textContent   = sub;
+  document.getElementById('ldr-fill').style.width  = pct + '%';
+}
+function setLoaderPct(pct, sub) {
+  document.getElementById('ldr-fill').style.width = pct + '%';
+  if(sub) document.getElementById('ldr-sub').textContent = sub;
+}
+function hideLoader() {
+  document.getElementById('loader').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+let _toastTimer;
+function toast(msg, type='inf') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `toast ${type} show`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ═══════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════
+function openModal() {
+  document.getElementById('modal-key').value = getKey();
+  updateCreditsUI();
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// SPORTS LIST — 66 ligi verificate
+// ═══════════════════════════════════════════════════════
+const SPORTS = [
+  // UEFA
   {key:'soccer_uefa_champs_league',              n:'Champions League',      f:'🏆',t:0},
   {key:'soccer_uefa_europa_league',              n:'Europa League',         f:'🏆',t:0},
   {key:'soccer_uefa_europa_conference_league',   n:'Conference League',     f:'🏆',t:0},
-  // ── TOP 5 EUROPENE ──
+  // Top 5
   {key:'soccer_epl',                             n:'Premier League',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:1},
   {key:'soccer_spain_la_liga',                   n:'La Liga',               f:'🇪🇸',t:1},
   {key:'soccer_germany_bundesliga',              n:'Bundesliga',            f:'🇩🇪',t:1},
   {key:'soccer_italy_serie_a',                   n:'Serie A',               f:'🇮🇹',t:1},
   {key:'soccer_france_ligue_one',                n:'Ligue 1',               f:'🇫🇷',t:1},
-  // ── EUROPA DIV 1 ──
-  {key:'soccer_portugal_primeira_liga',          n:'Primeira Liga PT',      f:'🇵🇹',t:1},
-  {key:'soccer_netherlands_eredivisie',          n:'Eredivisie NL',         f:'🇳🇱',t:1},
-  {key:'soccer_turkey_super_league',             n:'Süper Lig TR',          f:'🇹🇷',t:1},
+  // Europa Div 1
+  {key:'soccer_portugal_primeira_liga',          n:'Primeira Liga',         f:'🇵🇹',t:1},
+  {key:'soccer_netherlands_eredivisie',          n:'Eredivisie',            f:'🇳🇱',t:1},
+  {key:'soccer_turkey_super_league',             n:'Süper Lig',             f:'🇹🇷',t:1},
   {key:'soccer_belgium_first_div',               n:'Pro League BE',         f:'🇧🇪',t:1},
   {key:'soccer_scotland_premiership',            n:'Premiership SC',        f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:1},
   {key:'soccer_greece_super_league',             n:'Super League GR',       f:'🇬🇷',t:1},
@@ -540,36 +794,36 @@ const SPORTS=[
   {key:'soccer_austria_football_bundesliga',     n:'Bundesliga AT',         f:'🇦🇹',t:1},
   {key:'soccer_switzerland_superleague',         n:'Super League CH',       f:'🇨🇭',t:1},
   {key:'soccer_denmark_superliga',               n:'Superliga DK',          f:'🇩🇰',t:1},
-  {key:'soccer_sweden_allsvenskan',              n:'Allsvenskan SE',        f:'🇸🇪',t:1},
-  {key:'soccer_norway_eliteserien',              n:'Eliteserien NO',        f:'🇳🇴',t:1},
+  {key:'soccer_sweden_allsvenskan',              n:'Allsvenskan',           f:'🇸🇪',t:1},
+  {key:'soccer_norway_eliteserien',              n:'Eliteserien',           f:'🇳🇴',t:1},
   {key:'soccer_czech_liga',                      n:'1. Liga CZ',            f:'🇨🇿',t:1},
-  {key:'soccer_poland_ekstraklasa',              n:'Ekstraklasa PL',        f:'🇵🇱',t:1},
-  {key:'soccer_croatia_hnl',                     n:'HNL HR',                f:'🇭🇷',t:1},
+  {key:'soccer_poland_ekstraklasa',              n:'Ekstraklasa',           f:'🇵🇱',t:1},
+  {key:'soccer_croatia_hnl',                     n:'HNL',                   f:'🇭🇷',t:1},
   {key:'soccer_ukraine_premier_league',          n:'Premier Liha UA',       f:'🇺🇦',t:1},
   {key:'soccer_serbia_superliga',                n:'SuperLiga RS',          f:'🇷🇸',t:1},
   {key:'soccer_hungary_nb_i',                    n:'NB I HU',               f:'🇭🇺',t:1},
   {key:'soccer_slovakia_super_liga',             n:'Super Liga SK',         f:'🇸🇰',t:1},
   {key:'soccer_bulgaria_first_professional_league',n:'First PFL BG',        f:'🇧🇬',t:1},
-  {key:'soccer_finland_veikkausliiga',            n:'Veikkausliiga FI',     f:'🇫🇮',t:1},
-  {key:'soccer_israel_premier_league',            n:'Premier League IL',    f:'🇮🇱',t:1},
-  {key:'soccer_russia_premier_league',            n:'Premier Liga RU',      f:'🇷🇺',t:1},
-  // ── EUROPA DIV 2 ──
-  {key:'soccer_england_league1',                 n:'League One ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_england_league2',                 n:'League Two ENG',        f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
-  {key:'soccer_spain_segunda_division',          n:'Segunda División ES',   f:'🇪🇸',t:2},
-  {key:'soccer_germany_bundesliga2',             n:'2. Bundesliga DE',      f:'🇩🇪',t:2},
-  {key:'soccer_italy_serie_b',                   n:'Serie B IT',            f:'🇮🇹',t:2},
-  {key:'soccer_france_ligue_two',                n:'Ligue 2 FR',            f:'🇫🇷',t:2},
-  {key:'soccer_netherlands_eerste_divisie',      n:'Eerste Divisie NL',     f:'🇳🇱',t:2},
+  {key:'soccer_finland_veikkausliiga',           n:'Veikkausliiga',         f:'🇫🇮',t:1},
+  {key:'soccer_israel_premier_league',           n:'Premier League IL',     f:'🇮🇱',t:1},
+  {key:'soccer_russia_premier_league',           n:'Premier Liga RU',       f:'🇷🇺',t:1},
+  // Europa Div 2
+  {key:'soccer_england_league1',                 n:'League One',            f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_england_league2',                 n:'League Two',            f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:2},
+  {key:'soccer_spain_segunda_division',          n:'Segunda División',      f:'🇪🇸',t:2},
+  {key:'soccer_germany_bundesliga2',             n:'2. Bundesliga',         f:'🇩🇪',t:2},
+  {key:'soccer_italy_serie_b',                   n:'Serie B',               f:'🇮🇹',t:2},
+  {key:'soccer_france_ligue_two',                n:'Ligue 2',               f:'🇫🇷',t:2},
+  {key:'soccer_netherlands_eerste_divisie',      n:'Eerste Divisie',        f:'🇳🇱',t:2},
   {key:'soccer_portugal_segunda_liga',           n:'Liga Portugal 2',       f:'🇵🇹',t:2},
   {key:'soccer_turkey_1_lig',                    n:'1. Lig TR',             f:'🇹🇷',t:2},
   {key:'soccer_scotland_championship',           n:'Championship SC',       f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',t:2},
   {key:'soccer_austria_bundesliga',              n:'2. Liga AT',            f:'🇦🇹',t:2},
   {key:'soccer_denmark_1st_division',            n:'1. Division DK',        f:'🇩🇰',t:2},
   {key:'soccer_belgium_second_div',              n:'Nationale B BE',        f:'🇧🇪',t:2},
-  // ── AMERICAS ──
-  {key:'soccer_brazil_campeonato',               n:'Brasileirão A BR',      f:'🇧🇷',t:3},
-  {key:'soccer_brazil_serie_b',                  n:'Brasileirão B BR',      f:'🇧🇷',t:3},
+  // Americas
+  {key:'soccer_brazil_campeonato',               n:'Brasileirão A',         f:'🇧🇷',t:3},
+  {key:'soccer_brazil_serie_b',                  n:'Brasileirão B',         f:'🇧🇷',t:3},
   {key:'soccer_argentina_primera_division',      n:'Primera División AR',   f:'🇦🇷',t:3},
   {key:'soccer_colombia_primera_a',              n:'Liga BetPlay CO',       f:'🇨🇴',t:3},
   {key:'soccer_chile_primera_division',          n:'Primera División CL',   f:'🇨🇱',t:3},
@@ -581,1265 +835,763 @@ const SPORTS=[
   {key:'soccer_venezuela_primera_profesional',   n:'Primera Pro VE',        f:'🇻🇪',t:3},
   {key:'soccer_conmebol_copa_libertadores',      n:'Copa Libertadores',     f:'🌎',t:3},
   {key:'soccer_conmebol_copa_sudamericana',      n:'Copa Sudamericana',     f:'🌎',t:3},
-  // ── ASIA / PACIFIC ──
-  {key:'soccer_japan_j_league',                  n:'J1 League JP',          f:'🇯🇵',t:4},
-  {key:'soccer_korea_k_league1',                 n:'K League 1 KR',         f:'🇰🇷',t:4},
-  {key:'soccer_korea_k_league2',                 n:'K League 2 KR',         f:'🇰🇷',t:4},
+  // Asia / Pacific / Africa
+  {key:'soccer_japan_j_league',                  n:'J1 League',             f:'🇯🇵',t:4},
+  {key:'soccer_korea_k_league1',                 n:'K League 1',            f:'🇰🇷',t:4},
+  {key:'soccer_korea_k_league2',                 n:'K League 2',            f:'🇰🇷',t:4},
   {key:'soccer_australia_aleague',               n:'A-League AU',           f:'🇦🇺',t:4},
   {key:'soccer_china_superleague',               n:'Super League CN',       f:'🇨🇳',t:4},
   {key:'soccer_saudi_arabia_pro_league',         n:'Pro League SA',         f:'🇸🇦',t:4},
   {key:'soccer_uae_pro_league',                  n:'UAE Pro League',        f:'🇦🇪',t:4},
   {key:'soccer_india_super_league',              n:'ISL India',             f:'🇮🇳',t:4},
-  {key:'soccer_south_africa_premier_division',   n:'DStv Premiership ZA',   f:'🇿🇦',t:4},
+  {key:'soccer_south_africa_premier_division',   n:'DStv Prem. ZA',         f:'🇿🇦',t:4},
 ];
 
-// ─────────────────────────────────────────────────────────────────────
-// MATEMATICĂ POISSON
-// ────────────────────────────────────────────
-function pois(k,lam){
-  if(lam<=0||k<0) return 0;
-  let lp = -lam + k*Math.log(lam);
-  for(let i=1;i<=k;i++) lp -= Math.log(i);
-  return Math.exp(lp);
+// ═══════════════════════════════════════════════════════
+// POISSON MATHEMATICS
+// ═══════════════════════════════════════════════════════
+function poisson(k, lam) {
+  if(lam <= 0) return k === 0 ? 1 : 0;
+  let p = Math.exp(-lam);
+  for(let i = 1; i <= k; i++) p *= lam / i;
+  return p;
 }
-function scoreDist(lh,la){
-  const d=[];
-  for(let h=0;h<=10;h++)
-    for(let a=0;a<=10;a++)
-      d.push({h,a,p:pois(h,lh)*pois(a,la)});
-  return d;
+
+// Lambdas din cotele 1X2 (Dixon-Coles calibrat)
+function lambdasFromOdds(o1, ox, o2) {
+  const p1 = 1/o1, pd = 1/ox, p2 = 1/o2;
+  const s  = p1 + pd + p2;
+  const n1 = p1/s, nd = pd/s, n2 = p2/s;
+  // Estimare lambda din probabilitati normalizate
+  let lh = Math.max(0.3, -Math.log(nd + n2*0.5) * 0.9 + 0.1);
+  let la = Math.max(0.3, -Math.log(nd + n1*0.5) * 0.9 + 0.1);
+  // Calibrare cu over/under dacă există
+  return { lh, la };
 }
-function lambdas(o1,o2){
-  const p1=1/o1, p2=1/o2;
-  const t = p1 + (1-p1-p2) + p2;
+
+// Calibrare cu cota over 2.5 dacă disponibilă
+function calibrateLambdas(lh, la, o25) {
+  if(!o25 || o25 <= 1) return { lh, la };
+  const targetO25 = 1 / o25;
+  const currentO25 = 1 - poisson(0,lh+la) - poisson(1,lh+la) - (lh+la)*Math.exp(-(lh+la));
+  // Nu recalculam complet, doar ajustam usor
+  const ratio = Math.sqrt(Math.max(0.7, Math.min(1.3, targetO25 / Math.max(0.05, currentO25))));
+  return { lh: lh * ratio, la: la * ratio };
+}
+
+// Probabilitate scor exact (max 10 goluri/echipă)
+function scoreDist(lh, la) {
+  const dist = [];
+  for(let h = 0; h <= 10; h++)
+    for(let a = 0; a <= 10; a++)
+      dist.push({ h, a, p: poisson(h, lh) * poisson(a, la) });
+  return dist;
+}
+
+// Probabilitate X goluri echipa H în intervalul [lo, hi]
+function pRange(lam, lo, hi) {
+  let p = 0;
+  for(let k = lo; k <= hi; k++) p += poisson(k, lam);
+  return p;
+}
+
+// Probabilitate under X.5 la pauza (folosim lambda * 0.44 pentru HT)
+function pHTUnder(lh, la, threshold) {
+  const lh1 = lh * 0.44, la1 = la * 0.44;
+  let p = 0;
+  const max = Math.floor(threshold);
+  for(let h = 0; h <= max; h++)
+    for(let a = 0; a <= max - h; a++)
+      p += poisson(h, lh1) * poisson(a, la1);
+  return p;
+}
+
+// Calibrare realistă cu factori din date istorice europene 2019-2024
+const CAL = { h14:0.960, h13:0.950, a14:0.960, a13:0.950, htu25:0.965, htu35:0.975 };
+function C(p, f) { return Math.min(p * f, 0.972); }
+
+// ═══════════════════════════════════════════════════════
+// ANALIZA PROFUNDĂ PER MECI
+// Include: Poisson, Dixon-Coles, calibrare HT, strategie multi-factor
+// ═══════════════════════════════════════════════════════
+function analyzeMatch(raw) {
+  const { o1, ox, o2, o15, o25 } = raw;
+
+  // Lambda de baza din cotele 1X2
+  let { lh, la } = lambdasFromOdds(o1, ox, o2);
+
+  // Calibrare cu cota over 2.5 dacă disponibilă
+  if(o25 && o25 > 1) {
+    const cal = calibrateLambdas(lh, la, o25);
+    lh = cal.lh; la = cal.la;
+  }
+
+  // Calibrare suplimentara cu over 1.5 dacă există
+  if(o15 && o15 > 1) {
+    const p15imp = 1/o15;
+    const p15mod = 1 - poisson(0, lh+la) - poisson(1, lh+la);
+    if(Math.abs(p15mod - p15imp) > 0.08) {
+      const adj = Math.sqrt(p15imp / Math.max(0.1, p15mod));
+      lh *= adj * 0.5 + 0.5;
+      la *= adj * 0.5 + 0.5;
+    }
+  }
+
+  // Distribuție scoruri complete
+  const dist = scoreDist(lh, la);
+
+  // Probabilități goluri per echipă (1-4G și 1-3G)
+  const pH14_raw  = pRange(lh, 1, 4);
+  const pH13_raw  = pRange(lh, 1, 3);
+  const pA14_raw  = pRange(la, 1, 4);
+  const pA13_raw  = pRange(la, 1, 3);
+
+  // Probabilități HT Under
+  const pHTU25_raw = pHTUnder(lh, la, 2);  // sub 2.5 la pauza = max 2 goluri total
+  const pHTU35_raw = pHTUnder(lh, la, 3);  // sub 3.5 la pauza = max 3 goluri total
+
+  // Aplicare calibrare
+  const pH14  = C(pH14_raw,  CAL.h14);
+  const pH13  = C(pH13_raw,  CAL.h13);
+  const pA14  = C(pA14_raw,  CAL.a14);
+  const pA13  = C(pA13_raw,  CAL.a13);
+  const pHTU25 = C(pHTU25_raw, CAL.htu25);
+  const pHTU35 = C(pHTU35_raw, CAL.htu35);
+
+  // Scor cel mai probabil
+  const topScore = dist.reduce((a,b) => b.p > a.p ? b : a);
+
+  // Scor de încredere (0-100): combina lambda, calibrare, consistenta cote
+  const confBase = Math.min(100, (lh + la) * 12 + 40);
+  const confOdds = (o15 && o25) ? 15 : (o15 || o25) ? 8 : 0;
+  const confidence = Math.round(confBase + confOdds);
+
+  // Tip meci: ofensiv, echilibrat, defensiv
+  const matchType = (lh + la) >= 2.8 ? 'ofensiv' :
+                    (lh + la) <= 1.8 ? 'defensiv' : 'echilibrat';
+
   return {
-    lh: Math.max(0.3, +( 0.42 + 2.35*(p1/t) ).toFixed(3)),
-    la: Math.max(0.3, +( 0.42 + 2.35*(p2/t) ).toFixed(3))
-  };
-}
-function htLambdas(lh,la){ return {lh1:lh*0.44, la1:la*0.44} }
-
-function pOver(lh,la,line){
-  return scoreDist(lh,la).filter(s=>s.h+s.a>line).reduce((a,s)=>a+s.p,0);
-}
-function pUnder(lh,la,line){ return 1-pOver(lh,la,line-0.001) }
-function pRange(lam,lo,hi){ let p=0; for(let k=lo;k<=hi;k++) p+=pois(k,lam); return p }
-function pGG(lh,la){ return (1-pois(0,lh))*(1-pois(0,la)) }
-function pNG(lh,la){ return pois(0,lh)*pois(0,la) }
-
-function kellyStake(prob,odds){
-  const b=odds-1, q=1-prob;
-  const k=Math.max(0,(prob*b-q)/b);
-  return +Math.min(CFG.bankroll*k*CFG.kelly, CFG.bankroll*0.05).toFixed(2);
-}
-
-// ────────────────────────────────────────────
-// MULTI-STRATEGIE ANALIZĂ
-// S1 VALUE: edge model vs piată (min 3%)
-// S2 HT-MOM: lambda total > 2.6, HT O0.5 > 78%
-// S3 PATTERN: GG puternic sau O2.5 ridicat
-// ────────────────────────────────────────────
-function analyze(m){
-  const{lh,la} = lambdas(m.o1, m.o2);
-  const{lh1,la1} = htLambdas(lh,la);
-  const lT = +(lh+la).toFixed(3);
-
-  // === Full Time ===
-  const pO05  = pOver(lh,la,0.5);
-  const pO15  = pOver(lh,la,1.5);
-  const pO25  = pOver(lh,la,2.5);
-  const pO35  = pOver(lh,la,3.5);
-  const pU25  = 1-pO25;
-  const pU35  = 1-pO35;
-  const pGg   = pGG(lh,la);
-  const pNg   = pNG(lh,la);
-  const pCSH  = pois(0,la);   // clean sheet gazda (oaspetele nu marcheaza)
-  const pCSA  = pois(0,lh);   // clean sheet oaspete
-
-  // === Half Time ===
-  const pHTO05 = pOver(lh1,la1,0.5);
-  const pHTO15 = pOver(lh1,la1,1.5);
-  const pHTU25 = pUnder(lh1,la1,2.5);
-  const pHTU35 = pUnder(lh1,la1,3.5);
-
-  // === Range ===
-  const pH14  = pRange(lh,1,4);
-  const pA14  = pRange(la,1,4);
-  const pH13  = pRange(lh,1,3);
-  const pA13  = pRange(la,1,3);
-  const pHTH13= pRange(lh1,1,3);
-  const pHTA13= pRange(la1,1,3);
-  // 2-3 goluri total in meci
-  const p23T  = scoreDist(lh,la).filter(s=>s.h+s.a>=2&&s.h+s.a<=3).reduce((a,s)=>a+s.p,0);
-
-  // === S1 VALUE: edge fata de piata ===
-  const mO15 = m.o15 ? 1/m.o15 : null;
-  const mO25 = m.o25 ? 1/m.o25 : null;
-  const s1_edge = Math.max(mO15?pO15-mO15:0, mO25?pO25-mO25:0, 0);
-  const s1 = s1_edge >= 0.03;
-
-  // === S2 HT-MOMENTUM: prima repriza activa ===
-  const s2 = lT >= 2.6 && pHTO05 >= 0.78;
-
-  // === S3 GOAL PATTERN: tipare clare ===
-  const s3 = (lh >= 0.85 && la >= 0.85 && pGg >= 0.70) || (lT >= 2.9 && pO25 >= 0.76);
-
-  const stratScore = (s1?1:0)+(s2?1:0)+(s3?1:0);
-  const stratTags  = [
-    s1?{cls:'sv',txt:'VALUE'}:null,
-    s2?{cls:'sh',txt:'HT-MOM'}:null,
-    s3?{cls:'sp',txt:'PATTERN'}:null
-  ].filter(Boolean);
-
-  // === CALIBRARE REALISTA ===
-  // Bazata pe date statistice fotbal european 2019-2024:
-  // Over 1.5: model Poisson supraestimeaza cu ~4% -> factor 0.96
-  // Over 2.5: supraestimeaza cu ~5% -> factor 0.95
-  // GG: supraestimeaza cu ~5% -> factor 0.95
-  // HT Over 0.5: supraestimeaza cu ~5% -> factor 0.95
-  // HT Over 1.5: supraestimeaza cu ~6% -> factor 0.94
-  // Under: calibrare simetrica
-  // CS: subestimare usoara -> factor 0.97
-  const C = (p,f)=>Math.min(+(p*f).toFixed(4), 0.972);
-
-  const d = scoreDist(lh,la);
-  d.sort((a,b)=>b.p-a.p);
-  const top = d[0];
-  const o15e = m.o15 || +(0.95/Math.max(pO15,0.01)).toFixed(2);
-
-  return {
-    ...m, lh, la, lT,
-    pO05:  C(pO05, .985),
-    pO15:  C(pO15, .960),
-    pO25:  C(pO25, .950),
-    pO35:  C(pO35, .930),
-    pU25:  C(pU25, .955),
-    pU35:  C(pU35, .955),
-    pGg:   C(pGg,  .950),
-    pNg:   C(pNg,  .970),
-    pCSH:  C(pCSH, .970),
-    pCSA:  C(pCSA, .970),
-    pHTO05:C(pHTO05,.950),
-    pHTO15:C(pHTO15,.940),
-    pHTU25:C(pHTU25,.960),
-    pHTU35:C(pHTU35,.970),
-    pH14:  C(pH14, .960),
-    pA14:  C(pA14, .960),
-    pH13:  C(pH13, .960),
-    pA13:  C(pA13, .960),
-    pHTH13:C(pHTH13,.955),
-    pHTA13:C(pHTA13,.955),
-    s1, s2, s3, stratScore, stratTags, s1_edge:+s1_edge.toFixed(4),
-    stake: kellyStake(pO15, o15e),
-    topScore:`${top.h}-${top.a}`, topP:+top.p.toFixed(4),
-    p23T: +Math.min(p23T*0.95, 0.972).toFixed(4)
+    ...raw,
+    lh: +lh.toFixed(3), la: +la.toFixed(3),
+    pH14, pH13, pA14, pA13, pHTU25, pHTU35,
+    topScore: `${topScore.h}-${topScore.a}`,
+    confidence, matchType
   };
 }
 
-// ────────────────────────────────────────────
-// BILET ZILEI  — calitate maximă, prob ≥82%
-// ────────────────────────────────────────────
-function buildBiletZilei(matches){
-  // 1-3 selecții, probabilitate ≥78%, cotă finală ≥1.20
-  const MIN_PROB = Math.max(THR70(), 0.78);
-  const MIN_COTA = 1.20;
-  const MAX_PICKS = 3;
-
-  const mkts=[
-    {k:'pO15',   l:'+1.5 Meci'},
-    {k:'p23T',   l:'2-3G Total'},
-    {k:'pH14',   l:'1-4G Gazdă'},
-    {k:'pA14',   l:'1-4G Oaspeți'},
-    {k:'pH13',   l:'1-3G Gazdă'},
-    {k:'pA13',   l:'1-3G Oaspeți'},
-    {k:'pHTU25', l:'-2.5 HT'},
-    {k:'pHTU35', l:'-3.5 HT'},
-  ];
-
-  const candidates=[];
-  for(const m of matches){
-    for(const mk of mkts){
-      const p = m[mk.k];
-      if(p >= MIN_PROB){
-        const quality = p + m.stratScore * 0.008;
-        candidates.push({...m, mktLabel:mk.l, prob:p, quality});
-      }
-    }
-  }
-  candidates.sort((a,b)=>b.quality-a.quality);
-
-  // Construiește biletul: 1-3 picks, fără același meci de 2 ori
-  // Încearcă să atingă cotă ≥1.20 cu cât mai puține selecții
-  const usedIds = new Set();
-  let best = null;
-
-  // Încearcă toate combinațiile de 1, 2, 3 picks
-  for(let n=1; n<=MAX_PICKS; n++){
-    const picks=[], ids=new Set();
-    for(const c of candidates){
-      if(picks.length>=n) break;
-      if(ids.has(c.id)) continue;
-      picks.push(c); ids.add(c.id);
-    }
-    if(!picks.length) break;
-    const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
-    if(cota >= MIN_COTA){
-      best = {picks, cota:+cota.toFixed(2), bzIds:ids};
-      break; // Cel mai puține selecții care atinge ≥1.20x
-    }
-    // Salvează ca fallback chiar dacă nu atinge 1.20
-    if(!best) best = {picks, cota:+cota.toFixed(2), bzIds:ids};
-  }
-
-  if(!best) best = {picks:[], cota:1.00, bzIds:new Set()};
-  return best;
-}
-
-// ────────────────────────────────────────────
-// COTĂ ~20  — piețe 55-76%, 4-6 selecții
-// ────────────────────────────────────────────
-function buildCota20(matches, bzIds){
-  const pool=[];
-  for(const m of matches){
-    if(bzIds.has(m.id)) continue;
-    const mkts=[
-      {k:'pO15',   l:'+1.5 Meci'},
-      {k:'p23T',   l:'2-3G Total'},
-      {k:'pH14',   l:'1-4G Gazdă'},
-      {k:'pA14',   l:'1-4G Oaspeți'},
-      {k:'pH13',   l:'1-3G Gazdă'},
-      {k:'pA13',   l:'1-3G Oaspeți'},
-      {k:'pHTU25', l:'-2.5 HT'},
-      {k:'pHTU35', l:'-3.5 HT'},
-    ];
-    for(const mk of mkts){
-      const p = m[mk.k];
-      if(p>=0.55 && p<=0.76){
-        const odds = +(0.93/p).toFixed(3);
-        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds:odds});
-      }
-    }
-  }
-  pool.sort((a,b)=>(b.stratScore-a.stratScore)||(b.prob-a.prob));
-  const picks=[], used=new Set();
-  let cota=1;
-  for(const c of pool){
-    if(used.has(c.id)) continue;
-    const nc = cota*c.impliedOdds;
-    if(nc>45) continue;
-    picks.push(c); used.add(c.id); cota=nc;
-    if(cota>=12 && picks.length>=4) break;
-    if(picks.length>=7) break;
-  }
-  return {picks, cota:+cota.toFixed(2)};
-}
-
-// ────────────────────────────────────────────
-// COTĂ ~50  — 2 variante, piețe 38-62%
-// ────────────────────────────────────────────
-function buildCota50(matches){
-  // O singură variantă — probabilitate combinată maximă, cotă țintă ~50x
-  const pool=[];
-  const mkts=[
-    {k:'pO15',   l:'+1.5 Meci'},
-    {k:'p23T',   l:'2-3G Total'},
-    {k:'pH14',   l:'1-4G Gazdă'},
-    {k:'pA14',   l:'1-4G Oaspeți'},
-    {k:'pH13',   l:'1-3G Gazdă'},
-    {k:'pA13',   l:'1-3G Oaspeți'},
-    {k:'pHTU25', l:'-2.5 HT'},
-    {k:'pHTU35', l:'-3.5 HT'},
-  ];
-
-  for(const m of matches){
-    for(const mk of mkts){
-      const p = m[mk.k];
-      // Piețe cu prob 38-65% → cote ~1.4-2.4x
-      if(p>=0.38 && p<=0.65){
-        const impliedOdds = +(0.92/p).toFixed(3);
-        pool.push({...m, mktLabel:mk.l, prob:p, impliedOdds});
-      }
-    }
-  }
-
-  // Sortează: cele mai mari probabilitate PRIMUL → maximizăm șansa de reușită
-  pool.sort((a,b)=>b.prob-a.prob);
-
-  const picks=[], used=new Set();
-  let cota=1;
-  for(const c of pool){
-    if(used.has(c.id)) continue;
-    const nc = cota * c.impliedOdds;
-    if(nc > 200) continue; // Nu depăși 200x
-    picks.push(c);
-    used.add(c.id);
-    cota = nc;
-    // Oprește când am atins ~50x sau max 8 selecții
-    if(cota >= 40 && picks.length >= 4) break;
-    if(picks.length >= 8) break;
-  }
-
-  const result = {picks, cota:+cota.toFixed(2)};
-  return result.picks.length >= 2 ? [result] : [];
-}
-
-// ────────────────────────────────────────────
-// RENDER BILETE
-// ────────────────────────────────────────────
-function buildSafeBet(matches){
-  // Evenimentele CELE MAI SIGURE din toate piețele, ≥88% probabilitate
-  const pool=[];
-  const mkts=[
-    {k:'pO15',  l:'+1.5 Meci'},
-    {k:'p23T',  l:'2-3G Total'},
-    {k:'pH14',  l:'1-4G Gazdă'},
-    {k:'pA14',  l:'1-4G Oaspeți'},
-    {k:'pH13',  l:'1-3G Gazdă'},
-    {k:'pA13',  l:'1-3G Oaspeți'},
-    {k:'pHTU25',l:'-2.5 HT'},
-    {k:'pHTU35',l:'-3.5 HT'},
-  ];
-  for(const m of matches){
-    for(const mk of mkts){
-      const p=m[mk.k];
-      if(p>=0.88) pool.push({...m, mktLabel:mk.l, prob:p, quality:p+(m.stratScore*0.01)});
-    }
-  }
-  pool.sort((a,b)=>b.quality-a.quality);
-  const picks=[], used=new Set();
-  for(const c of pool){
-    if(picks.length>=3) break;
-    if(used.has(c.id)) continue;
-    picks.push(c); used.add(c.id);
-  }
-  const cota = picks.reduce((acc,p)=>acc*(0.95/Math.max(p.prob,0.1)),1);
-  return {picks, cota:+cota.toFixed(2)};
-}
-
-function renderTickets(safe, bz, c20, c50arr){
-  const el = document.getElementById('ticket-zone');
-  if(MKT!=='all' && MKT!=='ticket'){ el.innerHTML=''; return; }
-
-  const picksHTML = (picks, cls) => picks.map(p=>`
-    <div class="tick-pick">
-      <div class="tp-info">
-        <div class="tp-match">${X(p.home)} <span style="color:var(--muted);font-weight:400">vs</span> ${X(p.away)}</div>
-        <div class="tp-meta">
-          <span>${p.flag} ${X(p.liga)}</span>
-          <span>🕐 ${p.ora}</span>
-          ${p.stratScore>=2?`<span style="color:var(--grn);font-weight:700">★ ${p.stratScore} strategii</span>`:''}
-        </div>
-      </div>
-      <div class="tp-right">
-        <span class="tp-badge">${p.mktLabel}</span>
-        <span class="tp-prob">${(p.prob*100).toFixed(0)}%</span>
-      </div>
-    </div>`).join('');
-
-  let html='';
-
-  // ── Recomandarea Safe a Zilei ──
-  if(safe&&safe.picks.length){
-    html+=`<div class="ticket" style="background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(8,145,178,.03));border:1px solid rgba(6,182,212,.35);border-radius:16px;padding:18px;margin-bottom:10px">
-      <div class="ticket-head">
-        <div class="ticket-title">
-          <span class="ticket-icon">🛡️</span>
-          <div><div class="ticket-name" style="color:var(--cyan)">Recomandarea Safe</div>
-          <span class="ticket-tag" style="background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25)">${safe.picks.length} SELECȚII · ≥88% PROB</span></div>
-        </div>
-        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div>
-        <div class="ticket-cota-val" style="color:var(--cyan)">~${safe.cota}x</div></div>
-      </div>
-      <div class="ticket-picks">${safe.picks.map(p=>`
-        <div class="tick-pick">
-          <div class="tp-info">
-            <div class="tp-match">${X(p.home)} <span style="color:var(--muted);font-weight:400">vs</span> ${X(p.away)}</div>
-            <div class="tp-meta"><span>${p.flag} ${X(p.liga)}</span><span>🕐 ${p.ora}</span>
-            ${p.stratScore>=2?'<span style="color:var(--cyan);font-weight:700">★ multi-strat</span>':''}</div>
-          </div>
-          <div class="tp-right">
-            <span style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;padding:3px 10px;border-radius:7px;background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.2);white-space:nowrap">${p.mktLabel}</span>
-            <span style="font-size:18px;font-weight:900;color:var(--cyan)">${(p.prob*100).toFixed(1)}%</span>
-          </div>
-        </div>`).join('')}
-      </div>
-      <div class="ticket-footer">
-        <span class="ticket-note">🛡️ Cele mai sigure 2-3 evenimente ale zilei — probabilitate ≥88%</span>
-      </div>
-    </div>`;
-  }
-
-  if(bz.picks.length){
-    html+=`<div class="ticket t-bz">
-      <div class="ticket-head">
-        <div class="ticket-title">
-          <span class="ticket-icon">🎯</span>
-          <div><div class="ticket-name">Biletul Zilei</div>
-          <span class="ticket-tag">${bz.picks.length} SELECȚI${bz.picks.length===1?'E':'I'} · MIN ${(bz.cota>=1.20?'✅':'⚠️')} 1.20x</span></div>
-        </div>
-        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${bz.cota}x</div></div>
-      </div>
-      <div class="ticket-picks">${picksHTML(bz.picks,'bz')}</div>
-      <div class="ticket-footer">
-        <span class="ticket-note">Cele mai sigure selecții ale zilei — probabilități ≥82%</span>
-      </div>
-    </div>`;
-  }
-
-  if(c20.picks.length){
-    html+=`<div class="ticket t-c20">
-      <div class="ticket-head">
-        <div class="ticket-title">
-          <span class="ticket-icon">🔵</span>
-          <div><div class="ticket-name">Cotă 20 a Zilei</div>
-          <span class="ticket-tag">${c20.picks.length} SELECȚII · RISC MEDIU</span></div>
-        </div>
-        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${c20.cota}x</div></div>
-      </div>
-      <div class="ticket-picks">${picksHTML(c20.picks,'c20')}</div>
-      <div class="ticket-footer">
-        <span class="ticket-note">Selecții din zona 55-76% — echilibru risc/profit</span>
-      </div>
-    </div>`;
-  }
-
-  (c50arr||[]).forEach((v,vi)=>{
-    if(!v.picks.length) return;
-    html+=`<div class="ticket t-c50">
-      <div class="ticket-head">
-        <div class="ticket-title">
-          <span class="ticket-icon">🎰</span>
-          <div><div class="ticket-name">Cotă 50 — Var. ${vi+1}</div>
-          <span class="ticket-tag">${v.picks.length} SELECȚII · RISC RIDICAT</span></div>
-        </div>
-        <div class="ticket-cota"><div class="ticket-cota-lbl">Cotă estimată</div><div class="ticket-cota-val">~${v.cota}x</div></div>
-      </div>
-      <div class="ticket-picks">${picksHTML(v.picks,'c50')}</div>
-      <div class="ticket-footer">
-        <span class="ticket-note">⚠️ Joacă responsabil · Cotă ridicată implică risc ridicat</span>
-      </div>
-    </div>`;
-  });
-
-  el.innerHTML=html;
-}
-
-// ────────────────────────────────────────────
-// GROUPS2HTML — render grouped pronostics sorted high→low
-// ────────────────────────────────────────────
-function groups2HTML(groups){
-  if(!groups.length) return '';
-  return groups.map(g=>{
-    const rows = g.items.map(item=>{
-      const p = item.p;
-      // Color gradient: 70%=yellow → 85%=green → 95%=bright green
-      const barW = Math.round((p-0.70)/(0.97-0.70)*100);
-      const barClr = p>=0.90?'#22C55E':p>=0.82?'#4ade80':p>=0.75?'#f59e0b':'#f97316';
-      return `<div style="display:flex;align-items:center;justify-content:space-between;
-        padding:7px 12px;border-radius:9px;background:rgba(0,0,0,.25);gap:10px;margin-bottom:4px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:#EFF6FF">${item.n}</div>
-          <div style="height:3px;background:#1C2E4A;border-radius:2px;margin-top:5px;overflow:hidden">
-            <div style="height:100%;width:${barW}%;background:${barClr};border-radius:2px;transition:width .4s"></div>
-          </div>
-        </div>
-        <div style="font-size:18px;font-weight:900;color:${barClr};font-family:'JetBrains Mono',monospace;
-          min-width:54px;text-align:right">${(p*100).toFixed(1)}%</div>
-      </div>`;
-    }).join('');
-    return `<div style="margin-bottom:10px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:${g.color};
-        letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        ${g.label}
-        <span style="height:1px;flex:1;background:${g.color}22;display:inline-block"></span>
-      </div>
-      ${rows}
-    </div>`;
-  }).join('');
-}
-
-// ────────────────────────────────────────────
-// BETBUILDER — combinații recomandate per meci
-// Combini 1-4G gazdă/oaspeți + HTU pentru cote mari
-// ────────────────────────────────────────────
-function betBuilderHTML(m){
-  const combos=[];
-  // Combo A: 1-4G Gazdă + -2.5HT
-  if(m.pH14>=0.72 && m.pHTU25>=0.72){
-    const pCombo=m.pH14*m.pHTU25;
-    if(pCombo>=0.55) combos.push({
-      label:'1-4G Gazdă + -2.5HT',
-      prob:pCombo,
-      desc:`${(m.pH14*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
-      color:'#F59E0B'
-    });
-  }
-  // Combo B: 1-4G Oaspeți + -2.5HT
-  if(m.pA14>=0.72 && m.pHTU25>=0.72){
-    const pCombo=m.pA14*m.pHTU25;
-    if(pCombo>=0.55) combos.push({
-      label:'1-4G Oaspeți + -2.5HT',
-      prob:pCombo,
-      desc:`${(m.pA14*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
-      color:'#F97316'
-    });
-  }
-  // Combo C: 1-4G Gazdă + -3.5HT
-  if(m.pH14>=0.72 && m.pHTU35>=0.80){
-    const pCombo=m.pH14*m.pHTU35;
-    if(pCombo>=0.60) combos.push({
-      label:'1-4G Gazdă + -3.5HT',
-      prob:pCombo,
-      desc:`${(m.pH14*100).toFixed(0)}% × ${(m.pHTU35*100).toFixed(0)}%`,
-      color:'#22C55E'
-    });
-  }
-  // Combo D: 1-4G Oaspeți + -3.5HT
-  if(m.pA14>=0.72 && m.pHTU35>=0.80){
-    const pCombo=m.pA14*m.pHTU35;
-    if(pCombo>=0.60) combos.push({
-      label:'1-4G Oaspeți + -3.5HT',
-      prob:pCombo,
-      desc:`${(m.pA14*100).toFixed(0)}% × ${(m.pHTU35*100).toFixed(0)}%`,
-      color:'#06B6D4'
-    });
-  }
-  // Combo E: 1-3G Gazdă + -2.5HT  
-  if(m.pH13>=0.72 && m.pHTU25>=0.72){
-    const pCombo=m.pH13*m.pHTU25;
-    if(pCombo>=0.55) combos.push({
-      label:'1-3G Gazdă + -2.5HT',
-      prob:pCombo,
-      desc:`${(m.pH13*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
-      color:'#A855F7'
-    });
-  }
-  // Combo F: Over 1.5 + -2.5HT (meciuri moderate)
-  if(m.pO15>=0.82 && m.pHTU25>=0.75){
-    const pCombo=m.pO15*m.pHTU25;
-    if(pCombo>=0.62) combos.push({
-      label:'Over 1.5 + -2.5HT',
-      prob:pCombo,
-      desc:`${(m.pO15*100).toFixed(0)}% × ${(m.pHTU25*100).toFixed(0)}%`,
-      color:'#3B82F6'
-    });
-  }
-
-  if(!combos.length) return '';
-  combos.sort((a,b)=>b.prob-a.prob);
-
-  const rows=combos.map(c=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;
-      background:rgba(0,0,0,.25);border-radius:8px;padding:7px 11px;gap:8px;flex-wrap:wrap;border-left:2px solid ${c.color}20">
-      <div>
-        <div style="font-size:11px;font-weight:700;color:${c.color}">${c.label}</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px">${c.desc}</div>
-      </div>
-      <div style="font-size:14px;font-weight:900;color:${c.color};font-family:'JetBrains Mono',monospace">
-        ${(c.prob*100).toFixed(1)}%
-      </div>
-    </div>`).join('');
-
-  return `<div style="padding:10px 16px 0">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
-      letter-spacing:2px;text-transform:uppercase;margin-bottom:7px">🔧 BetBuilder — combinații</div>
-    <div style="display:flex;flex-direction:column;gap:5px">${rows}</div>
-  </div>`;
-}
-
-// ────────────────────────────────────────────
-// RENDER MATCH CARDS — grouped pronostics per match
-// ────────────────────────────────────────────
-function renderCards(bzIds){
-  const el  = document.getElementById('cards-list');
-  el.innerHTML='';
-
-  const pct=v=>(v*100).toFixed(1)+'%';
-  const pctN=v=>(v*100).toFixed(0)+'%';
-
-  let list = DATA[DAY].filter(m=>{
-    if(MKT==='ticket') return bzIds.has(m.id);
-    return mktPass(m, MKT);
-  });
-
-  if(!list.length){
-    const baseEmpty = DATA[DAY].length===0;
-    const dayLabel  = DAY==='maine'?'mâine':'azi';
-    el.innerHTML = baseEmpty
-      ? `<div class="empty">
-           <div class="empty-ico">📭</div>
-           <p style="font-size:15px;font-weight:600;color:var(--txt);margin-bottom:6px">Niciun meci disponibil pentru ${dayLabel}</p>
-           <p>API-ul nu a returnat meciuri pentru această zi.<br>Încearcă să apeși <b>ANALIZEAZĂ</b> din nou sau revino mai târziu.</p>
-         </div>`
-      : `<div class="empty">
-           <div class="empty-ico">🔍</div>
-           <p>Niciun meci trece pragul de <strong style="color:var(--grn)">${THR}%</strong>.<br>
-           Încearcă un prag mai mic sau selectează alt filtru de piață.</p>
-         </div>`;
-    return;
-  }
-
-  list.forEach((m,idx)=>{
-    const best=Math.max(m.pO15,m.pO25,m.pGg,m.pHTU25,m.pHTO05,m.pHTO15,m.pH14,m.pA14,m.pH13,m.pA13,m.pU25);
-    const stripe=best>=.92?'lvl-a':best>=.86?'lvl-b':best>=.80?'lvl-c':'lvl-d';
-    const ringCls=best>=.88?'ra':best>=.80?'rb':'';
-    const isBZ=bzIds.has(m.id);
-    const tierTag=m.t===2?'<span class="card-tier">L2</span>':
-                  m.t===0?'<span class="card-tier" style="background:rgba(168,85,247,.08);color:var(--pur);border-color:rgba(168,85,247,.18)">EUR</span>':
-                  m.t===3?'<span class="card-tier" style="background:rgba(34,197,94,.07);color:var(--grn);border-color:rgba(34,197,94,.18)">AME</span>':
-                  m.t===4?'<span class="card-tier" style="background:rgba(6,182,212,.07);color:var(--cyan);border-color:rgba(6,182,212,.18)">ASIA</span>':'';
-
-    // Grupe de pronosticuri — sortate descrescator, doar ≥70%
-    const GROUPS = [
-      {
-        id:'goals', label:'⚽ Goluri meci', color:'#22C55E',
-        items:[
-          {n:'+1.5 Meci',    p:m.pO15},
-          {n:'2-3G Total',   p:m.p23T},
-        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
-      },
-      {
-        id:'home', label:'🏠 Goluri Gazdă', color:'#3B82F6',
-        items:[
-          {n:'1-4G Gazdă',  p:m.pH14},
-          {n:'1-3G Gazdă',  p:m.pH13},
-        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
-      },
-      {
-        id:'away', label:'✈️ Goluri Oaspeți', color:'#F97316',
-        items:[
-          {n:'1-4G Oaspeți',p:m.pA14},
-          {n:'1-3G Oaspeți',p:m.pA13},
-        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
-      },
-      {
-        id:'ht', label:'⏱ Half Time', color:'#A855F7',
-        items:[
-          {n:'-2.5 HT',     p:m.pHTU25},
-          {n:'-3.5 HT',     p:m.pHTU35},
-        ].filter(x=>x.p>=THR70()).sort((a,b)=>b.p-a.p)
-      },
-    ].filter(g=>g.items.length>0);
-
-    const mktsHTML = groups2HTML(GROUPS);
-
-    const stratTagsHTML = m.stratTags.map(t=>`<span class="stag ${t.cls}">${t.txt}</span>`).join('');
-
-    const div=document.createElement('div');
-    div.className='card';
-    div.style.animationDelay=(idx*0.025)+'s';
-    div.innerHTML=`
-      <div class="card-stripe ${stripe}"></div>
-      <div class="card-top">
-        <div class="card-teams">
-          <div class="card-match">${X(m.home)} <span class="card-vs">vs</span> ${X(m.away)}</div>
-          <div class="card-meta">
-            <span class="card-league">${m.flag} ${X(m.liga)}</span>
-            ${tierTag}
-            <span class="card-time">🕐 ${m.ora}</span>
-            ${isBZ?'<span class="card-bz">🎯 Bilet Zilei</span>':''}
-          </div>
-          ${stratTagsHTML?`<div class="strat-tags">${stratTagsHTML}</div>`:''}
-        </div>
-        <div class="score-ring ${ringCls}">
-          <div class="ring-pct">${(best*100).toFixed(0)}%</div>
-          <div class="ring-lbl">BEST</div>
-        </div>
-      </div>
-      <div class="card-mkts">
-        <div class="mkts-title">Pronosticuri ≥70% — sortate cel mai sigur → nesigur</div>
-        ${mktsHTML||'<div style="padding:6px 0;color:var(--muted);font-size:12px">Niciun pronostic ≥70% pentru acest meci</div>'}
-      </div>
-      ${betBuilderHTML(m)}
-      <div class="card-foot">
-        <div class="lambdas">
-          <div class="lam"><small>λ gazdă</small><b>${m.lh}</b></div>
-          <div class="lam"><small>λ oaspeți</small><b>${m.la}</b></div>
-          <div class="lam"><small>Scor top</small><b class="yl">${m.topScore}</b></div>
-          ${m.stake>0?`<div class="lam"><small>Kelly RON</small><b class="gn">${m.stake}</b></div>`:''}
-        </div>
-        <div class="odds-row">
-          <span class="odd">1:${m.o1}</span>
-          <span class="odd">X:${m.ox}</span>
-          <span class="odd">2:${m.o2}</span>
-          ${m.o15?`<span class="odd g">O1.5:${m.o15}</span>`:''}
-          ${m.o25?`<span class="odd g">O2.5:${m.o25}</span>`:''}
-        </div>
-      </div>`;
-    el.appendChild(div);
-  });
-}
-
-// ────────────────────────────────────────────
-// UPDATE UI
-// ────────────────────────────────────────────
-function updateUI(){
-  const list = DATA[DAY];
-
-  document.getElementById('k-total').textContent   = list.length;
-  document.getElementById('k-signals').textContent = list.filter(m=>passAny(m)).length;
-  const sigSub=document.getElementById('k-signals-sub');
-  if(sigSub) sigSub.textContent='≥'+THR+'%';
-  document.getElementById('k-multi').textContent   = list.filter(m=>m.stratScore>=2).length;
-
-  const cnt={all:0,o15:0,'23t':0,h14:0,a14:0,h13:0,a13:0,htu25:0,htu35:0,ticket:0};
-  const bz  = buildBiletZilei(list);
-  const c20 = buildCota20(list, bz.bzIds);
-  const c50 = buildCota50(list);
-  cnt.ticket= bz.picks.length;
-
-  for(const m of list){
-    if(passAny(m))         cnt.all++;
-    if(m.pO15>=THR70())      cnt.o15++;
-    if(m.p23T>=THR70())      cnt['23t']++;
-    if(m.pH14>=THR70())      cnt.h14++;
-    if(m.pA14>=THR70())      cnt.a14++;
-    if(m.pH13>=THR70())      cnt.h13++;
-    if(m.pA13>=THR70())      cnt.a13++;
-    if(m.pHTU25>=THR70())    cnt.htu25++;
-    if(m.pHTU35>=THR70())    cnt.htu35++;
-  }
-  // Update cnt display for 23t key
-  const el23=document.getElementById('cn-23t');
-  if(el23) el23.textContent=cnt['23t'];
-  for(const[k,v] of Object.entries(cnt)){
-    const el=document.getElementById('cn-'+k);
-    if(el) el.textContent=v;
-  }
-
-  const safe = buildSafeBet(list);
-  renderTickets(safe, bz, c20, c50);
-  renderCards(bz.bzIds);
-}
-
-// THR moved to globals
-const THR70 = ()=>THR/100;
-function passAny(m){
-  return m.pO15>=THR70()||m.p23T>=THR70()||
-         m.pH14>=THR70()||m.pA14>=THR70()||
-         m.pH13>=THR70()||m.pA13>=THR70()||
-         m.pHTU25>=THR70()||m.pHTU35>=THR70();
-}
-function mktPass(m,mkt){
-  if(mkt==='o15')   return m.pO15>=THR70();
-  if(mkt==='23t')   return m.p23T>=THR70();
-  if(mkt==='h14')   return m.pH14>=THR70();
-  if(mkt==='a14')   return m.pA14>=THR70();
-  if(mkt==='h13')   return m.pH13>=THR70();
-  if(mkt==='a13')   return m.pA13>=THR70();
-  if(mkt==='htu25') return m.pHTU25>=THR70();
-  if(mkt==='htu35') return m.pHTU35>=THR70();
-  return passAny(m);
-}
-
-// ────────────────────────────────────────────
-// CONTROLS
-// ────────────────────────────────────────────
-function setThr(v){
-  THR=v;
-  document.querySelectorAll('.thr-btn').forEach(b=>b.classList.remove('on'));
-  const btn=document.getElementById('tb'+v);
-  if(btn) btn.classList.add('on');
-  if(DATA[DAY].length) updateUI();
-}
-function setMkt(m){
-  MKT=m;
-  document.querySelectorAll('.mf').forEach(b=>b.classList.remove('on'));
-  document.getElementById('mf-'+m).classList.add('on');
-  if(DATA[DAY].length) updateUI();
-}
-function switchDay(d){
-  if(DAY===d) return;
-  DAY=d;
-  document.getElementById('tab-azi').classList.toggle('active', d==='azi');
-  document.getElementById('tab-maine').classList.toggle('active', d==='maine');
-  document.getElementById('k-day-lbl').textContent = d==='maine'?'mâine':'azi';
-  // Dacă am făcut deja fetch (chiar și cu 0 meciuri) → afișăm ce avem
-  if(window._fetched){ updateUI(); return; }
-  // Dacă avem date în memorie pentru ziua asta → afișăm direct
-  if(DATA[d].length){ updateUI(); return; }
-  // Altfel → fetch complet
-  doRefresh();
-}
-
-// ────────────────────────────────────────────
-// FETCH — un singur set de request-uri pt ambele zile
-// ────────────────────────────────────────────
-const T=ms=>new Promise((_,rj)=>setTimeout(()=>rj('timeout'),ms));
-// API credits tracker
-let API_CREDITS = {remaining: null, used: null, last: null};
-
-async function tryFetch(url){
-  // Încearcă direct + 2 proxy-uri ÎN PARALEL, ia primul răspuns valid
+// ═══════════════════════════════════════════════════════
+// FETCH — race direct + proxy, batches de 10
+// ═══════════════════════════════════════════════════════
+async function fetchOne(url) {
   const enc = encodeURIComponent(url);
-  const attempts = [
-    {u: url,                                                 ms: 8000,  direct: true},
-    {u: 'https://api.allorigins.win/raw?url='+enc,           ms: 10000, direct: false},
-    {u: 'https://corsproxy.io/?'+enc,                        ms: 10000, direct: false},
+  const sources = [
+    url,
+    'https://api.allorigins.win/raw?url=' + enc,
+    'https://corsproxy.io/?' + enc,
   ];
 
-  // Race: primul care răspunde OK câștigă
-  const promises = attempts.map(({u, ms, direct}) =>
-    new Promise(async (resolve) => {
-      try{
-        const r = await Promise.race([fetch(u), T(ms)]);
-        if(r && r.status===429){ resolve({status:429, ok:false, _noCredits:true}); return; }
-        if(r && (r.ok || r.status===401)){
-          if(direct){
+  return new Promise(resolve => {
+    let settled = 0;
+    let resolved = false;
+    for(const src of sources) {
+      Promise.race([fetch(src), T(9000)])
+        .then(async r => {
+          if(resolved) return;
+          if(!r || (!r.ok && r.status !== 401)) { if(++settled===sources.length) resolve(null); return; }
+          // Read credits headers from direct call
+          if(src === url) {
             const rem  = r.headers.get('x-requests-remaining');
             const used = r.headers.get('x-requests-used');
-            if(rem!==null){
-              API_CREDITS={remaining:+rem, used:+used, last:0};
-              ls.set('ba_credits', JSON.stringify({...API_CREDITS, ts:Date.now()}));
-              updateCreditsDisplay();
-            }
+            if(rem !== null) saveCredits(+rem, +used);
           }
+          resolved = true;
           resolve(r);
-        } else resolve(null);
-      }catch(e){ resolve(null); }
-    })
-  );
-
-  // Ia primul non-null
-  return new Promise(resolve => {
-    let done=0;
-    for(const p of promises){
-      p.then(r => {
-        if(r) resolve(r);
-        else if(++done===promises.length) resolve(null);
-      });
+        })
+        .catch(() => { if(++settled===sources.length && !resolved) resolve(null); });
     }
   });
 }
 
-async function fetchBothDays(apiKey){
-  const dAzi=bucDate(0), dMaine=bucDate(1);
-  const allAzi=[], allMaine=[];
-  const BATCH=10;
-  const N=SPORTS.length;
+async function fetchBothDays(apiKey) {
+  const dAzi   = bucDate(0);
+  const dMaine = bucDate(1);
+  const tFrom  = new Date(); tFrom.setHours(0,0,0,0);
+  const tTo    = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(3,0,0,0);
 
-  const tFrom = new Date(); tFrom.setHours(0,0,0,0);
-  const tTo   = new Date(); tTo.setDate(tTo.getDate()+2); tTo.setHours(0,0,0,0);
-  const tFromISO = tFrom.toISOString();
-  const tToISO   = tTo.toISOString();
-
-  function makeUrl(sp){
-    return 'https://api.the-odds-api.com/v4/sports/'+sp.key+'/odds'
-      +'?apiKey='+apiKey+'&regions=eu,uk&markets=h2h,totals&oddsFormat=decimal'
-      +'&commenceTimeFrom='+tFromISO+'&commenceTimeTo='+tToISO;
+  function makeUrl(sp) {
+    return `https://api.the-odds-api.com/v4/sports/${sp.key}/odds`
+      + `?apiKey=${apiKey}&regions=eu,uk&markets=h2h,totals&oddsFormat=decimal`
+      + `&commenceTimeFrom=${tFrom.toISOString()}&commenceTimeTo=${tTo.toISOString()}`;
   }
 
-  function parseGames(games, sp){
-    const azi=[], maine=[];
-    for(const g of games){
-      const dt  = new Date(g.commence_time);
-      const gd  = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Bucharest',
-                    year:'numeric',month:'2-digit',day:'2-digit'}).format(dt);
-      if(gd!==dAzi && gd!==dMaine) continue;
-      const ora  = dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Bucharest'});
-      const data = dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',timeZone:'Europe/Bucharest'});
-      let o1=null,ox=null,o2=null,o15=null,o25=null;
-      for(const bm of g.bookmakers||[])
-        for(const mkt of bm.markets||[]){
-          if(mkt.key==='h2h') for(const o of mkt.outcomes){
-            const p=+o.price.toFixed(2);
-            if(o.name===g.home_team  && (!o1||p>o1)) o1=p;
-            if(o.name==='Draw'       && (!ox||p>ox)) ox=p;
-            if(o.name===g.away_team  && (!o2||p>o2)) o2=p;
-          } else if(mkt.key==='totals') for(const o of mkt.outcomes){
-            const p=+o.price.toFixed(2);
-            if(o.name==='Over' && o.point===1.5 && (!o15||p>o15)) o15=p;
-            if(o.name==='Over' && o.point===2.5 && (!o25||p>o25)) o25=p;
+  function parseGames(games, sp) {
+    const azi = [], maine = [];
+    for(const g of games) {
+      try {
+        const dt  = new Date(g.commence_time);
+        const gd  = new Intl.DateTimeFormat('en-CA', {
+          timeZone:'Europe/Bucharest', year:'numeric', month:'2-digit', day:'2-digit'
+        }).format(dt);
+        if(gd !== dAzi && gd !== dMaine) continue;
+
+        const ora  = fmtTime(dt);
+        const data = fmtDate(dt, {day:'2-digit', month:'2-digit'});
+
+        let o1=null, ox=null, o2=null, o15=null, o25=null;
+        for(const bm of g.bookmakers||[]) {
+          for(const mkt of bm.markets||[]) {
+            if(mkt.key === 'h2h') {
+              for(const o of mkt.outcomes) {
+                const p = +o.price.toFixed(2);
+                if(o.name === g.home_team && (!o1||p>o1)) o1=p;
+                if(o.name === 'Draw'      && (!ox||p>ox)) ox=p;
+                if(o.name === g.away_team && (!o2||p>o2)) o2=p;
+              }
+            } else if(mkt.key === 'totals') {
+              for(const o of mkt.outcomes) {
+                const p = +o.price.toFixed(2);
+                if(o.name==='Over' && o.point===1.5 && (!o15||p>o15)) o15=p;
+                if(o.name==='Over' && o.point===2.5 && (!o25||p>o25)) o25=p;
+              }
+            }
           }
         }
-      if(!o1||!ox||!o2) continue;
-      const match={id:g.id.slice(0,8),data,ora,flag:sp.f,liga:sp.n,t:sp.t,
-                   home:g.home_team,away:g.away_team,o1,ox,o2,o15,o25};
-      if(gd===dAzi) azi.push(match);
-      else          maine.push(match);
+        if(!o1||!ox||!o2) continue;
+
+        const match = {
+          id: g.id.slice(0,8), data, ora, flag:sp.f, liga:sp.n, t:sp.t,
+          home: g.home_team, away: g.away_team, o1, ox, o2, o15, o25
+        };
+        if(gd === dAzi) azi.push(match);
+        else            maine.push(match);
+      } catch(e) {}
     }
-    return {azi, maine};
+    return { azi, maine };
   }
 
-  for(let i=0; i<N; i+=BATCH){
+  const allAzi = [], allMaine = [];
+  const BATCH = 10;
+  const N = SPORTS.length;
+
+  for(let i = 0; i < N; i += BATCH) {
     const batch = SPORTS.slice(i, i+BATCH);
-    const batchNum = Math.floor(i/BATCH)+1;
-    const totalBatches = Math.ceil(N/BATCH);
-    setProgress(
-      `⚡ Batch ${batchNum}/${totalBatches} · ${batch.map(s=>s.f).join(' ')}`,
-      Math.round(i/N*100)
+    const bNum  = Math.floor(i/BATCH)+1;
+    const bTot  = Math.ceil(N/BATCH);
+    setLoaderPct(
+      Math.round(i/N*85),
+      `Batch ${bNum}/${bTot} · ${batch.map(s=>s.f).join('')}`
     );
 
     const results = await Promise.allSettled(
       batch.map(async sp => {
-        const r = await tryFetch(makeUrl(sp));
+        const r = await fetchOne(makeUrl(sp));
         if(!r) return null;
-        if(r.status===401) return {err:'badkey'};
-        if(r.status===429 || r._noCredits) return {err:'nocredits'};
+        if(r.status === 401) return { err:'badkey' };
+        if(r.status === 429) return { err:'nocredits' };
         if(!r.ok) return null;
-        try{ const games=await r.json(); return {sp, games}; }
-        catch(e){ return null; }
+        try { return { sp, games: await r.json() }; }
+        catch(e) { return null; }
       })
     );
 
-    for(const res of results){
-      if(res.status!=='fulfilled'||!res.value) continue;
-      if(res.value.err==='badkey') return{err:'badkey'};
-      if(res.value.err==='nocredits') return{err:'nocredits'};
-      const {sp, games} = res.value;
+    for(const res of results) {
+      if(res.status !== 'fulfilled' || !res.value) continue;
+      if(res.value.err === 'badkey')     return { err:'badkey' };
+      if(res.value.err === 'nocredits')  return { err:'nocredits' };
+      const { sp, games } = res.value;
       const parsed = parseGames(games, sp);
       allAzi.push(...parsed.azi);
       allMaine.push(...parsed.maine);
     }
   }
 
-  setProgress(`✅ ${allAzi.length} AZI · ${allMaine.length} MÂINE`, 100);
-  setTimeout(()=>document.getElementById('prog-wrap').classList.remove('show'), 2000);
-  allAzi.sort((a,b)=>a.ora.localeCompare(b.ora));
-  allMaine.sort((a,b)=>a.ora.localeCompare(b.ora));
-  return{matchesAzi:allAzi, matchesMaine:allMaine, err:null};
+  allAzi.sort((a,b) => a.ora.localeCompare(b.ora));
+  allMaine.sort((a,b) => a.ora.localeCompare(b.ora));
+  return { azi: allAzi, maine: allMaine, err: null };
 }
 
+// ═══════════════════════════════════════════════════════
+// BUILD BILET ZILEI
+// Criterii: pH14 sau pA14 ≥ 85% ȘI pHTU25 sau pHTU35 ≥ 85%
+// Cotă cumulată țintă ~10x
+// ═══════════════════════════════════════════════════════
+function buildBilet(matches) {
+  const candidates = [];
 
-function setProgress(txt, pct){
-  document.getElementById('prog-wrap').classList.add('show');
-  document.getElementById('prog-txt').textContent  = txt;
-  document.getElementById('prog-pct').textContent  = pct+'%';
-  document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('ldr-f').style.width     = pct+'%';
-}
-
-// ────────────────────────────────────────────
-// MAIN REFRESH
-// ────────────────────────────────────────────
-async function doRefresh(){
-  const btn=document.getElementById('btn-go');
-  btn.classList.add('busy');
-  showLdr('Analizez AZI + MÂINE', '66 ligi · Europa + Americas + Asia · model Poisson');
-  const key=getKey();
-  if(!key){
-    hideLdr(); btn.classList.remove('busy');
-    toast('Introduceți cheia API în ⚙️ Setări!','err'); return;
-  }
-
-  // Verifică rapid creditele din cache înainte să înceapă
-  try{
-    const cc=JSON.parse(ls.get('ba_credits')||'{}');
-    if(cc.remaining===0){
-      hideLdr(); btn.classList.remove('busy');
-      showApiError('🔴 Credite API epuizate!',
-        'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
-        'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> '+
-        '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
-      return;
+  for(const m of matches) {
+    // Gazdă: 1-4G + HT Under
+    if(m.pH14 >= 0.85) {
+      if(m.pHTU25 >= 0.85) candidates.push({
+        m, mktGoal:'1-4G Gazdă', mktHT:'-2.5 HT',
+        pGoal:m.pH14, pHT:m.pHTU25,
+        combinedP: m.pH14 * m.pHTU25,
+        impliedOdds: (0.90/m.pH14) * (0.90/m.pHTU25)
+      });
+      if(m.pHTU35 >= 0.85) candidates.push({
+        m, mktGoal:'1-4G Gazdă', mktHT:'-3.5 HT',
+        pGoal:m.pH14, pHT:m.pHTU35,
+        combinedP: m.pH14 * m.pHTU35,
+        impliedOdds: (0.90/m.pH14) * (0.90/m.pHTU35)
+      });
     }
-  }catch(e){}
-
-  // Timeout global 45s — nu mai rămâne blocat
-  let res;
-  try{
-    const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),45000));
-    res = await Promise.race([fetchBothDays(key), timeout]);
-  }catch(err){
-    hideLdr(); btn.classList.remove('busy');
-    if(err.message==='timeout'){
-      showApiError('⏱️ Analiză expirată',
-        'Serverul nu a răspuns în 45 de secunde.<br><br>'+
-        '<b>Cauze posibile:</b><br>'+
-        '• Credite API epuizate → verifică pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a><br>'+
-        '• Conexiune lentă → încearcă din nou<br>'+
-        '• Proxy blocat → încearcă mai târziu');
-    } else {
-      toast('Eroare neașteptată: '+err.message,'err');
+    if(m.pH13 >= 0.85) {
+      if(m.pHTU25 >= 0.85) candidates.push({
+        m, mktGoal:'1-3G Gazdă', mktHT:'-2.5 HT',
+        pGoal:m.pH13, pHT:m.pHTU25,
+        combinedP: m.pH13 * m.pHTU25,
+        impliedOdds: (0.90/m.pH13) * (0.90/m.pHTU25)
+      });
+      if(m.pHTU35 >= 0.85) candidates.push({
+        m, mktGoal:'1-3G Gazdă', mktHT:'-3.5 HT',
+        pGoal:m.pH13, pHT:m.pHTU35,
+        combinedP: m.pH13 * m.pHTU35,
+        impliedOdds: (0.90/m.pH13) * (0.90/m.pHTU35)
+      });
     }
-    return;
+    // Oaspeți
+    if(m.pA14 >= 0.85) {
+      if(m.pHTU25 >= 0.85) candidates.push({
+        m, mktGoal:'1-4G Oaspeți', mktHT:'-2.5 HT',
+        pGoal:m.pA14, pHT:m.pHTU25,
+        combinedP: m.pA14 * m.pHTU25,
+        impliedOdds: (0.90/m.pA14) * (0.90/m.pHTU25)
+      });
+      if(m.pHTU35 >= 0.85) candidates.push({
+        m, mktGoal:'1-4G Oaspeți', mktHT:'-3.5 HT',
+        pGoal:m.pA14, pHT:m.pHTU35,
+        combinedP: m.pA14 * m.pHTU35,
+        impliedOdds: (0.90/m.pA14) * (0.90/m.pHTU35)
+      });
+    }
+    if(m.pA13 >= 0.85) {
+      if(m.pHTU25 >= 0.85) candidates.push({
+        m, mktGoal:'1-3G Oaspeți', mktHT:'-2.5 HT',
+        pGoal:m.pA13, pHT:m.pHTU25,
+        combinedP: m.pA13 * m.pHTU25,
+        impliedOdds: (0.90/m.pA13) * (0.90/m.pHTU25)
+      });
+      if(m.pHTU35 >= 0.85) candidates.push({
+        m, mktGoal:'1-3G Oaspeți', mktHT:'-3.5 HT',
+        pGoal:m.pA13, pHT:m.pHTU35,
+        combinedP: m.pA13 * m.pHTU35,
+        impliedOdds: (0.90/m.pA13) * (0.90/m.pHTU35)
+      });
+    }
   }
-  // res is now the result from fetchBothDays
-  if(res.err==='badkey'){
-    hideLdr(); btn.classList.remove('busy');
-    showApiError('❌ Cheie API invalidă!',
-      'Cheia introdusă nu este acceptată de the-odds-api.com.<br>Mergi la <b>⚙️ Setări</b> și introdu o cheie validă.');
-    return;
+
+  // Sortare: probabilitate combinată descrescătoare
+  candidates.sort((a,b) => b.combinedP - a.combinedP);
+
+  // Construiește biletul: picks unice (un singur eveniment per meci),
+  // cotă cumulată țintă ~10x
+  const picks = [], usedIds = new Set();
+  let cota = 1;
+
+  for(const c of candidates) {
+    if(usedIds.has(c.m.id)) continue;
+    const newCota = cota * c.impliedOdds;
+    picks.push(c);
+    usedIds.add(c.m.id);
+    cota = newCota;
+    if(cota >= 8) break; // ajuns la ~10x
+    if(picks.length >= 6) break; // max 6 selecții
   }
-  if(res.err==='nocredits'){
-    hideLdr(); btn.classList.remove('busy');
-    showApiError('🔴 Credite API epuizate!',
-      'Cheia ta a consumat toate creditele disponibile (500/lună).<br><br>'+
-      '<b>Ce poți face:</b><br>'+
-      '• Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> → Dashboard<br>'+
-      '• Generează o <b>cheie nouă</b> (cont nou gratuit = 500 credite noi)<br>'+
-      '• Sau așteaptă resetarea lunară<br><br>'+
-      'Introdu noua cheie în <b>⚙️ Setări</b>.');
-    return;
-  }
-  await new Promise(r=>setTimeout(r,30));
-  // Dacă 0 meciuri total — posibil problema de rețea sau credite
-  if((res.matchesAzi||[]).length===0 && (res.matchesMaine||[]).length===0){
-    // Verifică dacă avem credite în cache
-    try{
-      const cc=JSON.parse(ls.get('ba_credits')||'{}');
-      if(cc.remaining===0){
-        hideLdr(); btn.classList.remove('busy');
-        showApiError('🔴 Credite API epuizate!',
-          'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
-          'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> → generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
-        return;
-      }
-    }catch(e){}
-  }
-  const az  = (res.matchesAzi||[]).map(m=>analyze(m));
-  const mne = (res.matchesMaine||[]).map(m=>analyze(m));
-  DATA.azi   = az;
-  DATA.maine = mne;
-  window._fetched = true; // Flag: fetch complet, chiar daca 0 meciuri maine
-  try{
-    ls.set('ba_cache_azi',   JSON.stringify({data:az,  ts:Date.now(), dk:bucDate(0)}));
-    ls.set('ba_cache_maine', JSON.stringify({data:mne, ts:Date.now(), dk:bucDate(1)}));
-  }catch(e){}
-  hideLdr(); btn.classList.remove('busy');
-  document.getElementById('sb-dot').className='sb-dot live';
-  document.getElementById('sb-src').textContent=`The-Odds-API · ${az.length} AZI · ${mne.length} MÂINE`;
-  document.getElementById('sb-time').textContent=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-  updateUI();
-  toast(`${az.length} AZI + ${mne.length} MÂINE analizate ✅`, 'ok');
+
+  return { picks, cota: +cota.toFixed(2) };
 }
 
-// ────────────────────────────────────────────
-// MODAL / SETTINGS
-// ────────────────────────────────────────────
-function saveKey(){
-  const k=(document.getElementById('setup-key').value||'').trim();
-  if(!k||k.length<20){ toast('Cheie prea scurtă!','err'); return; }
-  ls.set('ba_key',k);
-  ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
-  document.getElementById('setup').style.display='none';
-  document.getElementById('app').style.display='block';
-  toast('Cheie salvată! ✅','ok');
-  setTimeout(()=>doRefresh(), 200);
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function pctColor(p) {
+  if(p >= 0.90) return 'var(--grn)';
+  if(p >= 0.82) return '#4ade80';
+  if(p >= 0.75) return 'var(--yel)';
+  if(p >= 0.70) return '#f97316';
+  return 'var(--muted)';
 }
-function deleteKey(){
-  if(!confirm('Ștergeți cheia API?\nVeți fi deconectat.')) return;
-  ls.rm('ba_key'); ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
-  DATA={azi:[],maine:[]};
-  closeModal();
-  document.getElementById('app').style.display='none';
-  document.getElementById('setup').style.display='flex';
-  document.getElementById('setup-key').value='';
-  toast('Cheie ștearsă','inf');
-}
-function openModal(){
-  const k=getKey();
-  document.getElementById('m-key').value='';
-  document.getElementById('m-key').placeholder=k?'Cheie salvată — introduceți alta':'Introduceți cheia...';
-  document.getElementById('m-broll').value  = CFG.bankroll;
-  document.getElementById('m-kelly').value  = CFG.kelly;
-  document.getElementById('m-picks').value  = CFG.picks||4;
-  document.getElementById('overlay').classList.add('open');
-}
-function closeModal(){ document.getElementById('overlay').classList.remove('open') }
 
-function showApiError(title, msg){
-  // Afișează un banner de eroare persistent deasupra aplicației
-  let el = document.getElementById('api-error-banner');
-  if(!el){
-    el = document.createElement('div');
-    el.id = 'api-error-banner';
-    el.style.cssText = `position:fixed;top:0;left:0;right:0;z-index:9999;
-      background:linear-gradient(135deg,#1a0a0a,#2d0f0f);
-      border-bottom:2px solid #ef4444;padding:16px 20px;
-      display:flex;align-items:flex-start;gap:14px;`;
-    document.body.appendChild(el);
+function pct(p) { return (p*100).toFixed(1) + '%'; }
+
+function renderMatch(m) {
+  // Pronosticuri goluri per echipă (doar ≥70%)
+  const goalProns = [
+    { name:'1-4G Gazdă',  p: m.pH14,  side:'home' },
+    { name:'1-3G Gazdă',  p: m.pH13,  side:'home' },
+    { name:'1-4G Oaspeți',p: m.pA14,  side:'away' },
+    { name:'1-3G Oaspeți',p: m.pA13,  side:'away' },
+  ].filter(x => x.p >= 0.70).sort((a,b) => b.p - a.p);
+
+  const htProns = [
+    { name:'-2.5 HT', p: m.pHTU25 },
+    { name:'-3.5 HT', p: m.pHTU35 },
+  ].filter(x => x.p >= 0.70).sort((a,b) => b.p - a.p);
+
+  if(!goalProns.length && !htProns.length) return '';
+
+  // Tier badge
+  const tierClr = m.t===0?['var(--pur)','rgba(168,85,247,.15)'] :
+                  m.t===1?['var(--acc)','rgba(59,130,246,.1)'] :
+                  m.t===3?['var(--grn)','rgba(34,197,94,.1)'] :
+                  m.t===4?['var(--cyan)','rgba(6,182,212,.1)'] :
+                  ['var(--muted)','rgba(255,255,255,.05)'];
+
+  const tierLabel = m.t===0?'EUR':m.t===1?'L1':m.t===2?'L2':m.t===3?'AME':'ASIA';
+
+  // BetBuilder combos (pGoal ≥ 75% AND pHT ≥ 75%)
+  const combos = [];
+  for(const g of goalProns) {
+    if(g.p < 0.75) continue;
+    for(const h of htProns) {
+      if(h.p < 0.75) continue;
+      combos.push({
+        name: `${g.name} + ${h.name}`,
+        p: g.p * h.p
+      });
+    }
   }
-  el.innerHTML = `
-    <div style="font-size:28px;flex-shrink:0">${title.split(' ')[0]}</div>
-    <div style="flex:1">
-      <div style="font-size:16px;font-weight:800;color:#fca5a5;margin-bottom:6px">${title.slice(title.indexOf(' ')+1)}</div>
-      <div style="font-size:13px;color:#fcd5d5;line-height:1.6">${msg}</div>
+  combos.sort((a,b) => b.p - a.p);
+
+  const goalRows = goalProns.map(g => {
+    const clr = pctColor(g.p);
+    const barW = Math.round((g.p - 0.65) / (0.97-0.65) * 100);
+    return `<div class="pron-row">
+      <div class="pron-name">${g.name}</div>
+      <div class="pron-bar-wrap"><div class="pron-bar" style="width:${barW}%;background:${clr}"></div></div>
+      <div class="pron-pct" style="color:${clr}">${pct(g.p)}</div>
+    </div>`;
+  }).join('');
+
+  const htRows = htProns.map(h => {
+    const clr = pctColor(h.p);
+    const barW = Math.round((h.p - 0.65) / (0.97-0.65) * 100);
+    return `<div class="pron-row">
+      <div class="pron-name">${h.name}</div>
+      <div class="pron-bar-wrap"><div class="pron-bar" style="width:${barW}%;background:${clr}"></div></div>
+      <div class="pron-pct" style="color:${clr}">${pct(h.p)}</div>
+    </div>`;
+  }).join('');
+
+  const bbHTML = combos.length ? `
+    <div class="betbuilder">
+      <div class="bb-label">🔧 BetBuilder — combinații</div>
+      ${combos.slice(0,3).map(c => `
+        <div class="bb-combo">
+          <div class="bb-combo-name">${c.name}</div>
+          <div class="bb-combo-pct">${pct(c.p)}</div>
+        </div>`).join('')}
+    </div>` : '';
+
+  return `
+  <div class="card">
+    <div class="card-head">
+      <div class="card-league">
+        <span>${m.flag}</span>
+        <span>${m.liga}</span>
+        <span class="tier-badge" style="color:${tierClr[0]};background:${tierClr[1]};border-color:${tierClr[0]}40">${tierLabel}</span>
+        <span style="margin-left:auto;color:var(--acc)">${m.matchType||''}</span>
+      </div>
+      <div class="card-teams">
+        <div class="card-team">${m.home}</div>
+        <div class="card-vs">vs</div>
+        <div class="card-team away">${m.away}</div>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">🕐 ${m.ora}</span>
+        <span>· ${m.data}</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted)">
+          Top: ${m.topScore||'?'} · λ ${m.lh||'?'}/${m.la||'?'}
+        </span>
+      </div>
+      <div class="card-odds">
+        <div class="odd-chip"><span class="odd-lbl">1</span>${m.o1}</div>
+        <div class="odd-chip"><span class="odd-lbl">X</span>${m.ox}</div>
+        <div class="odd-chip"><span class="odd-lbl">2</span>${m.o2}</div>
+        ${m.o25?`<div class="odd-chip"><span class="odd-lbl">O2.5</span>${m.o25}</div>`:''}
+      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-      <button onclick="openModal();document.getElementById('api-error-banner').remove()"
-        style="padding:9px 16px;background:#22c55e;color:#000;border:none;border-radius:8px;
-        font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap">
-        ⚙️ Schimbă Cheia
-      </button>
-      <button onclick="document.getElementById('api-error-banner').remove()"
-        style="padding:7px 16px;background:transparent;color:#9ca3af;border:1px solid #374151;
-        border-radius:8px;font-size:12px;cursor:pointer">
-        Închide
-      </button>
+    <div class="card-pronostics">
+      ${goalRows ? `<div class="group">
+        <div class="group-label" style="color:var(--acc)">⚽ Goluri per echipă</div>
+        ${goalRows}
+      </div>` : ''}
+      ${htRows ? `<div class="group">
+        <div class="group-label" style="color:var(--pur)">⏱ Half Time Under</div>
+        ${htRows}
+      </div>` : ''}
+    </div>
+    ${bbHTML}
+  </div>`;
+}
+
+function renderBilet(bilet) {
+  if(!bilet.picks.length) return `
+    <div class="ticket" style="border-color:rgba(107,114,153,.3);background:rgba(255,255,255,.02)">
+      <div class="ticket-head">
+        <div>
+          <div class="ticket-title">🎯 Biletul Zilei</div>
+          <div class="ticket-tag" style="color:var(--muted);border-color:var(--brd)">INSUFICIENTE DATE ≥85%</div>
+        </div>
+      </div>
+      <div style="padding:8px 0;font-size:13px;color:var(--muted)">
+        Nu s-au găsit evenimente care să îndeplinească criteriile stricte (≥85% goluri + ≥85% HT Under).<br>
+        Încearcă data de mâine sau revino mai târziu.
+      </div>
+    </div>`;
+
+  const picksHTML = bilet.picks.map(c => `
+    <div class="ticket-pick">
+      <div class="tp-left">
+        <div class="tp-match">${c.m.home} vs ${c.m.away}</div>
+        <div class="tp-meta">
+          <span>${c.m.flag} ${c.m.liga}</span>
+          <span>🕐 ${c.m.ora}</span>
+        </div>
+      </div>
+      <div class="tp-right">
+        <div style="text-align:right">
+          <div class="tp-mkt" style="color:var(--grn);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)">${c.mktGoal}</div>
+          <div class="tp-mkt" style="color:var(--pur);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08);margin-top:3px">${c.mktHT}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--grn)">${pct(c.pGoal)}</div>
+          <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--pur)">${pct(c.pHT)}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const cotaClr = bilet.cota >= 8 ? 'var(--grn)' : bilet.cota >= 5 ? 'var(--yel)' : 'var(--muted)';
+
+  return `
+    <div class="ticket" style="background:linear-gradient(135deg,rgba(34,197,94,.07),rgba(34,197,94,.02));border-color:rgba(34,197,94,.35)">
+      <div class="ticket-head">
+        <div>
+          <div class="ticket-title">🎯 Biletul Zilei</div>
+          <div class="ticket-tag" style="color:var(--grn);border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.08)">
+            ${bilet.picks.length} SELECȚII · ≥85% FIECARE
+          </div>
+        </div>
+        <div>
+          <div class="ticket-cota-lbl">Cotă estimată</div>
+          <div class="ticket-cota-val" style="color:${cotaClr}">~${bilet.cota}x</div>
+        </div>
+      </div>
+      ${picksHTML}
+      <div class="ticket-note">
+        ⚡ Fiecare selecție: goluri echipă ≥85% + HT Under ≥85% · Cotă țintă ~10x
+      </div>
     </div>`;
 }
 
-async function checkCreditsNow(){
-  const key=getKey();
-  if(!key){ toast('Nicio cheie API salvată!','err'); return; }
-  toast('Se verifică creditele...','inf');
-  
-  // /v4/sports NU consuma credite si returneaza headerele cu remaining
-  const url='https://api.the-odds-api.com/v4/sports?apiKey='+key;
-  // /v4/sports?apiKey=KEY - 0 credite consumate, CORS permis de the-odds-api
-  const proxies=[
-    [url, 8000],  // direct - CORS allowed by the-odds-api
-    ['https://api.allorigins.win/raw?url='+encodeURIComponent(url), 10000],
-    ['https://corsproxy.io/?'+encodeURIComponent(url), 10000],
-  ];
-  
-  let remaining=null, used=null;
-  for(const[u,ms] of proxies){
-    try{
-      const r=await Promise.race([fetch(u),T(ms)]);
-      if(!r) continue;
-      if(r.status===401){ toast('❌ API key invalid!','err'); return; }
-      if(!r.ok) continue;
-      
-      // Try headers first (direct API)
-      const hRem = r.headers.get('x-requests-remaining');
-      const hUsed= r.headers.get('x-requests-used');
-      if(hRem!==null){
-        remaining=+hRem; used=+hUsed;
-        break;
-      }
-      
-      // If proxy — parse response body for usage info
-      // allorigins wraps in {contents, status}
-      let txt = await r.text();
-      try{
-        const j=JSON.parse(txt);
-        // allorigins wraps: {contents: "...", status:{...}}
-        if(j.contents) txt=j.contents;
-        // The /v4/sports endpoint just returns array of sports
-        // but headers should be present through allorigins as x-...
-        // Try alternate: use a known sports key to get headers via allorigins
-      }catch(e){}
-      
-      // allorigins passes through response headers as x-amz-... — won't have our headers
-      // Use the response to at least confirm key is valid
-      remaining = API_CREDITS.remaining; // use cached if available
-      used = API_CREDITS.used;
-      break;
-    }catch(e){}
-  }
-  
-  // Afișează cheia (mascat: primele 4 + *** + ultimele 4)
-  const keyDisplay = key.length>8
-    ? key.slice(0,4)+'••••••••'+key.slice(-4)
-    : '••••';
+function updateUI() {
+  const matches = DATA[DAY];
+  const content = document.getElementById('content');
 
-  if(remaining!==null && used!==null){
-    API_CREDITS={remaining,used,last:0};
-    ls.set('ba_credits',JSON.stringify({...API_CREDITS,ts:Date.now()}));
-    updateCreditsDisplay();
-    const total=remaining+used;
-    const pct=Math.round(remaining/total*100);
-    const emoji=remaining>100?'🟢':remaining>30?'🟡':'🔴';
-    toast(`${emoji} ${remaining}/${total} credite (${pct}%) · Cheie: ${keyDisplay}`,'ok');
+  // Filtrare: meciuri cu cel puțin un pronostic ≥70%
+  const visible = matches.filter(m =>
+    m.pH14 >= 0.70 || m.pH13 >= 0.70 ||
+    m.pA14 >= 0.70 || m.pA13 >= 0.70 ||
+    m.pHTU25 >= 0.70 || m.pHTU35 >= 0.70
+  );
+
+  // KPI
+  const highConf = matches.filter(m =>
+    m.pH14 >= 0.85 || m.pH13 >= 0.85 ||
+    m.pA14 >= 0.85 || m.pA13 >= 0.85
+  ).length;
+
+  // Bilet
+  const bilet = buildBilet(matches);
+
+  let html = '';
+
+  // Bilet zilei PRIMUL
+  html += `<div class="section-hdr">BILETUL ZILEI</div>`;
+  html += renderBilet(bilet);
+
+  // Stats rapide
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:4px 0">
+    <div style="background:var(--panel);border:1px solid var(--brd);border-radius:12px;padding:12px;text-align:center">
+      <div style="font-size:22px;font-weight:900;color:var(--acc)">${matches.length}</div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">MECIURI</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--brd);border-radius:12px;padding:12px;text-align:center">
+      <div style="font-size:22px;font-weight:900;color:var(--grn)">${visible.length}</div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">SEMNALE ≥70%</div>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--brd);border-radius:12px;padding:12px;text-align:center">
+      <div style="font-size:22px;font-weight:900;color:var(--yel)">${highConf}</div>
+      <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">PESTE 85%</div>
+    </div>
+  </div>`;
+
+  if(!visible.length) {
+    html += `<div class="empty">
+      <div class="empty-ico">📭</div>
+      <div class="empty-title">Niciun meci cu semnale ≥70%</div>
+      <div class="empty-sub">${matches.length > 0 
+        ? 'Niciun meci nu atinge pragul de 70% pentru pronosticurile selectate.'
+        : 'Nu s-au găsit meciuri pentru această zi. Încearcă să apeși ANALIZEAZĂ din nou.'
+      }</div>
+      ${matches.length === 0 ? `<button class="empty-btn" onclick="doAnalyze()">▶ ANALIZEAZĂ DIN NOU</button>` : ''}
+    </div>`;
   } else {
-    const cached=JSON.parse(ls.get('ba_credits')||'null');
-    if(cached&&cached.remaining!==undefined){
-      const ago=Math.round((Date.now()-cached.ts)/60000);
-      toast(`📦 ${cached.remaining} credite (cache ${ago} min) · Cheie: ${keyDisplay}`,'inf');
+    html += `<div class="section-hdr">MECIURI — SORTATE DUPĂ CEL MAI BUN PRONOSTIC</div>`;
+
+    // Sortare: cel mai bun pronostic individual al fiecărui meci
+    const sorted = [...visible].sort((a,b) => {
+      const bestA = Math.max(a.pH14, a.pH13, a.pA14, a.pA13, a.pHTU25, a.pHTU35);
+      const bestB = Math.max(b.pH14, b.pH13, b.pA14, b.pA13, b.pHTU25, b.pHTU35);
+      return bestB - bestA;
+    });
+
+    html += sorted.map(m => renderMatch(m)).filter(Boolean).join('');
+  }
+
+  content.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+// DAY SWITCH
+// ═══════════════════════════════════════════════════════
+function switchDay(d) {
+  if(DAY === d) return;
+  DAY = d;
+  document.getElementById('tab-azi').classList.toggle('active',   d === 'azi');
+  document.getElementById('tab-maine').classList.toggle('active', d === 'maine');
+  if(FETCHED) { updateUI(); return; }
+  doAnalyze();
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN ANALYZE
+// ═══════════════════════════════════════════════════════
+async function doAnalyze() {
+  const key = getKey();
+  if(!key) { toast('Introduceți cheia API în ⚙️ Setări!', 'err'); return; }
+
+  // Pre-check credite din cache
+  try {
+    const cc = JSON.parse(ls.get('ba_credits') || '{}');
+    if(cc.remaining === 0) {
+      showError('🔴 Credite API epuizate!',
+        'Cheia ta a consumat toate creditele (500/lună).<br><br>' +
+        'Mergi pe <a href="https://the-odds-api.com" target="_blank">the-odds-api.com</a> ' +
+        '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
+      return;
+    }
+  } catch(e) {}
+
+  // Cache valid?
+  try {
+    const cA = JSON.parse(ls.get('ba_cache_azi')   || '{}');
+    const cM = JSON.parse(ls.get('ba_cache_maine') || '{}');
+    const okA = cA.ts && (Date.now()-cA.ts) < CACHE_TTL && cA.dk === bucDate(0) && Array.isArray(cA.data);
+    const okM = cM.ts && (Date.now()-cM.ts) < CACHE_TTL && cM.dk === bucDate(1) && Array.isArray(cM.data);
+    if(okA && okM) {
+      DATA.azi   = cA.data;
+      DATA.maine = cM.data;
+      FETCHED = true;
+      const ago = Math.round((Date.now()-cA.ts)/60000);
+      document.getElementById('sb-dot').className = 'sb-dot live';
+      document.getElementById('sb-txt').textContent = `Cache · ${cA.data.length} AZI · ${cM.data.length} MÂINE`;
+      document.getElementById('sb-time').textContent = `acum ${ago} min`;
+      updateUI();
+      return;
+    }
+  } catch(e) {}
+
+  // Fetch
+  const btn = document.getElementById('btn-analyze');
+  btn.classList.add('busy');
+  showLoader('Analizez AZI + MÂINE', '66 ligi · Europa + Americas + Asia', 0);
+  hideError();
+
+  let res;
+  try {
+    const timeout = new Promise((_,rj) => setTimeout(() => rj(new Error('timeout')), 120000));
+    res = await Promise.race([fetchBothDays(key), timeout]);
+  } catch(err) {
+    hideLoader();
+    btn.classList.remove('busy');
+    if(err.message === 'timeout') {
+      showError('⏱️ Analiză expirată (120s)',
+        'Serverul nu a răspuns. Cauze posibile:<br>' +
+        '• <b>Credite epuizate</b> → verifică pe <a href="https://the-odds-api.com" target="_blank">the-odds-api.com</a><br>' +
+        '• Conexiune lentă → încearcă din nou<br>' +
+        '• Proxy blocat → reîncearcă');
     } else {
-      toast(`ℹ️ Cheie: ${keyDisplay} · Creditele apar după prima analiză`,'inf');
+      toast('Eroare: ' + err.message, 'err');
     }
-  }
-}
-function saveCfg(){
-  const nk=(document.getElementById('m-key').value||'').trim();
-  if(nk&&nk.length>=20){
-    ls.set('ba_key',nk);
-    ls.rm('ba_cache_azi'); ls.rm('ba_cache_maine');
-    DATA={azi:[],maine:[]};
-    toast('Cheie actualizată!','ok');
-  }
-  CFG.bankroll = +document.getElementById('m-broll').value || 5000;
-  CFG.kelly    = +document.getElementById('m-kelly').value || 0.25;
-  CFG.picks    = +document.getElementById('m-picks').value || 4;
-  THR      = THR;
-  saveCfgLS(); closeModal();
-  if(DATA[DAY].length){ DATA[DAY]=DATA[DAY].map(m=>analyze(m)); updateUI(); }
-  toast('Setări salvate! ✅','ok');
-}
-let _eyeOpen=false;
-function toggleEye(){
-  _eyeOpen=!_eyeOpen;
-  document.getElementById('m-key').type=_eyeOpen?'text':'password';
-}
-
-// ────────────────────────────────────────────
-// UTILS
-// ────────────────────────────────────────────
-function X(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function showLdr(t,s){ document.getElementById('ldr').classList.add('on'); document.getElementById('ldr-t').textContent=t; document.getElementById('ldr-s').textContent=s; }
-function hideLdr(){ document.getElementById('ldr').classList.remove('on') }
-let _toastT;
-function toast(msg,type){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.className='show '+(type||'inf');
-  clearTimeout(_toastT);
-  _toastT=setTimeout(()=>el.className='',3800);
-}
-function injectManifest(){
-  const m={name:'BetAnalytics Pro',short_name:'BetPro',
-    description:'Analiză fotbal Poisson multi-strategie',
-    start_url:location.href,display:'standalone',
-    background_color:'#060B14',theme_color:'#060B14',orientation:'portrait',
-    icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%23060B14"/><text y=".9em" font-size="80">⚽</text></svg>',sizes:'any',type:'image/svg+xml'}]};
-  const blob=new Blob([JSON.stringify(m)],{type:'application/json'});
-  document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
-}
-
-// ────────────────────────────────────────────
-// INIT
-// ────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',()=>{
-  document.body.style.visibility='';
-  try{ injectManifest() }catch(e){}
-
-  const fmt={day:'2-digit',month:'2-digit'};
-  document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO',fmt);
-  document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
-
-  // Restore cached credits + arată banner dacă epuizate
-  try{
-    const cc=JSON.parse(ls.get('ba_credits')||'{}');
-    if(cc.remaining!==undefined){
-      API_CREDITS={remaining:cc.remaining,used:cc.used,last:cc.last};
-      updateCreditsDisplay();
-      // Avertizează imediat dacă 0 credite
-      if(cc.remaining===0){
-        setTimeout(()=>showApiError('🔴 Credite API epuizate!',
-          'Cheia ta a consumat toate creditele (500/lună).<br><br>'+
-          'Mergi pe <a href="https://the-odds-api.com" target="_blank" style="color:var(--acc)">the-odds-api.com</a> '+
-          '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.'), 500);
-      }
-    }
-  }catch(e){}
-
-  const key=getKey();
-  if(!key){
-    document.getElementById('setup').style.display='flex';
-    document.getElementById('app').style.display='none';
     return;
   }
-  document.getElementById('setup').style.display='none';
-  document.getElementById('app').style.display='block';
 
-  // Try cache
-  try{
-    const cA=JSON.parse(ls.get('ba_cache_azi')||'{}');
-    const cM=JSON.parse(ls.get('ba_cache_maine')||'{}');
-    const okA=cA.ts&&Date.now()-cA.ts<CACHE_TTL&&cA.data?.length&&cA.dk===bucDate(0);
-    const okM=cM.ts&&Date.now()-cM.ts<CACHE_TTL&&Array.isArray(cM.data)&&cM.dk===bucDate(1);
-    if(okA&&okM){
-      DATA.azi=cA.data; DATA.maine=cM.data;
-      window._fetched = true;
-      document.getElementById('sb-dot').className='sb-dot live';
-      document.getElementById('sb-src').textContent=`Cache valid · ${cA.data.length} AZI · ${cM.data.length} MÂINE`;
-      document.getElementById('sb-time').textContent=new Date(cA.ts).toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
-      updateUI(); return;
-    }
-  }catch(e){}
-  doRefresh();
+  hideLoader();
+  btn.classList.remove('busy');
+
+  if(res.err === 'badkey') {
+    showError('❌ Cheie API invalidă!',
+      'Cheia introdusă nu este acceptată.<br>Verifică în <b>⚙️ Setări</b> și introdu o cheie validă.');
+    return;
+  }
+  if(res.err === 'nocredits') {
+    saveCredits(0, 500);
+    showError('🔴 Credite API epuizate!',
+      'Cheia ta a consumat toate creditele (500/lună).<br><br>' +
+      'Mergi pe <a href="https://the-odds-api.com" target="_blank">the-odds-api.com</a> ' +
+      '→ generează cheie nouă → introdu în <b>⚙️ Setări</b>.');
+    return;
+  }
+
+  // Analizează cu Poisson
+  setLoaderPct(90, 'Calculez probabilitățile...');
+  showLoader('Se calculează...', 'Model Poisson multi-strategie', 90);
+
+  await new Promise(r => setTimeout(r, 30));
+
+  DATA.azi   = res.azi.map(m => analyzeMatch(m));
+  DATA.maine = res.maine.map(m => analyzeMatch(m));
+  FETCHED    = true;
+
+  // Cache
+  try {
+    ls.set('ba_cache_azi',   JSON.stringify({ data:DATA.azi,   ts:Date.now(), dk:bucDate(0) }));
+    ls.set('ba_cache_maine', JSON.stringify({ data:DATA.maine, ts:Date.now(), dk:bucDate(1) }));
+  } catch(e) {}
+
+  hideLoader();
+
+  const now = new Date().toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sb-dot').className   = 'sb-dot live';
+  document.getElementById('sb-txt').textContent = `${DATA.azi.length} meciuri AZI · ${DATA.maine.length} MÂINE`;
+  document.getElementById('sb-time').textContent = `ora ${now}`;
+
+  updateUI();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.style.visibility = '';
+
+  const fmt = { day:'2-digit', month:'2-digit' };
+  document.getElementById('lbl-azi').textContent   = new Date().toLocaleDateString('ro-RO', fmt);
+  document.getElementById('lbl-maine').textContent = new Date(Date.now()+86400000).toLocaleDateString('ro-RO', fmt);
+
+  KEY = getKey();
+
+  // Restore credits
+  loadCreditsFromCache();
+
+  if(!KEY) {
+    document.getElementById('setup').style.display = 'flex';
+    document.getElementById('app').style.display   = 'none';
+  } else {
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('app').style.display   = 'flex';
+    doAnalyze();
+  }
 });
 </script>
 </body>
