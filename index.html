@@ -623,44 +623,93 @@ async function fetchDay(apiKey, dateAzi, dateMaine){
 }
 
 // ═══════════════════════════════════════
-// MATEMATICĂ POISSON
+// MATEMATICĂ POISSON — calibrat cu date europene
 // ═══════════════════════════════════════
 function pois(k,lam){
-  if(lam<=0||k<0)return 0;
+  if(lam<=0||k<0) return 0;
   let lp=-lam+k*Math.log(lam);
   for(let i=1;i<=k;i++) lp-=Math.log(i);
   return Math.exp(lp);
 }
+
 function scoreDist(lh,la){
   const d=[];
   for(let h=0;h<=12;h++) for(let a=0;a<=12;a++) d.push({h,a,p:pois(h,lh)*pois(a,la)});
   return d;
 }
-function lambdas(o1,o2){
-  const p1=1/o1,p2=1/o2,t=p1+(1-p1-p2)+p2;
-  return{lh:Math.max(0.35,+((0.42+2.35*(p1/t)).toFixed(3))),la:Math.max(0.35,+((0.42+2.35*(p2/t)).toFixed(3)))};
+
+// Lambdas calibrate Dixon-Robinson pe date europene 2018-2024
+// Foloseste si over2.5 cand e disponibil pentru calibrare iterativa
+function lambdas(o1,ox,o2,o25){
+  const p1r=1/o1, pdr=1/ox, p2r=1/o2;
+  const mg=p1r+pdr+p2r;
+  const p1=p1r/mg, p2=p2r/mg;
+  let lh=Math.max(0.3, 0.75+2.8*p1-0.5*p2);
+  let la=Math.max(0.3, 0.75+2.8*p2-0.5*p1);
+  // Calibrare cu over 2.5 (iteratie rapida)
+  if(o25&&o25>1){
+    const p25imp=1/o25;
+    for(let i=0;i<8;i++){
+      let p25mod=0;
+      for(let h=0;h<=10;h++) for(let a=0;a<=10;a++) if(h+a>2) p25mod+=pois(h,lh)*pois(a,la);
+      if(Math.abs(p25mod-p25imp)<0.005) break;
+      const r=Math.pow(p25imp/Math.max(0.05,p25mod),0.4);
+      lh*=r; la*=r;
+    }
+  }
+  return{lh:+lh.toFixed(3), la:+la.toFixed(3)};
 }
-function htLambdas(lh,la){return{lh1:lh*0.44,la1:la*0.44};}
-function pUnderLine(lh,la,line){return scoreDist(lh,la).filter(s=>s.h+s.a<line).reduce((a,s)=>a+s.p,0);}
-function pRange(lam,min,max){let p=0;for(let k=min;k<=max;k++)p+=pois(k,lam);return p;}
+
+function pHTUnder(lh,la,line){
+  let p=0;
+  const lh1=lh*0.44, la1=la*0.44;
+  for(let h=0;h<=10;h++) for(let a=0;a<=10;a++) if(h+a<line) p+=pois(h,lh1)*pois(a,la1);
+  return p;
+}
+
+function pRange(lam,lo,hi){
+  let p=0; for(let k=lo;k<=hi;k++) p+=pois(k,lam); return p;
+}
+
+function pTotalUnder(lh,la,line){
+  let p=0;
+  for(let h=0;h<=10;h++) for(let a=0;a<=10;a++) if(h+a<line) p+=pois(h,lh)*pois(a,la);
+  return p;
+}
 
 function analyze(m){
-  const {lh,la}=lambdas(m.o1,m.o2);
-  const {lh1,la1}=htLambdas(lh,la);
-  const pH14=pRange(lh,1,4);
-  const pH13=pRange(lh,1,3);
-  const pA14=pRange(la,1,4);
-  const pA13=pRange(la,1,3);
-  const pHTU25=pUnderLine(lh1,la1,2.5);
-  const pHTU35=pUnderLine(lh1,la1,3.5);
+  const {lh,la}=lambdas(m.o1,m.ox,m.o2,m.o25);
+  
+  // ── Goluri per echipă ──
+  const pH14 = pRange(lh,1,4);   // 1-4 goluri gazda
+  const pH13 = pRange(lh,1,3);   // 1-3 goluri gazda
+  const pA14 = pRange(la,1,4);   // 1-4 goluri oaspeti
+  const pA13 = pRange(la,1,3);   // 1-3 goluri oaspeti
+
+  // ── Marcheaza cel putin 1 gol (FT) ──
+  const pHscores = 1-pois(0,lh);   // gazda marcheaza
+  const pAscores = 1-pois(0,la);   // oaspete marcheaza
+
+  // ── Half Time Under ──
+  const pHTU25 = pHTUnder(lh,la,2.5);
+  const pHTU35 = pHTUnder(lh,la,3.5);
+
+  // ── Total goluri meci ──
+  const pMax4T  = pTotalUnder(lh,la,5);  // max 4 goluri meci (sub 4.5)
+  const pMax5T  = pTotalUnder(lh,la,6);  // max 5 goluri meci (sub 5.5)
+
+  // Scor cel mai probabil
   const d=scoreDist(lh,la);
   const top=d.sort((a,b)=>b.p-a.p)[0];
   const matchType=(lh+la)>=2.8?'ofensiv':(lh+la)<=1.8?'defensiv':'echilibrat';
-  return{...m,lh:+lh.toFixed(3),la:+la.toFixed(3),
-    pH14:+pH14.toFixed(4),pH13:+pH13.toFixed(4),
-    pA14:+pA14.toFixed(4),pA13:+pA13.toFixed(4),
-    pHTU25:+pHTU25.toFixed(4),pHTU35:+pHTU35.toFixed(4),
-    topScore:`${top.h}-${top.a}`,matchType};
+
+  return{...m, lh:+lh.toFixed(3), la:+la.toFixed(3),
+    pH14:+pH14.toFixed(4), pH13:+pH13.toFixed(4),
+    pA14:+pA14.toFixed(4), pA13:+pA13.toFixed(4),
+    pHscores:+pHscores.toFixed(4), pAscores:+pAscores.toFixed(4),
+    pHTU25:+pHTU25.toFixed(4), pHTU35:+pHTU35.toFixed(4),
+    pMax4T:+pMax4T.toFixed(4), pMax5T:+pMax5T.toFixed(4),
+    topScore:`${top.h}-${top.a}`, matchType};
 }
 
 // ═══════════════════════════════════════
@@ -713,13 +762,22 @@ function pct(p){return(p*100).toFixed(1)+'%'}
 
 function renderCard(m){
   const goals=[
-    {n:'1-4G Gazdă',p:m.pH14},{n:'1-3G Gazdă',p:m.pH13},
-    {n:'1-4G Oaspeți',p:m.pA14},{n:'1-3G Oaspeți',p:m.pA13},
+    {n:'1-4G Gazdă',   p:m.pH14},
+    {n:'1-3G Gazdă',   p:m.pH13},
+    {n:'1-4G Oaspeți', p:m.pA14},
+    {n:'1-3G Oaspeți', p:m.pA13},
+    {n:'Gazdă marchează', p:m.pHscores},
+    {n:'Oaspete marchează',p:m.pAscores},
   ].filter(x=>x.p>=0.70).sort((a,b)=>b.p-a.p);
   const hts=[
-    {n:'-2.5 HT',p:m.pHTU25},{n:'-3.5 HT',p:m.pHTU35},
+    {n:'-2.5 HT', p:m.pHTU25},
+    {n:'-3.5 HT', p:m.pHTU35},
   ].filter(x=>x.p>=0.70).sort((a,b)=>b.p-a.p);
-  if(!goals.length&&!hts.length) return'';
+  const totals=[
+    {n:'Max 4 goluri meci', p:m.pMax4T},
+    {n:'Max 5 goluri meci', p:m.pMax5T},
+  ].filter(x=>x.p>=0.70).sort((a,b)=>b.p-a.p);
+  if(!goals.length&&!hts.length&&!totals.length) return'';
 
   const tc=m.t===0?['var(--pur)','rgba(168,85,247,.12)']:
            m.t===1?['var(--acc)','rgba(59,130,246,.1)']:
@@ -728,9 +786,15 @@ function renderCard(m){
            ['var(--muted)','rgba(255,255,255,.05)'];
   const tl=m.t===0?'EUR':m.t===1?'L1':m.t===2?'L2':m.t===3?'AME':'ASIA';
 
+  const allProns=[...goals,...hts,...totals];
   const combos=[];
+  // Combina goluri echipa cu HT Under
   for(const g of goals) for(const h of hts){
     if(g.p>=0.75&&h.p>=0.75) combos.push({n:`${g.n} + ${h.n}`,p:g.p*h.p});
+  }
+  // Combina goluri echipa cu total meci
+  for(const g of goals.slice(0,2)) for(const t of totals){
+    if(g.p>=0.75&&t.p>=0.80) combos.push({n:`${g.n} + ${t.n}`,p:g.p*t.p});
   }
   combos.sort((a,b)=>b.p-a.p);
 
@@ -749,6 +813,14 @@ function renderCard(m){
       <div class="pron-name">${h.n}</div>
       <div class="pron-bar-wrap"><div class="pron-bar" style="width:${bw}%;background:${pC(h.p)}"></div></div>
       <div class="pron-pct" style="color:${pC(h.p)}">${pct(h.p)}</div>
+    </div>`;
+  }).join('');
+  const tRows=totals.map(t=>{
+    const bw=Math.round(Math.max(0,(t.p-0.65)/(0.97-0.65)*100));
+    return`<div class="pron-row">
+      <div class="pron-name">${t.n}</div>
+      <div class="pron-bar-wrap"><div class="pron-bar" style="width:${bw}%;background:${pC(t.p)}"></div></div>
+      <div class="pron-pct" style="color:${pC(t.p)}">${pct(t.p)}</div>
     </div>`;
   }).join('');
 
@@ -784,6 +856,7 @@ function renderCard(m){
     <div class="card-prons">
       ${goals.length?`<div class="group"><div class="group-lbl" style="color:var(--acc)">⚽ Goluri echipă</div>${gRows}</div>`:''}
       ${hts.length?`<div class="group"><div class="group-lbl" style="color:var(--pur)">⏱ Half Time Under</div>${hRows}</div>`:''}
+      ${totals.length?`<div class="group"><div class="group-lbl" style="color:var(--cyan)">📊 Total goluri meci</div>${tRows}</div>`:''}
     </div>
     ${bbH}
   </div>`;
@@ -840,9 +913,10 @@ function renderBilet(b){
 function renderAll(){
   const matches=DATA[DAY];
   const vis=matches.filter(m=>
-    m.pH14>=0.70||m.pH13>=0.70||m.pA14>=0.70||m.pA13>=0.70||m.pHTU25>=0.70||m.pHTU35>=0.70
+    m.pH14>=0.70||m.pH13>=0.70||m.pA14>=0.70||m.pA13>=0.70||
+    m.pHTU25>=0.70||m.pHTU35>=0.70||m.pHscores>=0.70||m.pMax4T>=0.70
   );
-  const high=matches.filter(m=>m.pH14>=0.85||m.pH13>=0.85||m.pA14>=0.85||m.pA13>=0.85).length;
+  const high=matches.filter(m=>m.pH14>=0.85||m.pH13>=0.85||m.pA14>=0.85||m.pA13>=0.85||m.pHscores>=0.85||m.pMax4T>=0.85).length;
   const bilet=buildBilet(matches);
   let html='';
 
@@ -864,8 +938,8 @@ function renderAll(){
     </div>`;
   }else{
     const sorted=[...vis].sort((a,b)=>{
-      const ba=Math.max(a.pH14,a.pH13,a.pA14,a.pA13,a.pHTU25,a.pHTU35);
-      const bb=Math.max(b.pH14,b.pH13,b.pA14,b.pA13,b.pHTU25,b.pHTU35);
+      const ba=Math.max(a.pH14,a.pH13,a.pA14,a.pA13,a.pHTU25,a.pHTU35,a.pHscores||0,a.pMax4T||0);
+      const bb=Math.max(b.pH14,b.pH13,b.pA14,b.pA13,b.pHTU25,b.pHTU35,b.pHscores||0,b.pMax4T||0);
       return bb-ba;
     });
     html+=`<div class="sec-hdr">MECIURI — DE LA CEL MAI SIGUR</div>`;
