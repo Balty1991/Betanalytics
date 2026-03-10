@@ -269,7 +269,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:10
       <div class="brand-ico">⚽</div>
       <div>
         <div class="brand-name">Bet<span>Analytics</span> Pro</div>
-        <div class="brand-tag">POISSON · AI SCORE · 66 LIGI · v9</div>
+        <div class="brand-tag">POISSON · AI SCORE · 66 LIGI · v7</div>
       </div>
     </div>
     <div class="topbar-r">
@@ -339,9 +339,6 @@ body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:10
       <button class="mbtn danger" onclick="clearKey()">🗑 Șterge</button>
     </div>
     <div class="modal-row">
-      <button class="mbtn" onclick="clearCache()" style="color:var(--cyan);border-color:rgba(6,182,212,.3)">🗑️ Șterge Cache & Reîncarcă</button>
-    </div>
-    <div class="modal-row">
       <button class="mbtn primary" onclick="modalSave()">💾 Salvează & Analizează</button>
     </div>
     <div style="margin-top:16px">
@@ -395,32 +392,6 @@ function modalSave(){
   toast('Cheie salvată ✅','ok');
   setTimeout(()=>doRefresh(),300);
 }
-function clearCache(){
-  // Sterge toate versiunile de cache cunoscute
-  ['v1','v2','v3','v4','v5','v6','v7','v8','v9'].forEach(v=>{
-    lsRm('ba_cache_azi_'+v);
-    lsRm('ba_cache_maine_'+v);
-  });
-  lsRm('ba_cache_azi');
-  lsRm('ba_cache_maine');
-  DATA={azi:[],maine:[]}; FETCHED=false;
-  closeModal();
-  toast('Cache șters ✅ Se reîncarcă...','ok');
-  setTimeout(()=>doRefresh(),400);
-}
-
-function purgeOldCaches(){
-  // La fiecare pornire, sterge cache-urile versiunilor vechi (pastreaza doar versiunea curenta)
-  ['v1','v2','v3','v4','v5','v6','v7','v8'].forEach(v=>{
-    if(v!==CACHE_VER){
-      lsRm('ba_cache_azi_'+v);
-      lsRm('ba_cache_maine_'+v);
-    }
-  });
-  lsRm('ba_cache_azi');
-  lsRm('ba_cache_maine');
-}
-
 function clearKey(){
   if(!confirm('Ștergi cheia API și datele salvate?')) return;
   lsRm('ba_key');lsRm('ba_cache_azi');lsRm('ba_cache_maine');lsRm('ba_credits');
@@ -442,7 +413,7 @@ function showSetup(){
 // ═══════════════════════════════════════
 let DAY='azi', DATA={azi:[],maine:[]}, FETCHED=false;
 const CACHE_TTL = 6*3600*1000;
-const CACHE_VER = 'v9';
+const CACHE_VER = 'v7';
 
 // ═══════════════════════════════════════
 // DATE
@@ -1209,9 +1180,9 @@ function renderCard(m){
   }).join('');
 
   const bbH=combos.length?`<div class="bb-wrap">
-    <div class="bb-title">🔧 BetBuilder — Top pronosticuri combinate</div>
+    <div class="bb-title">🔧 BetBuilder Combos — Top pronosticuri combinate</div>
     ${combos.slice(0,4).map(c=>`<div class="bb-row">
-      <div class="bb-name">${c.n} <span style="font-size:9px;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-weight:700;${c.nrsel===3?'background:rgba(168,85,247,.2);color:var(--pur)':'background:rgba(59,130,246,.15);color:var(--acc)'}">${c.nrsel===3?'TRIPLU':'DUBLU'}</span></div>
+      <div class="bb-name">${c.n}${c.nrsel===3?` <span style="font-size:9px;color:var(--pur);font-family:var(--mono)">×3</span>`:''}${c.nrsel===2?` <span style="font-size:9px;color:var(--muted);font-family:var(--mono)">×2</span>`:''}</div>
       <div class="bb-pct">${pct(c.p)}</div>
     </div>`).join('')}
   </div>`:'';
@@ -1511,7 +1482,6 @@ async function doRefresh(){
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
-  purgeOldCaches();
   const fmt={day:'2-digit',month:'2-digit'};
   document.getElementById('lbl-azi').textContent=new Date().toLocaleDateString('ro-RO',fmt);
   document.getElementById('lbl-maine').textContent=new Date(Date.now()+86400000).toLocaleDateString('ro-RO',fmt);
